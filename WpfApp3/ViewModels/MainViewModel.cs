@@ -29,7 +29,7 @@ public partial class MainViewModel : ObservableObject
             new NavItem("📦 Distribution", NavigateDistributionCommand),
             new NavItem("👤 Client Profile", NavigateClientProfileCommand),
             new NavItem("🔐 Validators", NavigateValidatorsCommand),
-            new NavItem("🧑🏻‍💻 Users", NavigateUsersCommand),
+            new NavItem("🖥️ Users", NavigateUsersCommand),
         };
 
         // Default selection (highlights Dashboard on startup)
@@ -63,6 +63,7 @@ public partial class MainViewModel : ObservableObject
 
     [RelayCommand] private void NavigateUsers()
     {
+        PageTitle = "Users";
         CurrentView = new UsersView();
     }
 
