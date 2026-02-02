@@ -109,6 +109,7 @@
 
         <!-- Horizontal + vertical center for text columns -->
         <Style x:Key="CenteredTextBlockStyle" TargetType="TextBlock">
+            <Setter Property="Padding" Value="10,0"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
         </Style>
     </UserControl.Resources>
@@ -212,9 +213,18 @@
                           Foreground="#2E3A59"
                           ColumnHeaderHeight="42"
                           RowHeight="48"
-                          SelectionMode="Extended">
+                          IsReadOnly="True"
+  CanUserResizeRows="False"
+  CanUserReorderColumns="False"
+  CanUserSortColumns="False"
+IsHitTestVisible="True"
+  SelectionUnit="Cell"
+  SelectionMode="Single"
+    >
 
                     <DataGrid.Resources>
+
+                        <!-- Column headers -->
                         <Style TargetType="DataGridColumnHeader">
                             <Setter Property="Foreground" Value="#6B86D6"/>
                             <Setter Property="FontWeight" Value="SemiBold"/>
@@ -225,11 +235,45 @@
                             <Setter Property="Padding" Value="8,0"/>
                         </Style>
 
+                        <!-- Row: NO hover highlight, NO selection highlight -->
                         <Style TargetType="DataGridRow">
+                            <Setter Property="Background" Value="Transparent"/>
                             <Setter Property="BorderBrush" Value="#EEF2FF"/>
                             <Setter Property="BorderThickness" Value="0,0,0,1"/>
-                            <Setter Property="Background" Value="Transparent"/>
+                            <Setter Property="SnapsToDevicePixels" Value="True"/>
+                            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="DataGridRow">
+                                        <Border Background="Transparent"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}">
+                                            <DataGridCellsPresenter/>
+                                        </Border>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
                         </Style>
+
+                        <!-- Cell: NO hover highlight, NO selection highlight, NO focus border -->
+                        <Style TargetType="DataGridCell">
+                            <Setter Property="Background" Value="Transparent"/>
+                            <Setter Property="BorderThickness" Value="0"/>
+                            <Setter Property="Padding" Value="6,0"/>
+                            <Setter Property="VerticalContentAlignment" Value="Center"/>
+                            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="DataGridCell">
+                                        <Border Background="Transparent"
+                            SnapsToDevicePixels="True">
+                                            <ContentPresenter VerticalAlignment="Center"/>
+                                        </Border>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+
                     </DataGrid.Resources>
 
                     <DataGrid.Columns>
