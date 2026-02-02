@@ -180,12 +180,6 @@
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
 
-            <!-- Title -->
-            <TextBlock Text="Users"
-                       FontSize="32"
-                       FontWeight="Bold"
-                       Foreground="#2E3A59"/>
-
             <!-- Search + buttons + Add -->
             <Grid Grid.Row="1" Margin="0,16,0,10">
                 <Grid.ColumnDefinitions>
