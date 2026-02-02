@@ -16,6 +16,7 @@
 
   <ItemGroup>
     <Folder Include="Assets\" />
+    <Folder Include="Converters\" />
     <Folder Include="Themes\" />
     <Folder Include="Services\" />
   </ItemGroup>

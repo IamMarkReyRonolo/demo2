@@ -54,7 +54,7 @@ namespace WpfApp3.Views.Allotment {
                 return;
             }
             _contentLoaded = true;
-            System.Uri resourceLocater = new System.Uri("/WpfApp3;V1.0.0.0;component/views/allotment/allotmentview.xaml", System.UriKind.Relative);
+            System.Uri resourceLocater = new System.Uri("/WpfApp3;component/views/allotment/allotmentview.xaml", System.UriKind.Relative);
             
             #line 1 "..\..\..\..\..\Views\Allotment\AllotmentView.xaml"
             System.Windows.Application.LoadComponent(this, resourceLocater);

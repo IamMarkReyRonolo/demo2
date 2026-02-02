@@ -31,3 +31,6 @@ C:\Users\MarkRonolo\source\repos\WpfApp3\WpfApp3\obj\Debug\net8.0-windows7.0\ref
 C:\Users\MarkRonolo\source\repos\WpfApp3\WpfApp3\obj\Debug\net8.0-windows7.0\App.baml
 C:\Users\MarkRonolo\source\repos\WpfApp3\WpfApp3\obj\Debug\net8.0-windows7.0\Views\Allotment\AllotmentView.g.cs
 C:\Users\MarkRonolo\source\repos\WpfApp3\WpfApp3\obj\Debug\net8.0-windows7.0\Views\Allotment\AllotmentView.baml
+C:\Users\MarkRonolo\source\repos\WpfApp3\WpfApp3\obj\Debug\net8.0-windows7.0\Views\Users\UsersView.g.cs
+C:\Users\MarkRonolo\source\repos\WpfApp3\WpfApp3\obj\Debug\net8.0-windows7.0\Views\Users\UsersView.baml
+C:\Users\MarkRonolo\source\repos\WpfApp3\WpfApp3\obj\Debug\net8.0-windows7.0\WpfApp3.sourcelink.json

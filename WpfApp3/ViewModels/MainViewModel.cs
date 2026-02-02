@@ -2,8 +2,9 @@
 using CommunityToolkit.Mvvm.Input;
 using System.Collections.ObjectModel;
 using System.Windows.Controls;
-using WpfApp3.Views.Dashboard;
 using WpfApp3.Views.Allotment;
+using WpfApp3.Views.Dashboard;
+using WpfApp3.Views.Users;
 
 namespace WpfApp3.ViewModels;
 
@@ -59,7 +60,11 @@ public partial class MainViewModel : ObservableObject
     [RelayCommand] private void NavigateDistribution() => NavigatePlaceholder("Distribution");
     [RelayCommand] private void NavigateClientProfile() => NavigatePlaceholder("Client Profile");
     [RelayCommand] private void NavigateValidators() => NavigatePlaceholder("Validators");
-    [RelayCommand] private void NavigateUsers() => NavigatePlaceholder("Users");
+
+    [RelayCommand] private void NavigateUsers()
+    {
+        CurrentView = new UsersView();
+    }
 
     private void NavigatePlaceholder(string title)
     {

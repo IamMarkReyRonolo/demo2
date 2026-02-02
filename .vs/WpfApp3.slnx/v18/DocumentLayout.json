@@ -3,20 +3,44 @@
   "WorkspaceRootPath": "C:\\Users\\MarkRonolo\\source\\repos\\WpfApp3\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{74EBC3AB-531E-2275-406A-473CA0F32339}|WpfApp3\\WpfApp3.csproj|c:\\users\\markronolo\\source\\repos\\wpfapp3\\wpfapp3\\wpfapp3.csproj||{04B8AB82-A572-4FEF-95CE-5222444B6B64}|",
-      "RelativeMoniker": "D:0:0:{74EBC3AB-531E-2275-406A-473CA0F32339}|WpfApp3\\WpfApp3.csproj|solutionrelative:wpfapp3\\wpfapp3.csproj||{04B8AB82-A572-4FEF-95CE-5222444B6B64}|"
+      "AbsoluteMoniker": "D:0:0:{74EBC3AB-531E-2275-406A-473CA0F32339}|WpfApp3\\WpfApp3.csproj|c:\\users\\markronolo\\source\\repos\\wpfapp3\\wpfapp3\\views\\users\\usersview.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
+      "RelativeMoniker": "D:0:0:{74EBC3AB-531E-2275-406A-473CA0F32339}|WpfApp3\\WpfApp3.csproj|solutionrelative:wpfapp3\\views\\users\\usersview.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{74EBC3AB-531E-2275-406A-473CA0F32339}|WpfApp3\\WpfApp3.csproj|c:\\users\\markronolo\\source\\repos\\wpfapp3\\wpfapp3\\viewmodels\\allotment\\allotmentviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{74EBC3AB-531E-2275-406A-473CA0F32339}|WpfApp3\\WpfApp3.csproj|solutionrelative:wpfapp3\\viewmodels\\allotment\\allotmentviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{74EBC3AB-531E-2275-406A-473CA0F32339}|WpfApp3\\WpfApp3.csproj|c:\\users\\markronolo\\source\\repos\\wpfapp3\\wpfapp3\\views\\allotment\\equalstoboolconverter.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{74EBC3AB-531E-2275-406A-473CA0F32339}|WpfApp3\\WpfApp3.csproj|solutionrelative:wpfapp3\\views\\allotment\\equalstoboolconverter.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{74EBC3AB-531E-2275-406A-473CA0F32339}|WpfApp3\\WpfApp3.csproj|c:\\users\\markronolo\\source\\repos\\wpfapp3\\wpfapp3\\views\\users\\usersview.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{74EBC3AB-531E-2275-406A-473CA0F32339}|WpfApp3\\WpfApp3.csproj|solutionrelative:wpfapp3\\views\\users\\usersview.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{74EBC3AB-531E-2275-406A-473CA0F32339}|WpfApp3\\WpfApp3.csproj|c:\\users\\markronolo\\source\\repos\\wpfapp3\\wpfapp3\\mainwindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{74EBC3AB-531E-2275-406A-473CA0F32339}|WpfApp3\\WpfApp3.csproj|solutionrelative:wpfapp3\\mainwindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{74EBC3AB-531E-2275-406A-473CA0F32339}|WpfApp3\\WpfApp3.csproj|c:\\users\\markronolo\\source\\repos\\wpfapp3\\wpfapp3\\views\\allotment\\allotmentview.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
       "RelativeMoniker": "D:0:0:{74EBC3AB-531E-2275-406A-473CA0F32339}|WpfApp3\\WpfApp3.csproj|solutionrelative:wpfapp3\\views\\allotment\\allotmentview.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
     },
     {
+      "AbsoluteMoniker": "D:0:0:{74EBC3AB-531E-2275-406A-473CA0F32339}|WpfApp3\\WpfApp3.csproj|c:\\users\\markronolo\\source\\repos\\wpfapp3\\wpfapp3\\viewmodels\\users\\usersviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{74EBC3AB-531E-2275-406A-473CA0F32339}|WpfApp3\\WpfApp3.csproj|solutionrelative:wpfapp3\\viewmodels\\users\\usersviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{74EBC3AB-531E-2275-406A-473CA0F32339}|WpfApp3\\WpfApp3.csproj|c:\\users\\markronolo\\source\\repos\\wpfapp3\\wpfapp3\\viewmodels\\dashboard\\dashboardviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{74EBC3AB-531E-2275-406A-473CA0F32339}|WpfApp3\\WpfApp3.csproj|solutionrelative:wpfapp3\\viewmodels\\dashboard\\dashboardviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{74EBC3AB-531E-2275-406A-473CA0F32339}|WpfApp3\\WpfApp3.csproj|c:\\users\\markronolo\\source\\repos\\wpfapp3\\wpfapp3\\viewmodels\\mainviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{74EBC3AB-531E-2275-406A-473CA0F32339}|WpfApp3\\WpfApp3.csproj|solutionrelative:wpfapp3\\viewmodels\\mainviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{74EBC3AB-531E-2275-406A-473CA0F32339}|WpfApp3\\WpfApp3.csproj|c:\\users\\markronolo\\source\\repos\\wpfapp3\\wpfapp3\\viewmodels\\allotment\\allotmentviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{74EBC3AB-531E-2275-406A-473CA0F32339}|WpfApp3\\WpfApp3.csproj|solutionrelative:wpfapp3\\viewmodels\\allotment\\allotmentviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{74EBC3AB-531E-2275-406A-473CA0F32339}|WpfApp3\\WpfApp3.csproj|c:\\users\\markronolo\\source\\repos\\wpfapp3\\wpfapp3\\models\\userrecord.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{74EBC3AB-531E-2275-406A-473CA0F32339}|WpfApp3\\WpfApp3.csproj|solutionrelative:wpfapp3\\models\\userrecord.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{74EBC3AB-531E-2275-406A-473CA0F32339}|WpfApp3\\WpfApp3.csproj|c:\\users\\markronolo\\source\\repos\\wpfapp3\\wpfapp3\\mainwindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
@@ -30,67 +54,147 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 0,
+          "SelectedChildIndex": 4,
           "Children": [
             {
               "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "WpfApp3",
-              "DocumentMoniker": "C:\\Users\\MarkRonolo\\source\\repos\\WpfApp3\\WpfApp3\\WpfApp3.csproj",
-              "RelativeDocumentMoniker": "WpfApp3\\WpfApp3.csproj",
-              "ToolTip": "C:\\Users\\MarkRonolo\\source\\repos\\WpfApp3\\WpfApp3\\WpfApp3.csproj",
-              "RelativeToolTip": "WpfApp3\\WpfApp3.csproj",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
-              "WhenOpened": "2026-02-02T14:05:24.228Z",
+              "DocumentIndex": 3,
+              "Title": "MainWindow.xaml.cs",
+              "DocumentMoniker": "C:\\Users\\MarkRonolo\\source\\repos\\WpfApp3\\WpfApp3\\MainWindow.xaml.cs",
+              "RelativeDocumentMoniker": "WpfApp3\\MainWindow.xaml.cs",
+              "ToolTip": "C:\\Users\\MarkRonolo\\source\\repos\\WpfApp3\\WpfApp3\\MainWindow.xaml.cs",
+              "RelativeToolTip": "WpfApp3\\MainWindow.xaml.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-02T14:50:38.609Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "EqualsToBoolConverter.cs",
+              "DocumentMoniker": "C:\\Users\\MarkRonolo\\source\\repos\\WpfApp3\\WpfApp3\\Views\\Allotment\\EqualsToBoolConverter.cs",
+              "RelativeDocumentMoniker": "WpfApp3\\Views\\Allotment\\EqualsToBoolConverter.cs",
+              "ToolTip": "C:\\Users\\MarkRonolo\\source\\repos\\WpfApp3\\WpfApp3\\Views\\Allotment\\EqualsToBoolConverter.cs",
+              "RelativeToolTip": "WpfApp3\\Views\\Allotment\\EqualsToBoolConverter.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAgAAABWAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-02T14:42:35.003Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "DashboardViewModel.cs",
+              "DocumentMoniker": "C:\\Users\\MarkRonolo\\source\\repos\\WpfApp3\\WpfApp3\\ViewModels\\Dashboard\\DashboardViewModel.cs",
+              "RelativeDocumentMoniker": "WpfApp3\\ViewModels\\Dashboard\\DashboardViewModel.cs",
+              "ToolTip": "C:\\Users\\MarkRonolo\\source\\repos\\WpfApp3\\WpfApp3\\ViewModels\\Dashboard\\DashboardViewModel.cs",
+              "RelativeToolTip": "WpfApp3\\ViewModels\\Dashboard\\DashboardViewModel.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAABMAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-02T14:40:47.411Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 2,
+              "Title": "UsersView.xaml.cs",
+              "DocumentMoniker": "C:\\Users\\MarkRonolo\\source\\repos\\WpfApp3\\WpfApp3\\Views\\Users\\UsersView.xaml.cs",
+              "RelativeDocumentMoniker": "WpfApp3\\Views\\Users\\UsersView.xaml.cs",
+              "ToolTip": "C:\\Users\\MarkRonolo\\source\\repos\\WpfApp3\\WpfApp3\\Views\\Users\\UsersView.xaml.cs",
+              "RelativeToolTip": "WpfApp3\\Views\\Users\\UsersView.xaml.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-02T14:38:31.032Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "UsersView.xaml",
+              "DocumentMoniker": "C:\\Users\\MarkRonolo\\source\\repos\\WpfApp3\\WpfApp3\\Views\\Users\\UsersView.xaml",
+              "RelativeDocumentMoniker": "WpfApp3\\Views\\Users\\UsersView.xaml",
+              "ToolTip": "C:\\Users\\MarkRonolo\\source\\repos\\WpfApp3\\WpfApp3\\Views\\Users\\UsersView.xaml",
+              "RelativeToolTip": "WpfApp3\\Views\\Users\\UsersView.xaml",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
+              "WhenOpened": "2026-02-02T14:34:17.509Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "UsersViewModel.cs",
+              "DocumentMoniker": "C:\\Users\\MarkRonolo\\source\\repos\\WpfApp3\\WpfApp3\\ViewModels\\Users\\UsersViewModel.cs",
+              "RelativeDocumentMoniker": "WpfApp3\\ViewModels\\Users\\UsersViewModel.cs",
+              "ToolTip": "C:\\Users\\MarkRonolo\\source\\repos\\WpfApp3\\WpfApp3\\ViewModels\\Users\\UsersViewModel.cs",
+              "RelativeToolTip": "WpfApp3\\ViewModels\\Users\\UsersViewModel.cs",
+              "ViewState": "AgIAAM0AAAAAAAAAAAAcwNkAAAAWAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-02T14:32:36.282Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
               "Title": "AllotmentView.xaml",
               "DocumentMoniker": "C:\\Users\\MarkRonolo\\source\\repos\\WpfApp3\\WpfApp3\\Views\\Allotment\\AllotmentView.xaml",
               "RelativeDocumentMoniker": "WpfApp3\\Views\\Allotment\\AllotmentView.xaml",
               "ToolTip": "C:\\Users\\MarkRonolo\\source\\repos\\WpfApp3\\WpfApp3\\Views\\Allotment\\AllotmentView.xaml",
               "RelativeToolTip": "WpfApp3\\Views\\Allotment\\AllotmentView.xaml",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
-              "WhenOpened": "2026-01-29T18:57:36.524Z",
+              "WhenOpened": "2026-02-02T14:37:19.897Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "AllotmentViewModel.cs",
-              "DocumentMoniker": "C:\\Users\\MarkRonolo\\source\\repos\\WpfApp3\\WpfApp3\\ViewModels\\Allotment\\AllotmentViewModel.cs",
-              "RelativeDocumentMoniker": "WpfApp3\\ViewModels\\Allotment\\AllotmentViewModel.cs",
-              "ToolTip": "C:\\Users\\MarkRonolo\\source\\repos\\WpfApp3\\WpfApp3\\ViewModels\\Allotment\\AllotmentViewModel.cs",
-              "RelativeToolTip": "WpfApp3\\ViewModels\\Allotment\\AllotmentViewModel.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAgAAAA+AAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-01-29T18:53:24.201Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 7,
               "Title": "MainViewModel.cs",
               "DocumentMoniker": "C:\\Users\\MarkRonolo\\source\\repos\\WpfApp3\\WpfApp3\\ViewModels\\MainViewModel.cs",
               "RelativeDocumentMoniker": "WpfApp3\\ViewModels\\MainViewModel.cs",
               "ToolTip": "C:\\Users\\MarkRonolo\\source\\repos\\WpfApp3\\WpfApp3\\ViewModels\\MainViewModel.cs",
               "RelativeToolTip": "WpfApp3\\ViewModels\\MainViewModel.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAB4AAAA/AAAAAAAAAA==",
+              "ViewState": "AgIAADYAAAAAAAAAAAAowBAAAAA6AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-01-29T18:48:35.549Z"
+              "WhenOpened": "2026-02-02T14:39:07.014Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 8,
+              "Title": "AllotmentViewModel.cs",
+              "DocumentMoniker": "C:\\Users\\MarkRonolo\\source\\repos\\WpfApp3\\WpfApp3\\ViewModels\\Allotment\\AllotmentViewModel.cs",
+              "RelativeDocumentMoniker": "WpfApp3\\ViewModels\\Allotment\\AllotmentViewModel.cs",
+              "ToolTip": "C:\\Users\\MarkRonolo\\source\\repos\\WpfApp3\\WpfApp3\\ViewModels\\Allotment\\AllotmentViewModel.cs",
+              "RelativeToolTip": "WpfApp3\\ViewModels\\Allotment\\AllotmentViewModel.cs",
+              "ViewState": "AgIAAAMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-02T14:33:38.269Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
+              "Title": "UserRecord.cs",
+              "DocumentMoniker": "C:\\Users\\MarkRonolo\\source\\repos\\WpfApp3\\WpfApp3\\Models\\UserRecord.cs",
+              "RelativeDocumentMoniker": "WpfApp3\\Models\\UserRecord.cs",
+              "ToolTip": "C:\\Users\\MarkRonolo\\source\\repos\\WpfApp3\\WpfApp3\\Models\\UserRecord.cs",
+              "RelativeToolTip": "WpfApp3\\Models\\UserRecord.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAwAAAA4AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-02T14:31:42.723Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
               "Title": "MainWindow.xaml",
               "DocumentMoniker": "C:\\Users\\MarkRonolo\\source\\repos\\WpfApp3\\WpfApp3\\MainWindow.xaml",
               "RelativeDocumentMoniker": "WpfApp3\\MainWindow.xaml",
               "ToolTip": "C:\\Users\\MarkRonolo\\source\\repos\\WpfApp3\\WpfApp3\\MainWindow.xaml",
               "RelativeToolTip": "WpfApp3\\MainWindow.xaml",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
-              "WhenOpened": "2026-01-29T18:48:17.811Z"
+              "WhenOpened": "2026-02-02T14:30:47.504Z",
+              "EditorCaption": ""
             }
           ]
         }
