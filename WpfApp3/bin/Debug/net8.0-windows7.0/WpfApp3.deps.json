@@ -1,0 +1,109 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v8.0",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v8.0": {
+      "WpfApp3/1.0.0": {
+        "dependencies": {
+          "CommunityToolkit.Mvvm": "8.4.0",
+          "LiveCharts.Wpf": "0.9.7",
+          "MahApps.Metro.IconPacks.MaterialDesign": "6.2.1"
+        },
+        "runtime": {
+          "WpfApp3.dll": {}
+        }
+      },
+      "CommunityToolkit.Mvvm/8.4.0": {
+        "runtime": {
+          "lib/net8.0/CommunityToolkit.Mvvm.dll": {
+            "assemblyVersion": "8.4.0.0",
+            "fileVersion": "8.4.0.1"
+          }
+        }
+      },
+      "LiveCharts/0.9.7": {
+        "runtime": {
+          "lib/net45/LiveCharts.dll": {
+            "assemblyVersion": "0.9.7.0",
+            "fileVersion": "0.9.7.0"
+          }
+        }
+      },
+      "LiveCharts.Wpf/0.9.7": {
+        "dependencies": {
+          "LiveCharts": "0.9.7"
+        },
+        "runtime": {
+          "lib/net45/LiveCharts.Wpf.dll": {
+            "assemblyVersion": "0.9.7.0",
+            "fileVersion": "0.9.7.0"
+          }
+        }
+      },
+      "MahApps.Metro.IconPacks.Core/6.2.1": {
+        "runtime": {
+          "lib/net8.0-windows7.0/MahApps.Metro.IconPacks.Core.dll": {
+            "assemblyVersion": "6.0.0.0",
+            "fileVersion": "6.2.1.0"
+          }
+        }
+      },
+      "MahApps.Metro.IconPacks.MaterialDesign/6.2.1": {
+        "dependencies": {
+          "MahApps.Metro.IconPacks.Core": "6.2.1"
+        },
+        "runtime": {
+          "lib/net8.0-windows7.0/MahApps.Metro.IconPacks.MaterialDesign.dll": {
+            "assemblyVersion": "6.0.0.0",
+            "fileVersion": "6.2.1.0"
+          }
+        }
+      }
+    }
+  },
+  "libraries": {
+    "WpfApp3/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "CommunityToolkit.Mvvm/8.4.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-tqVU8yc/ADO9oiTRyTnwhFN68hCwvkliMierptWOudIAvWY1mWCh5VFh+guwHJmpMwfg0J0rY+yyd5Oy7ty9Uw==",
+      "path": "communitytoolkit.mvvm/8.4.0",
+      "hashPath": "communitytoolkit.mvvm.8.4.0.nupkg.sha512"
+    },
+    "LiveCharts/0.9.7": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-p4xyBrUaNNfkWZSNsIle0r51cyVyFg0Yi0uBRZM5GQtdFiA/7guZHlffFyNUILIdux10Ch2hUaJpcZENVU9aaQ==",
+      "path": "livecharts/0.9.7",
+      "hashPath": "livecharts.0.9.7.nupkg.sha512"
+    },
+    "LiveCharts.Wpf/0.9.7": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-lv6YZoK0B4yWykMq5b9grZXtIbTj+OWu4sVN9GDpdgV6zffu64m4d5CW8KSjfSl9rB8VU649x1NZvhoU67hCDg==",
+      "path": "livecharts.wpf/0.9.7",
+      "hashPath": "livecharts.wpf.0.9.7.nupkg.sha512"
+    },
+    "MahApps.Metro.IconPacks.Core/6.2.1": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-ySAyax37C045Ef1ufN33yQjn3qPM1MuQLgKdxZKYUAl2uZaIrn9wCeBNvfG46QPNRvBFLR6gVKTs6O3o81LNhQ==",
+      "path": "mahapps.metro.iconpacks.core/6.2.1",
+      "hashPath": "mahapps.metro.iconpacks.core.6.2.1.nupkg.sha512"
+    },
+    "MahApps.Metro.IconPacks.MaterialDesign/6.2.1": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-qMQHCZzHoBZy3bcU9CBf9GusPMpbxy0DPxiJrfbhM7IHh/hK5xWREoP2TOevqAVTEOk3YszWbiJBkYo/oeEliw==",
+      "path": "mahapps.metro.iconpacks.materialdesign/6.2.1",
+      "hashPath": "mahapps.metro.iconpacks.materialdesign.6.2.1.nupkg.sha512"
+    }
+  }
+}
