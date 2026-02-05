@@ -644,69 +644,65 @@
 
                     <Border Grid.Row="2" CornerRadius="14" BorderBrush="#EEF2FF" BorderThickness="1" Padding="6" Margin="0,22,0,0">
                         <DataGrid ItemsSource="{Binding AddItems}"
-                                  AutoGenerateColumns="False"
-                                  CanUserAddRows="False"
-                                  HeadersVisibility="Column"
-                                  GridLinesVisibility="None"
-                                  RowHeaderWidth="0"
-                                  Background="Transparent"
-                                  BorderThickness="0"
-                                  FontSize="12"
-                                  Foreground="#2E3A59"
-                                  ColumnHeaderHeight="40"
-                                  RowHeight="44"
-                                  IsReadOnly="True"
-                                  SelectionUnit="FullRow"
-                                  SelectionMode="Single"
-                                  FocusVisualStyle="{x:Null}">
-                            <DataGrid.Resources>
-                                <Style TargetType="DataGridColumnHeader">
-                                    <Setter Property="Foreground" Value="#6B86D6"/>
-                                    <Setter Property="FontWeight" Value="SemiBold"/>
-                                    <Setter Property="BorderBrush" Value="#EEF2FF"/>
-                                    <Setter Property="BorderThickness" Value="0,0,0,1"/>
-                                    <Setter Property="Background" Value="Transparent"/>
-                                    <Setter Property="Padding" Value="8,0"/>
-                                </Style>
-                                <Style TargetType="DataGridRow">
-                                    <Setter Property="BorderBrush" Value="#EEF2FF"/>
-                                    <Setter Property="BorderThickness" Value="0,0,0,1"/>
-                                    <Setter Property="Background" Value="Transparent"/>
-                                </Style>
-                                <Style TargetType="DataGridCell" BasedOn="{StaticResource CenteredCellStyle}"/>
-                            </DataGrid.Resources>
+          AutoGenerateColumns="False"
+          CanUserAddRows="False"
+          HeadersVisibility="Column"
+          GridLinesVisibility="None"
+          RowHeaderWidth="0"
+          Background="Transparent"
+          BorderThickness="0"
+          FontSize="12"
+          Foreground="#2E3A59"
+          ColumnHeaderHeight="40"
+          RowHeight="44"
+          IsReadOnly="True"
+          SelectionUnit="FullRow"
+          SelectionMode="Single"
+          FocusVisualStyle="{x:Null}">
 
                             <DataGrid.Columns>
-                                <DataGridTemplateColumn Width="40">
+
+                                <!-- ✅ checkbox (editable even if grid is read-only) -->
+                                <DataGridTemplateColumn Width="40" IsReadOnly="False">
                                     <DataGridTemplateColumn.Header>
-                                        <CheckBox HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        <!-- "select all" -->
+                                        <CheckBox HorizontalAlignment="Center"
+                          VerticalAlignment="Center"
+                          IsChecked="{Binding IsAddAllSelected, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                                     </DataGridTemplateColumn.Header>
+
                                     <DataGridTemplateColumn.CellTemplate>
                                         <DataTemplate>
-                                            <CheckBox IsChecked="{Binding IsSelected}"
-                                                      HorizontalAlignment="Center"
-                                                      VerticalAlignment="Center"/>
+                                            <CheckBox HorizontalAlignment="Center"
+                              VerticalAlignment="Center"
+                              IsChecked="{Binding IsSelected, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                                         </DataTemplate>
                                     </DataGridTemplateColumn.CellTemplate>
                                 </DataGridTemplateColumn>
 
                                 <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="60"
-                                                    CellStyle="{StaticResource CenteredCellStyle}"
-                                                    ElementStyle="{StaticResource CenteredTextBlockStyle}"/>
+                            CellStyle="{StaticResource CenteredCellStyle}"
+                            ElementStyle="{StaticResource CenteredTextBlockStyle}"/>
+
                                 <DataGridTextColumn Header="First Name" Binding="{Binding FirstName}" Width="160"
-                                                    CellStyle="{StaticResource CenteredCellStyle}"
-                                                    ElementStyle="{StaticResource CenteredTextBlockStyle}"/>
+                            CellStyle="{StaticResource CenteredCellStyle}"
+                            ElementStyle="{StaticResource CenteredTextBlockStyle}"/>
+
                                 <DataGridTextColumn Header="Last Name" Binding="{Binding LastName}" Width="160"
-                                                    CellStyle="{StaticResource CenteredCellStyle}"
-                                                    ElementStyle="{StaticResource CenteredTextBlockStyle}"/>
+                            CellStyle="{StaticResource CenteredCellStyle}"
+                            ElementStyle="{StaticResource CenteredTextBlockStyle}"/>
+
                                 <DataGridTextColumn Header="Gender" Binding="{Binding Gender}" Width="120"
-                                                    CellStyle="{StaticResource CenteredCellStyle}"
-                                                    ElementStyle="{StaticResource CenteredTextBlockStyle}"/>
+                            CellStyle="{StaticResource CenteredCellStyle}"
+                            ElementStyle="{StaticResource CenteredTextBlockStyle}"/>
+
                                 <DataGridTextColumn Header="Barangay" Binding="{Binding Barangay}" Width="160"
-                                                    CellStyle="{StaticResource CenteredCellStyle}"
-                                                    ElementStyle="{StaticResource CenteredTextBlockStyle}"/>
+                            CellStyle="{StaticResource CenteredCellStyle}"
+                            ElementStyle="{StaticResource CenteredTextBlockStyle}"/>
+
                             </DataGrid.Columns>
                         </DataGrid>
+
                     </Border>
                 </Grid>
             </Border>
