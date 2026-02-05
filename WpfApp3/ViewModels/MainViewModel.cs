@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.Input;
 using System.Collections.ObjectModel;
 using System.Windows.Controls;
 using WpfApp3.Views.Allotment;
+using WpfApp3.Views.Beneficiaries;
 using WpfApp3.Views.Dashboard;
 using WpfApp3.Views.Users;
 
@@ -56,7 +57,11 @@ public partial class MainViewModel : ObservableObject
         CurrentView = new AllotmentView();
     }
 
-    [RelayCommand] private void NavigateBeneficiaries() => NavigatePlaceholder("Beneficiaries");
+    [RelayCommand] private void NavigateBeneficiaries()
+    {
+        PageTitle = "Beneficiaries";
+        CurrentView = new BeneficiariesView();
+    }
     [RelayCommand] private void NavigateDistribution() => NavigatePlaceholder("Distribution");
     [RelayCommand] private void NavigateClientProfile() => NavigatePlaceholder("Client Profile");
     [RelayCommand] private void NavigateValidators() => NavigatePlaceholder("Validators");

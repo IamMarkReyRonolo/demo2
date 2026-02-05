@@ -1,0 +1,848 @@
+﻿<UserControl x:Class="WpfApp3.Views.Beneficiaries.BeneficiariesView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="clr-namespace:WpfApp3.ViewModels.Beneficiaries"
+             xmlns:conv="clr-namespace:WpfApp3.Views.Allotment"
+             Background="#F3F5F9">
+
+    <UserControl.DataContext>
+        <vm:BeneficiariesViewModel/>
+    </UserControl.DataContext>
+
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVis"/>
+        <conv:EqualsToBoolConverter x:Key="EqualsToBoolConverter"/>
+
+        <!-- Backdrop button (prevents hover turning blue) -->
+        <Style x:Key="BackdropButton" TargetType="Button">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderBrush" Value="{x:Null}"/>
+            <Setter Property="Foreground" Value="Transparent"/>
+            <Setter Property="Cursor" Value="Arrow"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="OverridesDefaultStyle" Value="True"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"/>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Icon-like square buttons -->
+        <Style x:Key="IconButton" TargetType="Button">
+            <Setter Property="Width" Value="40"/>
+            <Setter Property="Height" Value="40"/>
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="Background" Value="#2E3A59"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderBrush" Value="Transparent"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" CornerRadius="12">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Primary button -->
+        <Style x:Key="PrimaryButton" TargetType="Button">
+            <Setter Property="Background" Value="#2E3A59"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderBrush" Value="Transparent"/>
+            <Setter Property="Padding" Value="16,10"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
+                                CornerRadius="12"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Status pill -->
+        <Style x:Key="StatusPill" TargetType="Button">
+            <Setter Property="Height" Value="28"/>
+            <Setter Property="Padding" Value="14,0"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="#2E3A59"/>
+            <Setter Property="BorderBrush" Value="Transparent"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border CornerRadius="10"
+                                Background="{TemplateBinding Background}"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Pagination button base -->
+        <Style x:Key="PageButton" TargetType="Button">
+            <Setter Property="MinWidth" Value="34"/>
+            <Setter Property="Height" Value="30"/>
+            <Setter Property="Margin" Value="4,0"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderBrush" Value="Transparent"/>
+            <Setter Property="Foreground" Value="#2E3A59"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Bd" CornerRadius="8" Background="{TemplateBinding Background}" Padding="10,4">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="#EEF2FF"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Small table action icon button -->
+        <Style x:Key="RowActionButton" TargetType="Button">
+            <Setter Property="Width" Value="26"/>
+            <Setter Property="Height" Value="22"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderBrush" Value="Transparent"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Padding" Value="0"/>
+        </Style>
+
+        <!-- Centering -->
+        <Style x:Key="CenteredCellStyle" TargetType="DataGridCell">
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Padding" Value="6,0"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+        </Style>
+
+        <Style x:Key="CenteredTextBlockStyle" TargetType="TextBlock">
+            <Setter Property="Padding" Value="10,0"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+
+        <!-- Remove ALL selection/highlight -->
+        <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="Transparent"/>
+        <SolidColorBrush x:Key="{x:Static SystemColors.HighlightTextBrushKey}" Color="#2E3A59"/>
+        <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="Transparent"/>
+        <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightTextBrushKey}" Color="#2E3A59"/>
+
+        <!-- Rounded buttons for modals -->
+        <Style x:Key="RoundedPrimary" TargetType="Button" BasedOn="{StaticResource PrimaryButton}">
+            <Setter Property="Width" Value="160"/>
+            <Setter Property="Height" Value="40"/>
+            <Setter Property="Padding" Value="0"/>
+        </Style>
+
+        <Style x:Key="RoundedDanger" TargetType="Button">
+            <Setter Property="Width" Value="140"/>
+            <Setter Property="Height" Value="40"/>
+            <Setter Property="Background" Value="#FF0000"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderBrush" Value="Transparent"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border CornerRadius="12" Background="{TemplateBinding Background}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="ModalTextBox" TargetType="TextBox">
+            <Setter Property="Height" Value="38"/>
+            <Setter Property="Padding" Value="14,0"/>
+            <Setter Property="BorderBrush" Value="#E5ECFA"/>
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+        </Style>
+
+        <Style x:Key="ModalCombo" TargetType="ComboBox">
+            <Setter Property="Height" Value="38"/>
+            <Setter Property="Padding" Value="10,0"/>
+            <Setter Property="BorderBrush" Value="#E5ECFA"/>
+            <Setter Property="Background" Value="White"/>
+        </Style>
+    </UserControl.Resources>
+
+    <Grid>
+        <!-- PAGE -->
+        <Grid Margin="24">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <!-- Top row: project dropdown + eye + total budget -->
+            <Grid Grid.Row="0" Margin="0,6,0,8">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="320"/>
+                    <ColumnDefinition Width="52"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <Border CornerRadius="12" Background="White" Padding="12,6">
+                    <ComboBox ItemsSource="{Binding Projects}"
+                              SelectedItem="{Binding SelectedProject}"
+                              BorderThickness="0"
+                              Background="Transparent"
+                              Foreground="#2E3A59"
+                              FontSize="12"/>
+                </Border>
+
+                <!-- Eye icon -->
+                <Button Grid.Column="1"
+                        Style="{StaticResource IconButton}"
+                        Margin="10,0,0,0"
+                        Content="👁"
+                        Command="{Binding OpenProjectDetailsCommand}"/>
+
+                <TextBlock Grid.Column="3"
+                           FontSize="18"
+                           Text="{Binding TotalBudgetText}"
+                           Foreground="#2E3A59"
+                           FontWeight="SemiBold"
+                           VerticalAlignment="Center"/>
+            </Grid>
+
+            <!-- Tabs + Add button -->
+            <Grid Grid.Row="1" Margin="0,6,0,10">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <Button Content="Endorsed" Command="{Binding SetEndorsedCommand}">
+                        <Button.Style>
+                            <Style TargetType="Button" BasedOn="{StaticResource StatusPill}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding SelectedStatus}" Value="Endorsed">
+                                        <Setter Property="Background" Value="#2E3A59"/>
+                                        <Setter Property="Foreground" Value="White"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+
+                    <Button Content="Pending" Margin="8,0,0,0" Command="{Binding SetPendingCommand}">
+                        <Button.Style>
+                            <Style TargetType="Button" BasedOn="{StaticResource StatusPill}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding SelectedStatus}" Value="Pending">
+                                        <Setter Property="Background" Value="#2E3A59"/>
+                                        <Setter Property="Foreground" Value="White"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+
+                    <Button Content="Rejected" Margin="8,0,0,0" Command="{Binding SetRejectedCommand}">
+                        <Button.Style>
+                            <Style TargetType="Button" BasedOn="{StaticResource StatusPill}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding SelectedStatus}" Value="Rejected">
+                                        <Setter Property="Background" Value="#2E3A59"/>
+                                        <Setter Property="Foreground" Value="White"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+                </StackPanel>
+
+                <Button Grid.Column="1"
+                        Style="{StaticResource PrimaryButton}"
+                        Command="{Binding OpenAddBeneficiariesCommand}"
+                        Content="＋  Add Beneficiaries"/>
+            </Grid>
+
+            <!-- Found text -->
+            <TextBlock Grid.Row="2"
+                       Text="{Binding FoundText}"
+                       Foreground="#6B778C"
+                       FontSize="12"
+                       Margin="2,0,0,10"/>
+
+            <!-- Table -->
+            <Border Grid.Row="3"
+                    CornerRadius="18"
+                    Background="White"
+                    Padding="10"
+                    Margin="0,6,0,0">
+                <Border.Effect>
+                    <DropShadowEffect BlurRadius="18" ShadowDepth="2" Opacity="0.06"/>
+                </Border.Effect>
+
+                <DataGrid ItemsSource="{Binding Items}"
+                          AutoGenerateColumns="False"
+                          CanUserAddRows="False"
+                          HeadersVisibility="Column"
+                          GridLinesVisibility="None"
+                          RowHeaderWidth="0"
+                          Background="Transparent"
+                          BorderThickness="0"
+                          FontSize="12"
+                          Foreground="#2E3A59"
+                          ColumnHeaderHeight="42"
+                          RowHeight="48"
+                          IsReadOnly="True"
+                          SelectionUnit="FullRow"
+                          SelectionMode="Single"
+                          FocusVisualStyle="{x:Null}">
+
+                    <DataGrid.Resources>
+                        <Style TargetType="DataGridColumnHeader">
+                            <Setter Property="Foreground" Value="#6B86D6"/>
+                            <Setter Property="FontWeight" Value="SemiBold"/>
+                            <Setter Property="BorderBrush" Value="#EEF2FF"/>
+                            <Setter Property="BorderThickness" Value="0,0,0,1"/>
+                            <Setter Property="Background" Value="Transparent"/>
+                            <Setter Property="VerticalContentAlignment" Value="Center"/>
+                            <Setter Property="Padding" Value="8,0"/>
+                        </Style>
+
+                        <Style TargetType="DataGridRow">
+                            <Setter Property="BorderBrush" Value="#EEF2FF"/>
+                            <Setter Property="BorderThickness" Value="0,0,0,1"/>
+                            <Setter Property="Background" Value="Transparent"/>
+                            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+                        </Style>
+
+                        <Style TargetType="DataGridCell" BasedOn="{StaticResource CenteredCellStyle}">
+                            <Setter Property="Background" Value="Transparent"/>
+                            <Setter Property="Foreground" Value="#2E3A59"/>
+                            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+                        </Style>
+                    </DataGrid.Resources>
+
+                    <DataGrid.Columns>
+                        <!-- checkbox -->
+                        <DataGridTemplateColumn Width="40">
+                            <DataGridTemplateColumn.Header>
+                                <CheckBox HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </DataGridTemplateColumn.Header>
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <CheckBox IsChecked="{Binding IsSelected}"
+                                              HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"/>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+
+                        <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="60"
+                                            CellStyle="{StaticResource CenteredCellStyle}"
+                                            ElementStyle="{StaticResource CenteredTextBlockStyle}"/>
+
+                        <DataGridTextColumn Header="First Name" Binding="{Binding FirstName}" Width="160"
+                                            CellStyle="{StaticResource CenteredCellStyle}"
+                                            ElementStyle="{StaticResource CenteredTextBlockStyle}"/>
+
+                        <DataGridTextColumn Header="Last Name" Binding="{Binding LastName}" Width="160"
+                                            CellStyle="{StaticResource CenteredCellStyle}"
+                                            ElementStyle="{StaticResource CenteredTextBlockStyle}"/>
+
+                        <DataGridTextColumn Header="Gender" Binding="{Binding Gender}" Width="120"
+                                            CellStyle="{StaticResource CenteredCellStyle}"
+                                            ElementStyle="{StaticResource CenteredTextBlockStyle}"/>
+
+                        <DataGridTextColumn Header="Barangay" Binding="{Binding Barangay}" Width="140"
+                                            CellStyle="{StaticResource CenteredCellStyle}"
+                                            ElementStyle="{StaticResource CenteredTextBlockStyle}"/>
+
+                        <DataGridTextColumn Header="Share"
+                                            Binding="{Binding Share, StringFormat=₱ {0:N0}}"
+                                            Width="120"
+                                            CellStyle="{StaticResource CenteredCellStyle}"
+                                            ElementStyle="{StaticResource CenteredTextBlockStyle}"/>
+
+                        <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="120"
+                                            CellStyle="{StaticResource CenteredCellStyle}"
+                                            ElementStyle="{StaticResource CenteredTextBlockStyle}"/>
+
+                        <!-- actions -->
+                        <DataGridTemplateColumn Width="90" Header="">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Horizontal"
+                                                HorizontalAlignment="Center"
+                                                VerticalAlignment="Center">
+                                        <Button Style="{StaticResource RowActionButton}"
+                                                Content="✎"
+                                                Margin="0,0,10,0"
+                                                Foreground="#2E3A59"
+                                                Command="{Binding DataContext.OpenEditStatusCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                                CommandParameter="{Binding}"/>
+
+                                        <!-- Delete only for Rejected (NO Style="" here to avoid duplicate Style error) -->
+                                        <Button Content="🗑"
+                                                Foreground="#E11D48"
+                                                Command="{Binding DataContext.OpenRemoveCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                                CommandParameter="{Binding}">
+                                            <Button.Style>
+                                                <Style TargetType="Button" BasedOn="{StaticResource RowActionButton}">
+                                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding Status}" Value="Rejected">
+                                                            <Setter Property="Visibility" Value="Visible"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Button.Style>
+                                        </Button>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </Border>
+
+            <!-- Pagination -->
+            <StackPanel Grid.Row="4" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,16,0,0">
+                <Button Content="Previous" Style="{StaticResource PageButton}" Command="{Binding PreviousPageCommand}"/>
+
+                <ItemsControl ItemsSource="{Binding PageNumbers}" Margin="6,0">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel Orientation="Horizontal"/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Button Content="{Binding}"
+                                    Command="{Binding DataContext.GoToPageCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                    CommandParameter="{Binding}">
+                                <Button.Style>
+                                    <Style TargetType="Button" BasedOn="{StaticResource PageButton}">
+                                        <Style.Triggers>
+                                            <DataTrigger Value="True">
+                                                <DataTrigger.Binding>
+                                                    <MultiBinding Converter="{StaticResource EqualsToBoolConverter}">
+                                                        <Binding/>
+                                                        <Binding Path="DataContext.CurrentPage"
+                                                                 RelativeSource="{RelativeSource AncestorType=UserControl}"/>
+                                                    </MultiBinding>
+                                                </DataTrigger.Binding>
+                                                <Setter Property="Background" Value="#2E3A59"/>
+                                                <Setter Property="Foreground" Value="White"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Button.Style>
+                            </Button>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+
+                <Button Content="Next" Style="{StaticResource PageButton}" Command="{Binding NextPageCommand}"/>
+            </StackPanel>
+        </Grid>
+
+        <!-- ========================================================= -->
+        <!-- MODAL 1: PROJECT DETAILS (eye icon)                        -->
+        <!-- ========================================================= -->
+        <Grid Panel.ZIndex="900"
+              Visibility="{Binding IsProjectDetailsOpen, Converter={StaticResource BoolToVis}}">
+            <Border Background="#80000000"/>
+            <Button Style="{StaticResource BackdropButton}" Command="{Binding CloseProjectDetailsCommand}"/>
+
+            <Border Width="920"
+                    CornerRadius="18"
+                    Background="White"
+                    Padding="22"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <TextBlock Text="Project"
+                                   FontSize="18"
+                                   FontWeight="Bold"
+                                   Foreground="#2E3A59"/>
+
+                        <Button Grid.Column="1"
+                                Content="✕"
+                                Width="30" Height="30"
+                                Background="Transparent"
+                                BorderBrush="Transparent"
+                                Cursor="Hand"
+                                Command="{Binding CloseProjectDetailsCommand}"/>
+                    </Grid>
+
+                    <Grid Grid.Row="1" Margin="0,14,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition/>
+                            <ColumnDefinition Width="24"/>
+                            <ColumnDefinition/>
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="Project Name" Foreground="#2E3A59" Margin="0,0,0,6"/>
+                            <TextBox Style="{StaticResource ModalTextBox}" Text="{Binding ProjectNameDetails}" IsReadOnly="True"/>
+
+                            <TextBlock Text="Description" Foreground="#2E3A59" Margin="0,14,0,6"/>
+                            <TextBox Text="{Binding DescriptionDetails}"
+                                     Height="76"
+                                     Padding="14,10"
+                                     BorderBrush="#E5ECFA"
+                                     Background="White"
+                                     IsReadOnly="True"
+                                     TextWrapping="Wrap"
+                                     AcceptsReturn="True"/>
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="2">
+                            <TextBlock Text="Company" Foreground="#2E3A59" Margin="0,0,0,6"/>
+                            <TextBox Style="{StaticResource ModalTextBox}" Text="{Binding CompanyDetails}" IsReadOnly="True"/>
+
+                            <Grid Margin="0,14,0,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition/>
+                                    <ColumnDefinition Width="18"/>
+                                    <ColumnDefinition/>
+                                </Grid.ColumnDefinitions>
+
+                                <StackPanel Grid.Column="0">
+                                    <TextBlock Text="Source of Fund" Foreground="#2E3A59" Margin="0,0,0,6"/>
+                                    <ComboBox Style="{StaticResource ModalCombo}"
+                                              ItemsSource="{Binding SourceOfFundOptions}"
+                                              SelectedItem="{Binding SourceOfFundDetails}"
+                                              IsEnabled="False"/>
+                                </StackPanel>
+
+                                <StackPanel Grid.Column="2">
+                                    <TextBlock Text="Total Budget" Foreground="#2E3A59" Margin="0,0,0,6"/>
+                                    <TextBox Style="{StaticResource ModalTextBox}" Text="{Binding TotalBudgetDetails}" IsReadOnly="True"/>
+                                </StackPanel>
+                            </Grid>
+                        </StackPanel>
+                    </Grid>
+                </Grid>
+            </Border>
+        </Grid>
+
+        <!-- ========================================================= -->
+        <!-- MODAL 2: ADD BENEFICIARIES                                 -->
+        <!-- ========================================================= -->
+        <Grid Panel.ZIndex="910"
+              Visibility="{Binding IsAddBeneficiariesOpen, Converter={StaticResource BoolToVis}}">
+            <Border Background="#80000000"/>
+            <Button Style="{StaticResource BackdropButton}" Command="{Binding CloseAddBeneficiariesCommand}"/>
+
+            <Border Width="800"
+                    CornerRadius="18"
+                    Background="White"
+                    Padding="18"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- header -->
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <TextBlock Text="Add Beneficiaries"
+                                   FontSize="18"
+                                   FontWeight="Bold"
+                                   Foreground="#2E3A59"/>
+
+                        <Button Grid.Column="1"
+                                Content="✕"
+                                Width="30" Height="30"
+                                Background="Transparent"
+                                BorderBrush="Transparent"
+                                Cursor="Hand"
+                                Command="{Binding CloseAddBeneficiariesCommand}"/>
+                    </Grid>
+
+                    <!-- search + add count -->
+                    <Grid Grid.Row="1" Margin="0,12,0,10">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="360"/>
+                            <ColumnDefinition Width="52"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <Border CornerRadius="10" Background="White" BorderBrush="#EEF2FF" BorderThickness="1" Padding="10,6">
+                            <TextBox Text="{Binding AddSearchText, UpdateSourceTrigger=PropertyChanged}"
+                                     BorderThickness="0"
+                                     Background="Transparent"
+                                     Foreground="#2E3A59"
+                                     FontSize="12"/>
+                        </Border>
+
+                        <Button Grid.Column="1"
+                                Style="{StaticResource IconButton}"
+                                Margin="10,0,0,0"
+                                Content="🔍"/>
+
+                        <Button Grid.Column="3"
+                                Style="{StaticResource PrimaryButton}"
+                                Padding="16,8"
+                                Content="{Binding AddButtonText}"
+                                Command="{Binding ConfirmAddSelectedCommand}"/>
+                    </Grid>
+
+                    <TextBlock Grid.Row="2"
+                               Text="{Binding AddFoundText}"
+                               Foreground="#6B778C"
+                               FontSize="12"
+                               Margin="2,0,0,10"/>
+
+                    <Border Grid.Row="2" CornerRadius="14" BorderBrush="#EEF2FF" BorderThickness="1" Padding="6" Margin="0,22,0,0">
+                        <DataGrid ItemsSource="{Binding AddItems}"
+                                  AutoGenerateColumns="False"
+                                  CanUserAddRows="False"
+                                  HeadersVisibility="Column"
+                                  GridLinesVisibility="None"
+                                  RowHeaderWidth="0"
+                                  Background="Transparent"
+                                  BorderThickness="0"
+                                  FontSize="12"
+                                  Foreground="#2E3A59"
+                                  ColumnHeaderHeight="40"
+                                  RowHeight="44"
+                                  IsReadOnly="True"
+                                  SelectionUnit="FullRow"
+                                  SelectionMode="Single"
+                                  FocusVisualStyle="{x:Null}">
+                            <DataGrid.Resources>
+                                <Style TargetType="DataGridColumnHeader">
+                                    <Setter Property="Foreground" Value="#6B86D6"/>
+                                    <Setter Property="FontWeight" Value="SemiBold"/>
+                                    <Setter Property="BorderBrush" Value="#EEF2FF"/>
+                                    <Setter Property="BorderThickness" Value="0,0,0,1"/>
+                                    <Setter Property="Background" Value="Transparent"/>
+                                    <Setter Property="Padding" Value="8,0"/>
+                                </Style>
+                                <Style TargetType="DataGridRow">
+                                    <Setter Property="BorderBrush" Value="#EEF2FF"/>
+                                    <Setter Property="BorderThickness" Value="0,0,0,1"/>
+                                    <Setter Property="Background" Value="Transparent"/>
+                                </Style>
+                                <Style TargetType="DataGridCell" BasedOn="{StaticResource CenteredCellStyle}"/>
+                            </DataGrid.Resources>
+
+                            <DataGrid.Columns>
+                                <DataGridTemplateColumn Width="40">
+                                    <DataGridTemplateColumn.Header>
+                                        <CheckBox HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    </DataGridTemplateColumn.Header>
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <CheckBox IsChecked="{Binding IsSelected}"
+                                                      HorizontalAlignment="Center"
+                                                      VerticalAlignment="Center"/>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+
+                                <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="60"
+                                                    CellStyle="{StaticResource CenteredCellStyle}"
+                                                    ElementStyle="{StaticResource CenteredTextBlockStyle}"/>
+                                <DataGridTextColumn Header="First Name" Binding="{Binding FirstName}" Width="160"
+                                                    CellStyle="{StaticResource CenteredCellStyle}"
+                                                    ElementStyle="{StaticResource CenteredTextBlockStyle}"/>
+                                <DataGridTextColumn Header="Last Name" Binding="{Binding LastName}" Width="160"
+                                                    CellStyle="{StaticResource CenteredCellStyle}"
+                                                    ElementStyle="{StaticResource CenteredTextBlockStyle}"/>
+                                <DataGridTextColumn Header="Gender" Binding="{Binding Gender}" Width="120"
+                                                    CellStyle="{StaticResource CenteredCellStyle}"
+                                                    ElementStyle="{StaticResource CenteredTextBlockStyle}"/>
+                                <DataGridTextColumn Header="Barangay" Binding="{Binding Barangay}" Width="160"
+                                                    CellStyle="{StaticResource CenteredCellStyle}"
+                                                    ElementStyle="{StaticResource CenteredTextBlockStyle}"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </Border>
+                </Grid>
+            </Border>
+        </Grid>
+
+        <!-- ========================================================= -->
+        <!-- MODAL 3: EDIT STATUS (pencil)                              -->
+        <!-- ========================================================= -->
+        <Grid Panel.ZIndex="920"
+              Visibility="{Binding IsEditStatusOpen, Converter={StaticResource BoolToVis}}">
+            <Border Background="#80000000"/>
+            <Button Style="{StaticResource BackdropButton}" Command="{Binding CloseEditStatusCommand}"/>
+
+            <Border Width="420"
+                    CornerRadius="18"
+                    Background="White"
+                    Padding="18"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <TextBlock Text="Edit Status"
+                                   FontSize="16"
+                                   FontWeight="Bold"
+                                   Foreground="#2E3A59"/>
+
+                        <Button Grid.Column="1"
+                                Content="✕"
+                                Width="28" Height="28"
+                                Background="Transparent"
+                                BorderBrush="Transparent"
+                                Cursor="Hand"
+                                Command="{Binding CloseEditStatusCommand}"/>
+                    </Grid>
+
+                    <StackPanel Grid.Row="1" Margin="0,14,0,0">
+                        <TextBlock Text="Status" Foreground="#2E3A59" Margin="0,0,0,6"/>
+                        <ComboBox Style="{StaticResource ModalCombo}"
+                                  ItemsSource="{Binding StatusOptions}"
+                                  SelectedItem="{Binding EditStatusValue}"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,16,0,0">
+                        <Button Content="Cancel"
+                                Width="120" Height="38"
+                                Background="Transparent"
+                                BorderBrush="Transparent"
+                                Foreground="#2E3A59"
+                                FontWeight="SemiBold"
+                                Cursor="Hand"
+                                Command="{Binding CloseEditStatusCommand}"/>
+
+                        <Button Content="Confirm"
+                                Margin="16,0,0,0"
+                                Style="{StaticResource RoundedPrimary}"
+                                Command="{Binding ConfirmEditStatusCommand}"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+        </Grid>
+
+        <!-- ========================================================= -->
+        <!-- MODAL 4: REMOVE BENEFICIARY (trash)                        -->
+        <!-- ========================================================= -->
+        <Grid Panel.ZIndex="930"
+              Visibility="{Binding IsRemoveOpen, Converter={StaticResource BoolToVis}}">
+            <Border Background="#80000000"/>
+            <Button Style="{StaticResource BackdropButton}" Command="{Binding CloseRemoveCommand}"/>
+
+            <Border Width="520"
+                    CornerRadius="18"
+                    Background="White"
+                    Padding="18"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <TextBlock Text="Remove Beneficiary"
+                                   Foreground="#E11D48"
+                                   FontSize="18"
+                                   FontWeight="Bold"/>
+
+                        <Button Grid.Column="1"
+                                Content="✕"
+                                Width="28" Height="28"
+                                Background="Transparent"
+                                BorderBrush="Transparent"
+                                Cursor="Hand"
+                                Command="{Binding CloseRemoveCommand}"/>
+                    </Grid>
+
+                    <TextBlock Grid.Row="1"
+                               Text="{Binding RemoveMessage}"
+                               Margin="0,12,0,0"
+                               Foreground="#2E3A59"
+                               TextWrapping="Wrap"/>
+
+                    <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,16,0,0">
+                        <Button Content="Cancel"
+                                Width="140" Height="40"
+                                Background="Transparent"
+                                BorderBrush="Transparent"
+                                Foreground="#2E3A59"
+                                FontWeight="SemiBold"
+                                Cursor="Hand"
+                                Command="{Binding CloseRemoveCommand}"/>
+
+                        <Button Content="Confirm"
+                                Margin="18,0,0,0"
+                                Style="{StaticResource RoundedDanger}"
+                                Command="{Binding ConfirmRemoveCommand}"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+        </Grid>
+    </Grid>
+</UserControl>
