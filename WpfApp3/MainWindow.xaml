@@ -33,23 +33,22 @@
                 </StackPanel>
 
                 <!-- Menu -->
-                <!-- Menu -->
                 <ListBox Grid.Row="1"
-         Style="{StaticResource NavListBoxStyle}"
-         ItemContainerStyle="{StaticResource NavListBoxItemStyle}"
-         ItemsSource="{Binding NavItems}"
-         SelectedItem="{Binding SelectedNavItem}">
+                         Style="{StaticResource NavListBoxStyle}"
+                         ItemContainerStyle="{StaticResource NavListBoxItemStyle}"
+                         ItemsSource="{Binding NavItems}"
+                         SelectedItem="{Binding SelectedNavItem}">
                     <ListBox.ItemTemplate>
                         <DataTemplate>
                             <TextBlock Text="{Binding Title}"
-                       Foreground="#2E3A59"
-                       FontSize="14"
-                       VerticalAlignment="Center"/>
+                                       Foreground="#2E3A59"
+                                       FontSize="14"
+                                       VerticalAlignment="Center"/>
                         </DataTemplate>
                     </ListBox.ItemTemplate>
                 </ListBox>
 
-                <!-- Logout (placeholder) -->
+                <!-- Logout -->
                 <Button Grid.Row="2"
                         Margin="18"
                         Padding="12,10"
@@ -57,7 +56,8 @@
                         Background="Transparent"
                         BorderBrush="Transparent"
                         Foreground="#2E3A59"
-                        HorizontalAlignment="Left"/>
+                        HorizontalAlignment="Left"
+                        Command="{Binding LogoutCommand}"/>
             </Grid>
         </Border>
 
@@ -82,7 +82,10 @@
                            VerticalAlignment="Center"/>
 
                 <Border Grid.Column="1" Background="White" CornerRadius="14" Padding="14,10">
-                    <TextBlock Text="Admin" Foreground="#2E3A59" FontWeight="SemiBold"/>
+                    <!-- Optional: show session username -->
+                    <TextBlock Text="{Binding CurrentUserLabel}"
+                               Foreground="#2E3A59"
+                               FontWeight="SemiBold"/>
                 </Border>
             </Grid>
 

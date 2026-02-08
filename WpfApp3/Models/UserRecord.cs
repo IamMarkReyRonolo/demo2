@@ -13,13 +13,16 @@ namespace WpfApp3.Models
         [ObservableProperty] private string office = "";
         [ObservableProperty] private string role = "";
         [ObservableProperty] private string username = "";
-        [ObservableProperty] private string password = "";
+
+        // We do NOT load real passwords from DB.
+        // For table display only.
+        [ObservableProperty] private string password = "********";
 
         [ObservableProperty] private bool isPasswordRevealed;
 
         public string PasswordDisplay => IsPasswordRevealed
             ? Password
-            : new string('*', Math.Max(8, Password?.Length ?? 8));
+            : "********";
 
         partial void OnIsPasswordRevealedChanged(bool value)
         {

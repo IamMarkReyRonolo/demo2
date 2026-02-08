@@ -3,12 +3,12 @@ using LiveCharts;
 using LiveCharts.Wpf;
 using System;
 using System.Windows.Media;
-
+// heyheyhey
 namespace WpfApp3.ViewModels.Dashboard
 {
     public partial class DashboardViewModel : ObservableObject
     {
-        // KPI tiles
+        // KPI tilesss
         [ObservableProperty] private string totalAllotmentAmount = "₱ 2,500,000";
         [ObservableProperty] private int beneficiariesCount = 1250;
         [ObservableProperty] private int projectsCount = 20;

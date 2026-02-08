@@ -3,11 +3,13 @@ using CommunityToolkit.Mvvm.Input;
 using System.Collections.ObjectModel;
 using System.Globalization;
 using WpfApp3.Models;
+using WpfApp3.Services;
 
 namespace WpfApp3.ViewModels.Users
 {
     public partial class UsersViewModel : ObservableObject
     {
+        private readonly UsersRepository _repo = new();
         private readonly List<UserRecord> _all = new();
 
         // table/search/paging
@@ -39,7 +41,7 @@ namespace WpfApp3.ViewModels.Users
         [ObservableProperty] private string? officeInput;
         [ObservableProperty] private string? roleInput;
         [ObservableProperty] private string usernameInput = "";
-        [ObservableProperty] private string passwordInput = "";
+        [ObservableProperty] private string passwordInput = ""; // only used for create OR reset on edit
 
         public ObservableCollection<string> Offices { get; } = new()
         {
@@ -48,13 +50,36 @@ namespace WpfApp3.ViewModels.Users
 
         public ObservableCollection<string> Roles { get; } = new()
         {
-            "Admin", "User"
+            "Administrator", "Admin", "User"
         };
 
         public UsersViewModel()
         {
-            SeedDummy();
+            LoadFromDb();
             Apply();
+        }
+
+        private void LoadFromDb()
+        {
+            _all.Clear();
+
+            var rows = _repo.GetAll();
+            foreach (var r in rows)
+            {
+                _all.Add(new UserRecord
+                {
+                    Id = r.Id,
+                    FirstName = r.FirstName,
+                    LastName = r.LastName,
+                    Office = r.Office ?? "",
+                    Role = r.Role,
+                    Username = r.Username,
+                    Password = "********", // never load real password
+                    IsPasswordRevealed = false
+                });
+            }
+
+            CurrentPage = 1;
         }
 
         partial void OnSearchTextChanged(string value)
@@ -105,21 +130,6 @@ namespace WpfApp3.ViewModels.Users
             OnPropertyChanged(nameof(FoundText));
         }
 
-        private void SeedDummy()
-        {
-            _all.AddRange(new[]
-            {
-                new UserRecord { Id=1, FirstName="John", LastName="Doe", Office="Admin", Role="Admin", Username="johnd12", Password="johnpass12" },
-                new UserRecord { Id=2, FirstName="Jane", LastName="Doe", Office="Admin", Role="Admin", Username="janed02", Password="janepass02" },
-                new UserRecord { Id=3, FirstName="James", LastName="Philips", Office="Finance", Role="User", Username="jamesp03", Password="jamespass03" },
-                new UserRecord { Id=4, FirstName="Peter", LastName="Parker", Office="Finance", Role="User", Username="peterp04", Password="peterpass04" },
-                new UserRecord { Id=5, FirstName="Mary", LastName="Jane", Office="Accounting", Role="User", Username="mjane05", Password="marypass05" },
-                new UserRecord { Id=6, FirstName="Tony", LastName="Chop", Office="Accounting", Role="User", Username="tonychop06", Password="tonypass06" },
-                new UserRecord { Id=7, FirstName="Ace", LastName="Fist", Office="Registrar", Role="User", Username="acefist07", Password="acepass07" },
-                new UserRecord { Id=8, FirstName="Roger", LastName="Gold", Office="Registrar", Role="User", Username="goldroger08", Password="rogerpass08" },
-            });
-        }
-
         // ===== COMMANDS =====
 
         [RelayCommand]
@@ -151,7 +161,9 @@ namespace WpfApp3.ViewModels.Users
             OfficeInput = row.Office;
             RoleInput = row.Role;
             UsernameInput = row.Username;
-            PasswordInput = row.Password;
+
+            // IMPORTANT: don't fill password from DB (we don't have it)
+            PasswordInput = "";
 
             IsFormOpen = true;
         }
@@ -173,36 +185,48 @@ namespace WpfApp3.ViewModels.Users
             if (string.IsNullOrWhiteSpace(office)) office = "Admin";
             if (string.IsNullOrWhiteSpace(role)) role = "User";
             if (string.IsNullOrWhiteSpace(user)) user = "username";
-            if (string.IsNullOrWhiteSpace(pass)) pass = "password";
 
-            if (_editingTarget is null)
+            try
             {
-                var nextId = _all.Count == 0 ? 1 : _all.Max(x => x.Id) + 1;
-
-                _all.Add(new UserRecord
+                // Username uniqueness
+                var ignoreId = _editingTarget?.Id;
+                if (_repo.UsernameExists(user, ignoreId))
                 {
-                    Id = nextId,
-                    FirstName = first,
-                    LastName = last,
-                    Office = office,
-                    Role = role,
-                    Username = user,
-                    Password = pass
-                });
-            }
-            else
-            {
-                _editingTarget.FirstName = first;
-                _editingTarget.LastName = last;
-                _editingTarget.Office = office;
-                _editingTarget.Role = role;
-                _editingTarget.Username = user;
-                _editingTarget.Password = pass;
-                _editingTarget.IsPasswordRevealed = false;
-            }
+                    // minimal handling: you can wire this to your UI error label later
+                    return;
+                }
 
-            IsFormOpen = false;
-            Apply();
+                if (_editingTarget is null)
+                {
+                    // Creating requires a password
+                    if (string.IsNullOrWhiteSpace(pass))
+                    {
+                        // minimal handling
+                        return;
+                    }
+
+                    var newId = _repo.Create(first, last, office, role, user, pass);
+
+                    // reload from db (keeps UI consistent)
+                    LoadFromDb();
+                }
+                else
+                {
+                    // Updating: password optional (only if typed -> reset)
+                    _repo.Update(_editingTarget.Id, first, last, office, role, user,
+                        string.IsNullOrWhiteSpace(pass) ? null : pass);
+
+                    LoadFromDb();
+                }
+
+                IsFormOpen = false;
+                Apply();
+            }
+            catch
+            {
+                // You can set a VM error message property here if you already have one in the UI
+                // For now we keep it silent to match your current implementation
+            }
         }
 
         [RelayCommand]
@@ -225,8 +249,18 @@ namespace WpfApp3.ViewModels.Users
         [RelayCommand]
         private void ConfirmDelete()
         {
-            if (_deleteTarget is not null)
-                _all.Remove(_deleteTarget);
+            try
+            {
+                if (_deleteTarget is not null)
+                {
+                    _repo.Delete(_deleteTarget.Id);
+                    LoadFromDb();
+                }
+            }
+            catch
+            {
+                // optional: show UI error
+            }
 
             IsDeleteOpen = false;
             _deleteTarget = null;

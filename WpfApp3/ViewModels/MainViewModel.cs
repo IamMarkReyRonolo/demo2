@@ -6,6 +6,9 @@ using WpfApp3.Views.Allotment;
 using WpfApp3.Views.Beneficiaries;
 using WpfApp3.Views.Dashboard;
 using WpfApp3.Views.Users;
+using System;
+using System.Windows.Input;
+using WpfApp3.Services;
 
 namespace WpfApp3.ViewModels;
 
@@ -19,6 +22,9 @@ public partial class MainViewModel : ObservableObject
 
     [ObservableProperty]
     private NavItem? selectedNavItem;
+
+    public event Action? LogoutRequested;
+    public ICommand LogoutCommand { get; }
 
     public MainViewModel()
     {
@@ -35,6 +41,8 @@ public partial class MainViewModel : ObservableObject
 
         // Default selection (highlights Dashboard on startup)
         SelectedNavItem = NavItems[0];
+        LogoutCommand = new RelayCommand(Logout);
+
     }
 
     partial void OnSelectedNavItemChanged(NavItem? value)
@@ -85,5 +93,14 @@ public partial class MainViewModel : ObservableObject
                 Margin = new System.Windows.Thickness(24)
             }
         };
+    }
+
+    private void Logout()
+    {
+        // Clear session (POC)
+        SessionService.Clear();
+
+        // Ask the window to switch back to Login
+        LogoutRequested?.Invoke();
     }
 }
