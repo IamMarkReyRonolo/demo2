@@ -42,8 +42,9 @@ namespace WpfApp3.ViewModels.Validators
         // ===== Modals =====
         [ObservableProperty] private bool isValidateModalOpen = false;
         [ObservableProperty] private bool isProfileModalOpen = false;
+        [ObservableProperty] private bool isSaveConfirmOpen = false;
 
-        [ObservableProperty] private string validateSelectedStatus = "";
+        [ObservableProperty] private string validateSelectedStatus = ""; // Endorsed/Pending/Rejected
 
         // ===== UI text =====
         public string NotYetFoundText => $"Found {NotYetItems.Count} records";
@@ -57,19 +58,14 @@ namespace WpfApp3.ViewModels.Validators
         public ValidatorsViewModel()
         {
             SeedDummyData();
-
-            // initial loads
             LoadNotYet();
             LoadValidated();
-
-            // default selection
             SelectedPerson = NotYetItems.FirstOrDefault();
         }
 
         private void SeedDummyData()
         {
-            // Not yet validated (Status = "")
-            _allNotYet.AddRange(new[]
+            var notYet = new[]
             {
                 NewPerson(101,"BENE-000101","CR-900101","Arjun","M.","Codilla","Male","25 January 1990","PWD","Male","San Jose, California, USA"),
                 NewPerson(102,"BENE-000102","CR-900102","Maria","L.","Santos","Female","03 March 1992","Senior Citizen","Admin","Quezon City, Philippines"),
@@ -79,9 +75,9 @@ namespace WpfApp3.ViewModels.Validators
                 NewPerson(106,"BENE-000106","CR-900106","Kristine","P.","Navarro","Female","21 July 1994","PWD","Admin","Iloilo City, Philippines"),
                 NewPerson(107,"BENE-000107","CR-900107","Mark","T.","Flores","Male","10 October 1993","None","Donation","Cagayan de Oro, Philippines"),
                 NewPerson(108,"BENE-000108","CR-900108","Lea","G.","Mendoza","Female","14 February 1995","PWD","Donation","Legazpi, Philippines"),
-            });
+            };
+            _allNotYet.AddRange(notYet);
 
-            // Validated (Status = Endorsed/Pending/Rejected)
             _allValidated.AddRange(new[]
             {
                 NewValidated(1,"BENE-000001","CR-900001","School Supplies Drive","", "BrightFuture","Male","", "PWD","Admin","", "Endorsed"),
@@ -147,14 +143,12 @@ namespace WpfApp3.ViewModels.Validators
             if (!string.IsNullOrWhiteSpace(s))
             {
                 q = q.Where(x =>
-                    x.FirstName.Contains(s, StringComparison.OrdinalIgnoreCase) ||
-                    x.LastName.Contains(s, StringComparison.OrdinalIgnoreCase) ||
-                    x.BeneficiaryId.Contains(s, StringComparison.OrdinalIgnoreCase));
+                    (x.FirstName ?? "").Contains(s, StringComparison.OrdinalIgnoreCase) ||
+                    (x.LastName ?? "").Contains(s, StringComparison.OrdinalIgnoreCase) ||
+                    (x.BeneficiaryId ?? "").Contains(s, StringComparison.OrdinalIgnoreCase));
             }
 
-            foreach (var item in q)
-                NotYetItems.Add(item);
-
+            foreach (var item in q) NotYetItems.Add(item);
             OnPropertyChanged(nameof(NotYetFoundText));
         }
 
@@ -176,34 +170,29 @@ namespace WpfApp3.ViewModels.Validators
             if (!string.IsNullOrWhiteSpace(s))
             {
                 q = q.Where(x =>
-                    x.FirstName.Contains(s, StringComparison.OrdinalIgnoreCase) ||
-                    x.LastName.Contains(s, StringComparison.OrdinalIgnoreCase) ||
-                    x.BeneficiaryId.Contains(s, StringComparison.OrdinalIgnoreCase));
+                    (x.FirstName ?? "").Contains(s, StringComparison.OrdinalIgnoreCase) ||
+                    (x.LastName ?? "").Contains(s, StringComparison.OrdinalIgnoreCase) ||
+                    (x.BeneficiaryId ?? "").Contains(s, StringComparison.OrdinalIgnoreCase));
             }
 
-            foreach (var item in q)
-                ValidatedItems.Add(item);
-
+            foreach (var item in q) ValidatedItems.Add(item);
             OnPropertyChanged(nameof(ValidatedFoundText));
         }
 
-        // =========================
-        // Commands (reliable enums)
-        // =========================
+        // ========= Commands that match your XAML =========
 
         [RelayCommand]
         private void SetMainTab(ValidatorsMainTab tab)
         {
             ActiveMainTab = tab;
 
-            // keep selection sensible
             if (ActiveMainTab == ValidatorsMainTab.NotYetValidated)
             {
+                LoadNotYet();
                 SelectedPerson = NotYetItems.FirstOrDefault();
             }
             else
             {
-                // ensure table is loaded based on current status tab
                 LoadValidated();
                 SelectedPerson = ValidatedItems.FirstOrDefault();
             }
@@ -217,33 +206,10 @@ namespace WpfApp3.ViewModels.Validators
             SelectedPerson = ValidatedItems.FirstOrDefault();
         }
 
-        [RelayCommand]
-        private void SearchNotYet() => LoadNotYet();
+        [RelayCommand] private void SearchNotYet() => LoadNotYet();
+        [RelayCommand] private void SearchValidated() => LoadValidated();
 
-        [RelayCommand]
-        private void SearchValidated() => LoadValidated();
-
-        [RelayCommand]
-        private void SaveProfile()
-        {
-            // dummy: do nothing (bindings already update SelectedPerson)
-        }
-
-        [RelayCommand]
-        private void OpenValidateModal()
-        {
-            if (SelectedPerson is null) return;
-
-            ValidateSelectedStatus = string.IsNullOrWhiteSpace(SelectedPerson.Status)
-                ? "Endorsed"
-                : SelectedPerson.Status;
-
-            IsValidateModalOpen = true;
-        }
-
-        [RelayCommand]
-        private void CloseValidateModal() => IsValidateModalOpen = false;
-
+        // ✅ OPEN PROFILE MODAL FROM TABLE ROW (pencil)
         [RelayCommand]
         private void OpenProfileModal(ValidatorRecord? person)
         {
@@ -252,35 +218,57 @@ namespace WpfApp3.ViewModels.Validators
             IsProfileModalOpen = true;
         }
 
-        [RelayCommand]
-        private void CloseProfileModal() => IsProfileModalOpen = false;
+        [RelayCommand] private void CloseProfileModal() => IsProfileModalOpen = false;
 
+        // ===== Save profile confirm modal =====
         [RelayCommand]
-        private void CloseAllModals()
+        private void OpenSaveConfirm()
         {
-            IsValidateModalOpen = false;
-            IsProfileModalOpen = false;
+            if (SelectedPerson is null) return;
+            IsSaveConfirmOpen = true;
         }
 
+        [RelayCommand] private void CloseSaveConfirm() => IsSaveConfirmOpen = false;
+
+        [RelayCommand]
+        private void ConfirmSaveProfile()
+        {
+            // dummy save for now
+            IsSaveConfirmOpen = false;
+        }
+
+        // ===== Validate modal =====
+        [RelayCommand]
+        private void OpenValidateModal()
+        {
+            if (SelectedPerson is null) return;
+            ValidateSelectedStatus = string.IsNullOrWhiteSpace(SelectedPerson.Status) ? "Endorsed" : SelectedPerson.Status;
+            IsValidateModalOpen = true;
+        }
+
+        [RelayCommand] private void CloseValidateModal() => IsValidateModalOpen = false;
+
+        // ✅ FIXED: no more NullReference crash
         [RelayCommand]
         private void ConfirmValidate()
         {
-            if (SelectedPerson is null) return;
-            if (string.IsNullOrWhiteSpace(ValidateSelectedStatus)) return;
+            var person = SelectedPerson;
+            if (person is null) return;
 
-            var newStatus = ValidateSelectedStatus.Trim();
+            var id = person.Id; // capture BEFORE any list refresh
+            var newStatus = (ValidateSelectedStatus ?? "").Trim();
+            if (string.IsNullOrWhiteSpace(newStatus)) return;
 
-            // If from Not Yet Validated -> move to validated
+            // Not Yet -> move to validated
             if (ActiveMainTab == ValidatorsMainTab.NotYetValidated)
             {
-                SelectedPerson.Status = newStatus;
+                person.Status = newStatus;
 
-                _allNotYet.Remove(SelectedPerson);
-                _allValidated.Add(SelectedPerson);
+                _allNotYet.Remove(person);
+                _allValidated.Add(person);
 
                 LoadNotYet();
 
-                // switch to validated tab and status tab
                 ActiveMainTab = ValidatorsMainTab.Validated;
                 ActiveStatusTab = newStatus switch
                 {
@@ -290,12 +278,13 @@ namespace WpfApp3.ViewModels.Validators
                 };
 
                 LoadValidated();
-                SelectedPerson = ValidatedItems.FirstOrDefault(x => x.Id == SelectedPerson.Id) ?? ValidatedItems.FirstOrDefault();
+
+                SelectedPerson = ValidatedItems.FirstOrDefault(x => x.Id == id) ?? ValidatedItems.FirstOrDefault();
             }
             else
             {
-                // already validated, may need to "move" between status filters
-                SelectedPerson.Status = newStatus;
+                // Validated -> just update status (might move between filters)
+                person.Status = newStatus;
 
                 ActiveStatusTab = newStatus switch
                 {
@@ -305,36 +294,10 @@ namespace WpfApp3.ViewModels.Validators
                 };
 
                 LoadValidated();
-                SelectedPerson = ValidatedItems.FirstOrDefault(x => x.Id == SelectedPerson.Id) ?? ValidatedItems.FirstOrDefault();
+                SelectedPerson = ValidatedItems.FirstOrDefault(x => x.Id == id) ?? ValidatedItems.FirstOrDefault();
             }
 
             IsValidateModalOpen = false;
         }
-
-
-        // ===== Save Profile Confirmation Modal =====
-        [ObservableProperty] private bool isSaveConfirmOpen = false;
-
-        [RelayCommand]
-        private void OpenSaveConfirm()
-        {
-            if (SelectedPerson is null) return;
-            IsSaveConfirmOpen = true;
-        }
-
-        [RelayCommand]
-        private void CloseSaveConfirm() => IsSaveConfirmOpen = false;
-
-        [RelayCommand]
-        private void ConfirmSaveProfile()
-        {
-            // dummy save for now
-            // later: repository update call
-            IsSaveConfirmOpen = false;
-        }
-
-
     }
-
-
 }
