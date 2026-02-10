@@ -181,526 +181,591 @@
         <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightTextBrushKey}" Color="#2E3A59"/>
 
     </UserControl.Resources>
+    <Grid>
+        <Grid Margin="24">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
 
-    <Grid Margin="24">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-        </Grid.RowDefinitions>
+            <!-- Top tabs -->
+            <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,16">
 
-        <!-- Title -->
-        <TextBlock Text="Validators"
-                   FontSize="28"
-                   FontWeight="Bold"
-                   Foreground="#2E3A59"
-                   Margin="0,0,0,10"/>
+                <!-- Not Yet Validated -->
+                <Button Content="Not Yet Validated"
+                Command="{Binding SetMainTabCommand}"
+                CommandParameter="{x:Static vm:ValidatorsMainTab.NotYetValidated}">
+                    <Button.Style>
+                        <Style TargetType="Button" BasedOn="{StaticResource TopTabPill}">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding ActiveMainTab}" Value="{x:Static vm:ValidatorsMainTab.NotYetValidated}">
+                                    <Setter Property="Background" Value="#2E3A59"/>
+                                    <Setter Property="Foreground" Value="White"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
+                </Button>
 
-        <!-- Top tabs -->
-        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,16">
+                <!-- Validated -->
+                <Button Content="Validated"
+                Margin="10,0,0,0"
+                Command="{Binding SetMainTabCommand}"
+                CommandParameter="{x:Static vm:ValidatorsMainTab.Validated}">
+                    <Button.Style>
+                        <Style TargetType="Button" BasedOn="{StaticResource TopTabPill}">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding ActiveMainTab}" Value="{x:Static vm:ValidatorsMainTab.Validated}">
+                                    <Setter Property="Background" Value="#2E3A59"/>
+                                    <Setter Property="Foreground" Value="White"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
+                </Button>
+            </StackPanel>
 
-            <!-- Not Yet Validated -->
-            <Button Content="Not Yet Validated"
-                    Command="{Binding SetMainTabCommand}"
-                    CommandParameter="{x:Static vm:ValidatorsMainTab.NotYetValidated}">
-                <Button.Style>
-                    <Style TargetType="Button" BasedOn="{StaticResource TopTabPill}">
+            <!-- ============================= -->
+            <!-- NOT YET VALIDATED SECTION     -->
+            <!-- ============================= -->
+            <Grid Grid.Row="2">
+                <Grid.Style>
+                    <Style TargetType="Grid">
+                        <Setter Property="Visibility" Value="Collapsed"/>
                         <Style.Triggers>
                             <DataTrigger Binding="{Binding ActiveMainTab}" Value="{x:Static vm:ValidatorsMainTab.NotYetValidated}">
-                                <Setter Property="Background" Value="#2E3A59"/>
-                                <Setter Property="Foreground" Value="White"/>
+                                <Setter Property="Visibility" Value="Visible"/>
                             </DataTrigger>
                         </Style.Triggers>
                     </Style>
-                </Button.Style>
-            </Button>
+                </Grid.Style>
 
-            <!-- Validated -->
-            <Button Content="Validated"
-                    Margin="10,0,0,0"
-                    Command="{Binding SetMainTabCommand}"
-                    CommandParameter="{x:Static vm:ValidatorsMainTab.Validated}">
-                <Button.Style>
-                    <Style TargetType="Button" BasedOn="{StaticResource TopTabPill}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="360"/>
+                    <ColumnDefinition Width="18"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- People -->
+                <Border Style="{StaticResource Card}">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+
+                        <TextBlock Text="People" FontWeight="SemiBold" Foreground="#2E3A59"/>
+
+                        <Grid Grid.Row="1" Margin="0,12,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="10"/>
+                                <ColumnDefinition Width="40"/>
+                            </Grid.ColumnDefinitions>
+
+                            <TextBox Style="{StaticResource SoftTextBox}"
+                             Text="{Binding SearchNotYetText, UpdateSourceTrigger=PropertyChanged}"
+                             ToolTip="Search Here"/>
+
+                            <Button Grid.Column="2"
+                            Style="{StaticResource IconButton}"
+                            Content="🔍"
+                            Command="{Binding SearchNotYetCommand}"/>
+                        </Grid>
+
+                        <TextBlock Grid.Row="2"
+                           Text="{Binding NotYetFoundText}"
+                           Foreground="#6B778C"
+                           FontSize="12"
+                           Margin="2,10,0,10"/>
+
+                        <ListBox Grid.Row="3"
+                         ItemsSource="{Binding NotYetItems}"
+                         SelectedItem="{Binding SelectedPerson, Mode=TwoWay}"
+                         BorderThickness="0"
+                         Background="Transparent">
+                            <ListBox.ItemContainerStyle>
+                                <Style TargetType="ListBoxItem">
+                                    <Setter Property="Padding" Value="12"/>
+                                    <Setter Property="Margin" Value="0,0,0,8"/>
+                                    <Setter Property="Background" Value="Transparent"/>
+                                    <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                                    <Style.Triggers>
+                                        <Trigger Property="IsSelected" Value="True">
+                                            <Setter Property="Background" Value="#2E3A59"/>
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </ListBox.ItemContainerStyle>
+
+                            <ListBox.ItemTemplate>
+                                <DataTemplate DataType="{x:Type models:ValidatorRecord}">
+                                    <TextBlock Text="{Binding FullName}" FontWeight="SemiBold">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="Foreground" Value="#2E3A59"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=ListBoxItem}, Path=IsSelected}" Value="True">
+                                                        <Setter Property="Foreground" Value="White"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                    </Grid>
+                </Border>
+
+                <!-- Profile -->
+                <Border Grid.Column="2" Style="{StaticResource Card}">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <TextBlock Text="Profile Information" FontWeight="SemiBold" Foreground="#2E3A59"/>
+
+                        <Grid Grid.Row="1" Margin="0,14,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="150"/>
+                                <ColumnDefinition Width="18"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="18"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <Border Width="140" Height="140" CornerRadius="70" Background="#D9ECFF">
+                                <TextBlock Text="👤" FontSize="44" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+
+                            <!-- Left fields -->
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Text="Beneficiary ID" Foreground="#6B778C" FontSize="12"/>
+                                <TextBox Style="{StaticResource SoftTextBox}" Margin="0,6,0,0"
+                                 Text="{Binding SelectedPerson.BeneficiaryId, UpdateSourceTrigger=PropertyChanged}"/>
+
+                                <TextBlock Text="First Name" Foreground="#6B778C" FontSize="12" Margin="0,12,0,0"/>
+                                <TextBox Style="{StaticResource SoftTextBox}" Margin="0,6,0,0"
+                                 Text="{Binding SelectedPerson.FirstName, UpdateSourceTrigger=PropertyChanged}"/>
+
+                                <TextBlock Text="Gender" Foreground="#6B778C" FontSize="12" Margin="0,12,0,0"/>
+                                <ComboBox Style="{StaticResource SoftCombo}" Margin="0,6,0,0"
+                                  ItemsSource="{Binding GenderOptions}"
+                                  SelectedItem="{Binding SelectedPerson.Gender, UpdateSourceTrigger=PropertyChanged}"/>
+
+                                <TextBlock Text="Barangay" Foreground="#6B778C" FontSize="12" Margin="0,12,0,0"/>
+                                <TextBox Style="{StaticResource SoftTextBox}" Margin="0,6,0,0"
+                                 Text="{Binding SelectedPerson.Barangay, UpdateSourceTrigger=PropertyChanged}"/>
+                            </StackPanel>
+
+                            <!-- Right fields -->
+                            <StackPanel Grid.Column="4">
+                                <TextBlock Text="Civil Registry ID" Foreground="#6B778C" FontSize="12"/>
+                                <TextBox Style="{StaticResource SoftTextBox}" Margin="0,6,0,0"
+                                 Text="{Binding SelectedPerson.CivilRegistryId, UpdateSourceTrigger=PropertyChanged}"/>
+
+                                <TextBlock Text="Middle Name" Foreground="#6B778C" FontSize="12" Margin="0,12,0,0"/>
+                                <TextBox Style="{StaticResource SoftTextBox}" Margin="0,6,0,0"
+                                 Text="{Binding SelectedPerson.MiddleName, UpdateSourceTrigger=PropertyChanged}"/>
+
+                                <TextBlock Text="Last Name" Foreground="#6B778C" FontSize="12" Margin="0,12,0,0"/>
+                                <TextBox Style="{StaticResource SoftTextBox}" Margin="0,6,0,0"
+                                 Text="{Binding SelectedPerson.LastName, UpdateSourceTrigger=PropertyChanged}"/>
+
+                                <TextBlock Text="Classification" Foreground="#6B778C" FontSize="12" Margin="0,12,0,0"/>
+                                <ComboBox Style="{StaticResource SoftCombo}" Margin="0,6,0,0"
+                                  ItemsSource="{Binding ClassificationOptions}"
+                                  SelectedItem="{Binding SelectedPerson.Classification, UpdateSourceTrigger=PropertyChanged}"/>
+                            </StackPanel>
+
+                            <!-- Address -->
+                            <StackPanel Grid.Column="2" Grid.ColumnSpan="3" Margin="0,310,0,0">
+                                <TextBlock Text="Present Address" Foreground="#6B778C" FontSize="12"/>
+                                <TextBox Style="{StaticResource SoftTextBox}" Margin="0,6,0,0"
+                                 Text="{Binding SelectedPerson.PresentAddress, UpdateSourceTrigger=PropertyChanged}"/>
+                            </StackPanel>
+                        </Grid>
+
+                        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,18,0,0">
+                            <Button Content="Save Profile" Style="{StaticResource OutlineButton}" Command="{Binding OpenSaveConfirmCommand}"/>
+                            <Button Content="Validate" Margin="12,0,0,0" Style="{StaticResource PrimaryButton}" Command="{Binding OpenValidateModalCommand}"/>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+            </Grid>
+
+            <!-- ============================= -->
+            <!-- VALIDATED SECTION             -->
+            <!-- ============================= -->
+            <Grid Grid.Row="2">
+                <Grid.Style>
+                    <Style TargetType="Grid">
+                        <Setter Property="Visibility" Value="Collapsed"/>
                         <Style.Triggers>
                             <DataTrigger Binding="{Binding ActiveMainTab}" Value="{x:Static vm:ValidatorsMainTab.Validated}">
-                                <Setter Property="Background" Value="#2E3A59"/>
-                                <Setter Property="Foreground" Value="White"/>
+                                <Setter Property="Visibility" Value="Visible"/>
                             </DataTrigger>
                         </Style.Triggers>
                     </Style>
-                </Button.Style>
-            </Button>
-        </StackPanel>
+                </Grid.Style>
 
-        <!-- ============================= -->
-        <!-- NOT YET VALIDATED SECTION     -->
-        <!-- ============================= -->
-        <Grid Grid.Row="2">
-            <Grid.Style>
-                <Style TargetType="Grid">
-                    <Setter Property="Visibility" Value="Collapsed"/>
-                    <Style.Triggers>
-                        <DataTrigger Binding="{Binding ActiveMainTab}" Value="{x:Static vm:ValidatorsMainTab.NotYetValidated}">
-                            <Setter Property="Visibility" Value="Visible"/>
-                        </DataTrigger>
-                    </Style.Triggers>
-                </Style>
-            </Grid.Style>
+                <Border Style="{StaticResource Card}">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
 
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="360"/>
-                <ColumnDefinition Width="18"/>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
+                        <!-- Search -->
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="360"/>
+                                <ColumnDefinition Width="52"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
 
-            <!-- People -->
-            <Border Style="{StaticResource Card}">
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="*"/>
-                    </Grid.RowDefinitions>
+                            <TextBox Style="{StaticResource SoftTextBox}"
+                             Text="{Binding SearchValidatedText, UpdateSourceTrigger=PropertyChanged}"
+                             ToolTip="Search Validated"/>
 
-                    <TextBlock Text="People" FontWeight="SemiBold" Foreground="#2E3A59"/>
+                            <Button Grid.Column="1" Margin="10,0,0,0"
+                            Style="{StaticResource IconButton}"
+                            Content="🔍"
+                            Command="{Binding SearchValidatedCommand}"/>
+                        </Grid>
 
-                    <Grid Grid.Row="1" Margin="0,12,0,0">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="10"/>
-                            <ColumnDefinition Width="40"/>
-                        </Grid.ColumnDefinitions>
+                        <!-- Status pills -->
+                        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,14,0,10">
 
-                        <TextBox Style="{StaticResource SoftTextBox}"
-                                 Text="{Binding SearchNotYetText, UpdateSourceTrigger=PropertyChanged}"
-                                 ToolTip="Search Here"/>
+                            <Button Content="Endorsed"
+                            Command="{Binding SetStatusTabCommand}"
+                            CommandParameter="{x:Static vm:ValidatorsStatusTab.Endorsed}">
+                                <Button.Style>
+                                    <Style TargetType="Button" BasedOn="{StaticResource StatusPill}">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding ActiveStatusTab}" Value="{x:Static vm:ValidatorsStatusTab.Endorsed}">
+                                                <Setter Property="Background" Value="#2E3A59"/>
+                                                <Setter Property="Foreground" Value="White"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Button.Style>
+                            </Button>
 
-                        <Button Grid.Column="2"
-                                Style="{StaticResource IconButton}"
-                                Content="🔍"
-                                Command="{Binding SearchNotYetCommand}"/>
-                    </Grid>
+                            <Button Content="Pending" Margin="8,0,0,0"
+                            Command="{Binding SetStatusTabCommand}"
+                            CommandParameter="{x:Static vm:ValidatorsStatusTab.Pending}">
+                                <Button.Style>
+                                    <Style TargetType="Button" BasedOn="{StaticResource StatusPill}">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding ActiveStatusTab}" Value="{x:Static vm:ValidatorsStatusTab.Pending}">
+                                                <Setter Property="Background" Value="#2E3A59"/>
+                                                <Setter Property="Foreground" Value="White"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Button.Style>
+                            </Button>
 
-                    <TextBlock Grid.Row="2"
-                               Text="{Binding NotYetFoundText}"
-                               Foreground="#6B778C"
-                               FontSize="12"
-                               Margin="2,10,0,10"/>
+                            <Button Content="Rejected" Margin="8,0,0,0"
+                            Command="{Binding SetStatusTabCommand}"
+                            CommandParameter="{x:Static vm:ValidatorsStatusTab.Rejected}">
+                                <Button.Style>
+                                    <Style TargetType="Button" BasedOn="{StaticResource StatusPill}">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding ActiveStatusTab}" Value="{x:Static vm:ValidatorsStatusTab.Rejected}">
+                                                <Setter Property="Background" Value="#2E3A59"/>
+                                                <Setter Property="Foreground" Value="White"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Button.Style>
+                            </Button>
 
-                    <ListBox Grid.Row="3"
-                             ItemsSource="{Binding NotYetItems}"
-                             SelectedItem="{Binding SelectedPerson, Mode=TwoWay}"
-                             BorderThickness="0"
-                             Background="Transparent">
-                        <ListBox.ItemContainerStyle>
-                            <Style TargetType="ListBoxItem">
-                                <Setter Property="Padding" Value="12"/>
-                                <Setter Property="Margin" Value="0,0,0,8"/>
-                                <Setter Property="Background" Value="Transparent"/>
-                                <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
-                                <Style.Triggers>
-                                    <Trigger Property="IsSelected" Value="True">
-                                        <Setter Property="Background" Value="#2E3A59"/>
-                                    </Trigger>
-                                </Style.Triggers>
-                            </Style>
-                        </ListBox.ItemContainerStyle>
+                        </StackPanel>
 
-                        <ListBox.ItemTemplate>
-                            <DataTemplate DataType="{x:Type models:ValidatorRecord}">
-                                <TextBlock Text="{Binding FullName}" FontWeight="SemiBold">
-                                    <TextBlock.Style>
-                                        <Style TargetType="TextBlock">
-                                            <Setter Property="Foreground" Value="#2E3A59"/>
-                                            <Style.Triggers>
-                                                <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=ListBoxItem}, Path=IsSelected}" Value="True">
-                                                    <Setter Property="Foreground" Value="White"/>
-                                                </DataTrigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </TextBlock.Style>
-                                </TextBlock>
-                            </DataTemplate>
-                        </ListBox.ItemTemplate>
-                    </ListBox>
-                </Grid>
-            </Border>
+                        <!-- Found -->
+                        <TextBlock Grid.Row="2"
+                           Text="{Binding ValidatedFoundText}"
+                           Foreground="#6B778C"
+                           FontSize="12"
+                           Margin="2,0,0,10"/>
 
-            <!-- Profile -->
-            <Border Grid.Column="2" Style="{StaticResource Card}">
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="*"/>
-                        <RowDefinition Height="Auto"/>
-                    </Grid.RowDefinitions>
+                        <!-- Table -->
+                        <Border Grid.Row="3" CornerRadius="18" Background="White" Padding="10" BorderBrush="#EEF2FF" BorderThickness="1">
+                            <DataGrid ItemsSource="{Binding ValidatedItems}"
+                              AutoGenerateColumns="False"
+                              CanUserAddRows="False"
+                              HeadersVisibility="Column"
+                              GridLinesVisibility="None"
+                              RowHeaderWidth="0"
+                              Background="Transparent"
+                              BorderThickness="0"
+                              FontSize="12"
+                              Foreground="#2E3A59"
+                              ColumnHeaderHeight="42"
+                              RowHeight="48"
+                              IsReadOnly="True"
+                              SelectionUnit="FullRow"
+                              SelectionMode="Single"
+                              FocusVisualStyle="{x:Null}">
 
-                    <TextBlock Text="Profile Information" FontWeight="SemiBold" Foreground="#2E3A59"/>
+                                <DataGrid.Resources>
+                                    <Style TargetType="DataGridColumnHeader">
+                                        <Setter Property="Foreground" Value="#6B86D6"/>
+                                        <Setter Property="FontWeight" Value="SemiBold"/>
+                                        <Setter Property="BorderBrush" Value="#EEF2FF"/>
+                                        <Setter Property="BorderThickness" Value="0,0,0,1"/>
+                                        <Setter Property="Background" Value="Transparent"/>
+                                        <Setter Property="VerticalContentAlignment" Value="Center"/>
+                                        <Setter Property="Padding" Value="8,0"/>
+                                    </Style>
 
-                    <Grid Grid.Row="1" Margin="0,14,0,0">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="150"/>
-                            <ColumnDefinition Width="18"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="18"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
+                                    <Style TargetType="DataGridRow">
+                                        <Setter Property="BorderBrush" Value="#EEF2FF"/>
+                                        <Setter Property="BorderThickness" Value="0,0,0,1"/>
+                                        <Setter Property="Background" Value="Transparent"/>
+                                        <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+                                    </Style>
 
-                        <Border Width="140" Height="140" CornerRadius="70" Background="#D9ECFF">
-                            <TextBlock Text="👤" FontSize="44" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    <Style TargetType="DataGridCell">
+                                        <Setter Property="VerticalContentAlignment" Value="Center"/>
+                                        <Setter Property="Padding" Value="10,0"/>
+                                        <Setter Property="BorderThickness" Value="0"/>
+                                        <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+                                    </Style>
+                                </DataGrid.Resources>
+
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="60"/>
+                                    <DataGridTextColumn Header="First Name" Binding="{Binding FirstName}" Width="*"/>
+                                    <DataGridTextColumn Header="Last Name" Binding="{Binding LastName}" Width="*"/>
+                                    <DataGridTextColumn Header="Gender" Binding="{Binding Gender}" Width="120"/>
+                                    <DataGridTextColumn Header="Barangay" Binding="{Binding Barangay}" Width="140"/>
+                                    <DataGridTextColumn Header="Classification" Binding="{Binding Classification}" Width="160"/>
+                                    <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="120"/>
+
+                                    <DataGridTemplateColumn Width="80" Header="">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <Button Style="{StaticResource RowActionButton}"
+                                                Content="✎"
+                                                Foreground="#2E3A59"
+                                                Command="{Binding DataContext.OpenProfileModalCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                                CommandParameter="{Binding}"/>
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
+                                </DataGrid.Columns>
+
+                            </DataGrid>
                         </Border>
-
-                        <!-- Left fields -->
-                        <StackPanel Grid.Column="2">
-                            <TextBlock Text="Beneficiary ID" Foreground="#6B778C" FontSize="12"/>
-                            <TextBox Style="{StaticResource SoftTextBox}" Margin="0,6,0,0"
-                                     Text="{Binding SelectedPerson.BeneficiaryId, UpdateSourceTrigger=PropertyChanged}"/>
-
-                            <TextBlock Text="First Name" Foreground="#6B778C" FontSize="12" Margin="0,12,0,0"/>
-                            <TextBox Style="{StaticResource SoftTextBox}" Margin="0,6,0,0"
-                                     Text="{Binding SelectedPerson.FirstName, UpdateSourceTrigger=PropertyChanged}"/>
-
-                            <TextBlock Text="Gender" Foreground="#6B778C" FontSize="12" Margin="0,12,0,0"/>
-                            <ComboBox Style="{StaticResource SoftCombo}" Margin="0,6,0,0"
-                                      ItemsSource="{Binding GenderOptions}"
-                                      SelectedItem="{Binding SelectedPerson.Gender, UpdateSourceTrigger=PropertyChanged}"/>
-
-                            <TextBlock Text="Barangay" Foreground="#6B778C" FontSize="12" Margin="0,12,0,0"/>
-                            <TextBox Style="{StaticResource SoftTextBox}" Margin="0,6,0,0"
-                                     Text="{Binding SelectedPerson.Barangay, UpdateSourceTrigger=PropertyChanged}"/>
-                        </StackPanel>
-
-                        <!-- Right fields -->
-                        <StackPanel Grid.Column="4">
-                            <TextBlock Text="Civil Registry ID" Foreground="#6B778C" FontSize="12"/>
-                            <TextBox Style="{StaticResource SoftTextBox}" Margin="0,6,0,0"
-                                     Text="{Binding SelectedPerson.CivilRegistryId, UpdateSourceTrigger=PropertyChanged}"/>
-
-                            <TextBlock Text="Middle Name" Foreground="#6B778C" FontSize="12" Margin="0,12,0,0"/>
-                            <TextBox Style="{StaticResource SoftTextBox}" Margin="0,6,0,0"
-                                     Text="{Binding SelectedPerson.MiddleName, UpdateSourceTrigger=PropertyChanged}"/>
-
-                            <TextBlock Text="Last Name" Foreground="#6B778C" FontSize="12" Margin="0,12,0,0"/>
-                            <TextBox Style="{StaticResource SoftTextBox}" Margin="0,6,0,0"
-                                     Text="{Binding SelectedPerson.LastName, UpdateSourceTrigger=PropertyChanged}"/>
-
-                            <TextBlock Text="Classification" Foreground="#6B778C" FontSize="12" Margin="0,12,0,0"/>
-                            <ComboBox Style="{StaticResource SoftCombo}" Margin="0,6,0,0"
-                                      ItemsSource="{Binding ClassificationOptions}"
-                                      SelectedItem="{Binding SelectedPerson.Classification, UpdateSourceTrigger=PropertyChanged}"/>
-                        </StackPanel>
-
-                        <!-- Address -->
-                        <StackPanel Grid.Column="2" Grid.ColumnSpan="3" Margin="0,310,0,0">
-                            <TextBlock Text="Present Address" Foreground="#6B778C" FontSize="12"/>
-                            <TextBox Style="{StaticResource SoftTextBox}" Margin="0,6,0,0"
-                                     Text="{Binding SelectedPerson.PresentAddress, UpdateSourceTrigger=PropertyChanged}"/>
-                        </StackPanel>
                     </Grid>
+                </Border>
+            </Grid>
 
-                    <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,18,0,0">
-                        <Button Content="Save Profile" Style="{StaticResource OutlineButton}" Command="{Binding SaveProfileCommand}"/>
-                        <Button Content="Validate" Margin="12,0,0,0" Style="{StaticResource PrimaryButton}" Command="{Binding OpenValidateModalCommand}"/>
-                    </StackPanel>
-                </Grid>
-            </Border>
-        </Grid>
+            <!-- ============================= -->
+            <!-- VALIDATE MODAL                -->
+            <!-- ============================= -->
+            <Grid Panel.ZIndex="920"
+          Visibility="{Binding IsValidateModalOpen, Converter={StaticResource BoolToVis}}">
+                <Border Background="#80000000"/>
+                <Button Style="{StaticResource BackdropButton}" Command="{Binding CloseValidateModalCommand}"/>
 
-        <!-- ============================= -->
-        <!-- VALIDATED SECTION             -->
-        <!-- ============================= -->
-        <Grid Grid.Row="2">
-            <Grid.Style>
-                <Style TargetType="Grid">
-                    <Setter Property="Visibility" Value="Collapsed"/>
-                    <Style.Triggers>
-                        <DataTrigger Binding="{Binding ActiveMainTab}" Value="{x:Static vm:ValidatorsMainTab.Validated}">
-                            <Setter Property="Visibility" Value="Visible"/>
-                        </DataTrigger>
-                    </Style.Triggers>
-                </Style>
-            </Grid.Style>
-
-            <Border Style="{StaticResource Card}">
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="*"/>
-                    </Grid.RowDefinitions>
-
-                    <!-- Search -->
+                <Border Width="520"
+                CornerRadius="18"
+                Background="White"
+                Padding="18"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center">
                     <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="360"/>
-                            <ColumnDefinition Width="52"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
 
-                        <TextBox Style="{StaticResource SoftTextBox}"
-                                 Text="{Binding SearchValidatedText, UpdateSourceTrigger=PropertyChanged}"
-                                 ToolTip="Search Validated"/>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
 
-                        <Button Grid.Column="1" Margin="10,0,0,0"
-                                Style="{StaticResource IconButton}"
-                                Content="🔍"
-                                Command="{Binding SearchValidatedCommand}"/>
+                            <TextBlock Text="Validate"
+                               FontSize="16"
+                               FontWeight="Bold"
+                               Foreground="#2E3A59"/>
+
+                            <Button Grid.Column="1"
+                            Content="✕"
+                            Width="28" Height="28"
+                            Background="Transparent"
+                            BorderBrush="Transparent"
+                            Cursor="Hand"
+                            Command="{Binding CloseValidateModalCommand}"/>
+                        </Grid>
+
+                        <StackPanel Grid.Row="1" Margin="0,14,0,0">
+                            <TextBlock Text="Status" Foreground="#2E3A59" Margin="0,0,0,6"/>
+                            <ComboBox Style="{StaticResource SoftCombo}"
+                              ItemsSource="{Binding ValidateStatusOptions}"
+                              SelectedItem="{Binding ValidateSelectedStatus}"/>
+                        </StackPanel>
+
+                        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,16,0,0">
+                            <Button Content="Cancel"
+                            Width="120" Height="38"
+                            Background="Transparent"
+                            BorderBrush="Transparent"
+                            Foreground="#2E3A59"
+                            FontWeight="SemiBold"
+                            Cursor="Hand"
+                            Command="{Binding CloseValidateModalCommand}"/>
+
+                            <Button Content="Confirm"
+                            Margin="16,0,0,0"
+                            Width="140" Height="38"
+                            Style="{StaticResource PrimaryButton}"
+                            Command="{Binding ConfirmValidateCommand}"/>
+                        </StackPanel>
                     </Grid>
+                </Border>
+            </Grid>
 
-                    <!-- Status pills -->
-                    <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,14,0,10">
+            <!-- ============================= -->
+            <!-- PROFILE MODAL                 -->
+            <!-- ============================= -->
+            <Grid Panel.ZIndex="910"
+          Visibility="{Binding IsProfileModalOpen, Converter={StaticResource BoolToVis}}">
+                <Border Background="#80000000"/>
+                <Button Style="{StaticResource BackdropButton}" Command="{Binding CloseProfileModalCommand}"/>
 
-                        <Button Content="Endorsed"
-                                Command="{Binding SetStatusTabCommand}"
-                                CommandParameter="{x:Static vm:ValidatorsStatusTab.Endorsed}">
-                            <Button.Style>
-                                <Style TargetType="Button" BasedOn="{StaticResource StatusPill}">
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding ActiveStatusTab}" Value="{x:Static vm:ValidatorsStatusTab.Endorsed}">
-                                            <Setter Property="Background" Value="#2E3A59"/>
-                                            <Setter Property="Foreground" Value="White"/>
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </Button.Style>
-                        </Button>
+                <Border Width="920"
+                CornerRadius="18"
+                Background="White"
+                Padding="22"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
 
-                        <Button Content="Pending" Margin="8,0,0,0"
-                                Command="{Binding SetStatusTabCommand}"
-                                CommandParameter="{x:Static vm:ValidatorsStatusTab.Pending}">
-                            <Button.Style>
-                                <Style TargetType="Button" BasedOn="{StaticResource StatusPill}">
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding ActiveStatusTab}" Value="{x:Static vm:ValidatorsStatusTab.Pending}">
-                                            <Setter Property="Background" Value="#2E3A59"/>
-                                            <Setter Property="Foreground" Value="White"/>
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </Button.Style>
-                        </Button>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
 
-                        <Button Content="Rejected" Margin="8,0,0,0"
-                                Command="{Binding SetStatusTabCommand}"
-                                CommandParameter="{x:Static vm:ValidatorsStatusTab.Rejected}">
-                            <Button.Style>
-                                <Style TargetType="Button" BasedOn="{StaticResource StatusPill}">
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding ActiveStatusTab}" Value="{x:Static vm:ValidatorsStatusTab.Rejected}">
-                                            <Setter Property="Background" Value="#2E3A59"/>
-                                            <Setter Property="Foreground" Value="White"/>
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </Button.Style>
-                        </Button>
+                            <TextBlock Text="Profile Information"
+                               FontSize="18"
+                               FontWeight="Bold"
+                               Foreground="#2E3A59"/>
 
-                    </StackPanel>
+                            <Button Grid.Column="1"
+                            Content="✕"
+                            Width="30" Height="30"
+                            Background="Transparent"
+                            BorderBrush="Transparent"
+                            Cursor="Hand"
+                            Command="{Binding CloseProfileModalCommand}"/>
+                        </Grid>
 
-                    <!-- Found -->
-                    <TextBlock Grid.Row="2"
-                               Text="{Binding ValidatedFoundText}"
-                               Foreground="#6B778C"
-                               FontSize="12"
-                               Margin="2,0,0,10"/>
+                        <TextBlock Grid.Row="1"
+                           Text="(Modal fields can be expanded later — right now it edits SelectedPerson)"
+                           Foreground="#6B778C"
+                           Margin="0,14,0,0"/>
 
-                    <!-- Table -->
-                    <Border Grid.Row="3" CornerRadius="18" Background="White" Padding="10" BorderBrush="#EEF2FF" BorderThickness="1">
-                        <DataGrid ItemsSource="{Binding ValidatedItems}"
-                                  AutoGenerateColumns="False"
-                                  CanUserAddRows="False"
-                                  HeadersVisibility="Column"
-                                  GridLinesVisibility="None"
-                                  RowHeaderWidth="0"
-                                  Background="Transparent"
-                                  BorderThickness="0"
-                                  FontSize="12"
-                                  Foreground="#2E3A59"
-                                  ColumnHeaderHeight="42"
-                                  RowHeight="48"
-                                  IsReadOnly="True"
-                                  SelectionUnit="FullRow"
-                                  SelectionMode="Single"
-                                  FocusVisualStyle="{x:Null}">
+                        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,18,0,0">
+                            <Button Content="Save Profile" Style="{StaticResource OutlineButton}" Command="{Binding SaveProfileCommand}"/>
+                            <Button Content="Validate" Margin="12,0,0,0" Style="{StaticResource PrimaryButton}" Command="{Binding OpenValidateModalCommand}"/>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+            </Grid>
 
-                            <DataGrid.Resources>
-                                <Style TargetType="DataGridColumnHeader">
-                                    <Setter Property="Foreground" Value="#6B86D6"/>
-                                    <Setter Property="FontWeight" Value="SemiBold"/>
-                                    <Setter Property="BorderBrush" Value="#EEF2FF"/>
-                                    <Setter Property="BorderThickness" Value="0,0,0,1"/>
-                                    <Setter Property="Background" Value="Transparent"/>
-                                    <Setter Property="VerticalContentAlignment" Value="Center"/>
-                                    <Setter Property="Padding" Value="8,0"/>
-                                </Style>
+            <!-- ============================= -->
+            <!-- SAVE PROFILE CONFIRM MODAL    -->
+            <!-- ============================= -->
+            <Grid Panel.ZIndex="940"
+  Visibility="{Binding IsSaveConfirmOpen, Converter={StaticResource BoolToVis}}">
+                <Border Background="#80000000"/>
+                <Button Style="{StaticResource BackdropButton}" Command="{Binding CloseSaveConfirmCommand}"/>
 
-                                <Style TargetType="DataGridRow">
-                                    <Setter Property="BorderBrush" Value="#EEF2FF"/>
-                                    <Setter Property="BorderThickness" Value="0,0,0,1"/>
-                                    <Setter Property="Background" Value="Transparent"/>
-                                    <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
-                                </Style>
+                <Border Width="520"
+        CornerRadius="18"
+        Background="White"
+        Padding="18"
+        HorizontalAlignment="Center"
+        VerticalAlignment="Center">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
 
-                                <Style TargetType="DataGridCell">
-                                    <Setter Property="VerticalContentAlignment" Value="Center"/>
-                                    <Setter Property="Padding" Value="10,0"/>
-                                    <Setter Property="BorderThickness" Value="0"/>
-                                    <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
-                                </Style>
-                            </DataGrid.Resources>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
 
-                            <DataGrid.Columns>
-                                <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="60"/>
-                                <DataGridTextColumn Header="First Name" Binding="{Binding FirstName}" Width="*"/>
-                                <DataGridTextColumn Header="Last Name" Binding="{Binding LastName}" Width="*"/>
-                                <DataGridTextColumn Header="Gender" Binding="{Binding Gender}" Width="120"/>
-                                <DataGridTextColumn Header="Barangay" Binding="{Binding Barangay}" Width="140"/>
-                                <DataGridTextColumn Header="Classification" Binding="{Binding Classification}" Width="160"/>
-                                <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="120"/>
+                            <TextBlock Text="Save Profile"
+                       FontSize="16"
+                       FontWeight="Bold"
+                       Foreground="#2E3A59"/>
 
-                                <DataGridTemplateColumn Width="80" Header="">
-                                    <DataGridTemplateColumn.CellTemplate>
-                                        <DataTemplate>
-                                            <Button Style="{StaticResource RowActionButton}"
-                                                    Content="✎"
-                                                    Foreground="#2E3A59"
-                                                    Command="{Binding DataContext.OpenProfileModalCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
-                                                    CommandParameter="{Binding}"/>
-                                        </DataTemplate>
-                                    </DataGridTemplateColumn.CellTemplate>
-                                </DataGridTemplateColumn>
-                            </DataGrid.Columns>
+                            <Button Grid.Column="1"
+                    Content="✕"
+                    Width="28" Height="28"
+                    Background="Transparent"
+                    BorderBrush="Transparent"
+                    Cursor="Hand"
+                    Command="{Binding CloseSaveConfirmCommand}"/>
+                        </Grid>
 
-                        </DataGrid>
-                    </Border>
-                </Grid>
-            </Border>
-        </Grid>
+                        <TextBlock Grid.Row="1"
+                   Text="Are you sure you want to save this profile?"
+                   Margin="0,14,0,0"
+                   Foreground="#2E3A59"
+                   TextWrapping="Wrap"/>
 
-        <!-- ============================= -->
-        <!-- VALIDATE MODAL                -->
-        <!-- ============================= -->
-        <Grid Panel.ZIndex="920"
-              Visibility="{Binding IsValidateModalOpen, Converter={StaticResource BoolToVis}}">
-            <Border Background="#80000000"/>
-            <Button Style="{StaticResource BackdropButton}" Command="{Binding CloseValidateModalCommand}"/>
-
-            <Border Width="520"
-                    CornerRadius="18"
-                    Background="White"
-                    Padding="18"
+                        <StackPanel Grid.Row="2"
+                    Orientation="Horizontal"
                     HorizontalAlignment="Center"
-                    VerticalAlignment="Center">
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                    </Grid.RowDefinitions>
+                    Margin="0,18,0,0">
+                            <Button Content="Cancel"
+                    Width="140" Height="40"
+                    Background="Transparent"
+                    BorderBrush="Transparent"
+                    Foreground="#2E3A59"
+                    FontWeight="SemiBold"
+                    Cursor="Hand"
+                    Command="{Binding CloseSaveConfirmCommand}"/>
 
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-
-                        <TextBlock Text="Validate"
-                                   FontSize="16"
-                                   FontWeight="Bold"
-                                   Foreground="#2E3A59"/>
-
-                        <Button Grid.Column="1"
-                                Content="✕"
-                                Width="28" Height="28"
-                                Background="Transparent"
-                                BorderBrush="Transparent"
-                                Cursor="Hand"
-                                Command="{Binding CloseValidateModalCommand}"/>
+                            <Button Content="Confirm"
+                    Margin="18,0,0,0"
+                    Width="160" Height="40"
+                    Style="{StaticResource PrimaryButton}"
+                    Command="{Binding ConfirmSaveProfileCommand}"/>
+                        </StackPanel>
                     </Grid>
+                </Border>
+            </Grid>
 
-                    <StackPanel Grid.Row="1" Margin="0,14,0,0">
-                        <TextBlock Text="Status" Foreground="#2E3A59" Margin="0,0,0,6"/>
-                        <ComboBox Style="{StaticResource SoftCombo}"
-                                  ItemsSource="{Binding ValidateStatusOptions}"
-                                  SelectedItem="{Binding ValidateSelectedStatus}"/>
-                    </StackPanel>
-
-                    <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,16,0,0">
-                        <Button Content="Cancel"
-                                Width="120" Height="38"
-                                Background="Transparent"
-                                BorderBrush="Transparent"
-                                Foreground="#2E3A59"
-                                FontWeight="SemiBold"
-                                Cursor="Hand"
-                                Command="{Binding CloseValidateModalCommand}"/>
-
-                        <Button Content="Confirm"
-                                Margin="16,0,0,0"
-                                Width="140" Height="38"
-                                Style="{StaticResource PrimaryButton}"
-                                Command="{Binding ConfirmValidateCommand}"/>
-                    </StackPanel>
-                </Grid>
-            </Border>
         </Grid>
-
-        <!-- ============================= -->
-        <!-- PROFILE MODAL                 -->
-        <!-- ============================= -->
-        <Grid Panel.ZIndex="910"
-              Visibility="{Binding IsProfileModalOpen, Converter={StaticResource BoolToVis}}">
-            <Border Background="#80000000"/>
-            <Button Style="{StaticResource BackdropButton}" Command="{Binding CloseProfileModalCommand}"/>
-
-            <Border Width="920"
-                    CornerRadius="18"
-                    Background="White"
-                    Padding="22"
-                    HorizontalAlignment="Center"
-                    VerticalAlignment="Center">
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="*"/>
-                        <RowDefinition Height="Auto"/>
-                    </Grid.RowDefinitions>
-
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-
-                        <TextBlock Text="Profile Information"
-                                   FontSize="18"
-                                   FontWeight="Bold"
-                                   Foreground="#2E3A59"/>
-
-                        <Button Grid.Column="1"
-                                Content="✕"
-                                Width="30" Height="30"
-                                Background="Transparent"
-                                BorderBrush="Transparent"
-                                Cursor="Hand"
-                                Command="{Binding CloseProfileModalCommand}"/>
-                    </Grid>
-
-                    <TextBlock Grid.Row="1"
-                               Text="(Modal fields can be expanded later — right now it edits SelectedPerson)"
-                               Foreground="#6B778C"
-                               Margin="0,14,0,0"/>
-
-                    <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,18,0,0">
-                        <Button Content="Save Profile" Style="{StaticResource OutlineButton}" Command="{Binding SaveProfileCommand}"/>
-                        <Button Content="Validate" Margin="12,0,0,0" Style="{StaticResource PrimaryButton}" Command="{Binding OpenValidateModalCommand}"/>
-                    </StackPanel>
-                </Grid>
-            </Border>
-        </Grid>
-
     </Grid>
+       
 </UserControl>

@@ -310,5 +310,31 @@ namespace WpfApp3.ViewModels.Validators
 
             IsValidateModalOpen = false;
         }
+
+
+        // ===== Save Profile Confirmation Modal =====
+        [ObservableProperty] private bool isSaveConfirmOpen = false;
+
+        [RelayCommand]
+        private void OpenSaveConfirm()
+        {
+            if (SelectedPerson is null) return;
+            IsSaveConfirmOpen = true;
+        }
+
+        [RelayCommand]
+        private void CloseSaveConfirm() => IsSaveConfirmOpen = false;
+
+        [RelayCommand]
+        private void ConfirmSaveProfile()
+        {
+            // dummy save for now
+            // later: repository update call
+            IsSaveConfirmOpen = false;
+        }
+
+
     }
+
+
 }
