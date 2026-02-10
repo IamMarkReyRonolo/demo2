@@ -4,7 +4,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="clr-namespace:WpfApp3.ViewModels.Validators"
-             xmlns:cv="clr-namespace:WpfApp3.Converters"
+             xmlns:conv="clr-namespace:WpfApp3.Views.Allotment"
              xmlns:models="clr-namespace:WpfApp3.Models"
              mc:Ignorable="d"
              d:DesignHeight="800" d:DesignWidth="1200">
@@ -12,8 +12,8 @@
     <UserControl.Resources>
 
         <!-- Converters -->
-        <cv:EnumEqualsConverter x:Key="EnumEq"/>
         <BooleanToVisibilityConverter x:Key="BoolToVis"/>
+        <conv:EqualsToBoolConverter x:Key="EqualsToBoolConverter"/>
 
         <!-- Colors -->
         <SolidColorBrush x:Key="PrimaryBrush" Color="#2E3A59"/>
