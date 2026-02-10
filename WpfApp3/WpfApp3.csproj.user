@@ -17,5 +17,8 @@
     <Compile Update="Views\Users\UsersView.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Update="Views\Validators\ValidatorsView.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
   </ItemGroup>
 </Project>

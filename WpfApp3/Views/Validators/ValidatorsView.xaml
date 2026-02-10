@@ -1,0 +1,716 @@
+﻿<UserControl x:Class="WpfApp3.Views.Validators.ValidatorsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="clr-namespace:WpfApp3.ViewModels.Validators"
+             xmlns:cv="clr-namespace:WpfApp3.Converters"
+             xmlns:models="clr-namespace:WpfApp3.Models"
+             mc:Ignorable="d"
+             d:DesignHeight="800" d:DesignWidth="1200">
+
+    <UserControl.Resources>
+
+        <!-- Converters -->
+        <cv:EnumEqualsConverter x:Key="EnumEq"/>
+        <BooleanToVisibilityConverter x:Key="BoolToVis"/>
+
+        <!-- Colors -->
+        <SolidColorBrush x:Key="PrimaryBrush" Color="#2E3A59"/>
+        <SolidColorBrush x:Key="PageBgBrush" Color="#F3F5F9"/>
+        <SolidColorBrush x:Key="CardBorderBrush" Color="#EEF2FF"/>
+        <SolidColorBrush x:Key="HintBrush" Color="#A3AEC2"/>
+
+        <!-- Card -->
+        <Style x:Key="CardStyle" TargetType="Border">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="CornerRadius" Value="18"/>
+            <Setter Property="BorderBrush" Value="{StaticResource CardBorderBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="18"/>
+            <Setter Property="SnapsToDevicePixels" Value="True"/>
+            <Setter Property="Effect">
+                <Setter.Value>
+                    <DropShadowEffect BlurRadius="18" ShadowDepth="2" Opacity="0.12"/>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Pill tab -->
+        <Style x:Key="PillToggleStyle" TargetType="ToggleButton">
+            <Setter Property="Height" Value="38"/>
+            <Setter Property="MinWidth" Value="160"/>
+            <Setter Property="Padding" Value="18,0"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="BorderBrush" Value="{StaticResource CardBorderBrush}"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="{StaticResource PrimaryBrush}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ToggleButton">
+                        <Border x:Name="Bd"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="12">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="{StaticResource PrimaryBrush}"/>
+                                <Setter Property="Foreground" Value="White"/>
+                                <Setter TargetName="Bd" Property="BorderBrush" Value="{StaticResource PrimaryBrush}"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Opacity" Value="0.6"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Small pill -->
+        <Style x:Key="SmallPillToggleStyle" TargetType="ToggleButton" BasedOn="{StaticResource PillToggleStyle}">
+            <Setter Property="MinWidth" Value="120"/>
+            <Setter Property="Height" Value="34"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Padding" Value="16,0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ToggleButton">
+                        <Border x:Name="Bd"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="12">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="{StaticResource PrimaryBrush}"/>
+                                <Setter Property="Foreground" Value="White"/>
+                                <Setter TargetName="Bd" Property="BorderBrush" Value="{StaticResource PrimaryBrush}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Primary button -->
+        <Style x:Key="PrimaryButton" TargetType="Button">
+            <Setter Property="Height" Value="40"/>
+            <Setter Property="MinWidth" Value="140"/>
+            <Setter Property="Padding" Value="18,0"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Background" Value="{StaticResource PrimaryBrush}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource PrimaryBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="12">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Outline button -->
+        <Style x:Key="OutlineButton" TargetType="Button" BasedOn="{StaticResource PrimaryButton}">
+            <Setter Property="Foreground" Value="{StaticResource PrimaryBrush}"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderBrush" Value="{StaticResource PrimaryBrush}"/>
+        </Style>
+
+        <!-- TextBox -->
+        <Style x:Key="SoftTextBox" TargetType="TextBox">
+            <Setter Property="Height" Value="36"/>
+            <Setter Property="Padding" Value="12,0"/>
+            <Setter Property="BorderBrush" Value="{StaticResource CardBorderBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TextBox">
+                        <Border CornerRadius="10"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}">
+                            <ScrollViewer x:Name="PART_ContentHost" Margin="0"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- ComboBox -->
+        <Style x:Key="SoftComboBox" TargetType="ComboBox">
+            <Setter Property="Height" Value="36"/>
+            <Setter Property="Padding" Value="10,0"/>
+            <Setter Property="BorderBrush" Value="{StaticResource CardBorderBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="FontSize" Value="13"/>
+        </Style>
+
+        <!-- DataGrid: no selection highlight (SelectionUnit MUST be valid) -->
+        <Style x:Key="NoSelectDataGrid" TargetType="DataGrid">
+            <Setter Property="AutoGenerateColumns" Value="False"/>
+            <Setter Property="HeadersVisibility" Value="Column"/>
+            <Setter Property="GridLinesVisibility" Value="None"/>
+            <Setter Property="RowHeaderWidth" Value="0"/>
+            <Setter Property="IsReadOnly" Value="True"/>
+            <Setter Property="CanUserAddRows" Value="False"/>
+            <Setter Property="CanUserDeleteRows" Value="False"/>
+            <Setter Property="CanUserResizeRows" Value="False"/>
+            <Setter Property="CanUserReorderColumns" Value="False"/>
+            <Setter Property="CanUserSortColumns" Value="False"/>
+            <Setter Property="SelectionUnit" Value="FullRow"/>
+            <Setter Property="SelectionMode" Value="Single"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="RowBackground" Value="White"/>
+            <Setter Property="AlternatingRowBackground" Value="White"/>
+            <Setter Property="HorizontalGridLinesBrush" Value="Transparent"/>
+            <Setter Property="VerticalGridLinesBrush" Value="Transparent"/>
+        </Style>
+
+        <Style TargetType="DataGridRow">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="SnapsToDevicePixels" Value="True"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#FFF9FAFD"/>
+                </Trigger>
+                <Trigger Property="IsSelected" Value="True">
+                    <Setter Property="Background" Value="White"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style TargetType="DataGridCell">
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="10,12"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Style.Triggers>
+                <Trigger Property="IsSelected" Value="True">
+                    <Setter Property="Background" Value="Transparent"/>
+                    <Setter Property="Foreground" Value="{Binding Foreground, RelativeSource={RelativeSource AncestorType=DataGrid}}"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style TargetType="DataGridColumnHeader">
+            <Setter Property="Foreground" Value="#6B7A99"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Padding" Value="10,12"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0,0,0,1"/>
+            <Setter Property="BorderBrush" Value="{StaticResource CardBorderBrush}"/>
+        </Style>
+
+        <!-- Icon button -->
+        <Style x:Key="IconButton" TargetType="Button">
+            <Setter Property="Width" Value="30"/>
+            <Setter Property="Height" Value="30"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="Transparent" CornerRadius="8">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+    </UserControl.Resources>
+
+    <Grid Background="{StaticResource PageBgBrush}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Top Tabs -->
+        <StackPanel Orientation="Horizontal" Margin="18,16,18,10" VerticalAlignment="Top">
+            <ToggleButton Content="Not Yet Validated"
+                          Style="{StaticResource PillToggleStyle}"
+                          IsChecked="{Binding ActiveMainTab, Converter={StaticResource EnumEq}, ConverterParameter=NotYetValidated}"
+                          Command="{Binding SwitchMainTabCommand}"
+                          CommandParameter="NotYet"/>
+
+            <ToggleButton Content="Validated"
+                          Margin="12,0,0,0"
+                          Style="{StaticResource PillToggleStyle}"
+                          IsChecked="{Binding ActiveMainTab, Converter={StaticResource EnumEq}, ConverterParameter=Validated}"
+                          Command="{Binding SwitchMainTabCommand}"
+                          CommandParameter="Validated"/>
+        </StackPanel>
+
+        <!-- Content -->
+        <Grid Grid.Row="1" Margin="18,0,18,18">
+
+            <!-- NOT YET VALIDATED VIEW -->
+            <Grid Visibility="{Binding ActiveMainTab, Converter={StaticResource EnumEq}, ConverterParameter=NotYetValidated, ConverterCulture=en-US}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="380"/>
+                    <ColumnDefinition Width="18"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Left: People -->
+                <Border Style="{StaticResource CardStyle}">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+
+                        <TextBlock Text="People" FontSize="16" FontWeight="SemiBold" Foreground="{StaticResource PrimaryBrush}"/>
+
+                        <Grid Grid.Row="1" Margin="0,12,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="10"/>
+                                <ColumnDefinition Width="44"/>
+                            </Grid.ColumnDefinitions>
+
+                            <TextBox Style="{StaticResource SoftTextBox}"
+                                     Text="{Binding SearchNotYetText, UpdateSourceTrigger=PropertyChanged}"
+                                     VerticalContentAlignment="Center"
+                                     ToolTip="Search Here"/>
+
+                            <Button Grid.Column="2"
+                                    Style="{StaticResource PrimaryButton}"
+                                    Width="44" MinWidth="44" Padding="0"
+                                    Command="{Binding SearchNotYetCommand}">
+                                <TextBlock Text="🔍" FontSize="14"/>
+                            </Button>
+                        </Grid>
+
+                        <TextBlock Grid.Row="2"
+                                   Margin="2,10,0,10"
+                                   Text="{Binding NotYetFoundText}"
+                                   Foreground="{StaticResource HintBrush}"
+                                   FontSize="12"
+                                   VerticalAlignment="Top"/>
+
+                        <ListBox Grid.Row="2"
+                                 Margin="0,34,0,0"
+                                 ItemsSource="{Binding NotYetItems}"
+                                 SelectedItem="{Binding SelectedPerson, Mode=TwoWay}"
+                                 BorderThickness="0"
+                                 Background="Transparent"
+                                 ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                            <ListBox.ItemContainerStyle>
+                                <Style TargetType="ListBoxItem">
+                                    <Setter Property="Padding" Value="12"/>
+                                    <Setter Property="Margin" Value="0,0,0,8"/>
+                                    <Setter Property="Background" Value="Transparent"/>
+                                    <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                                    <Style.Triggers>
+                                        <Trigger Property="IsSelected" Value="True">
+                                            <Setter Property="Background" Value="{StaticResource PrimaryBrush}"/>
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </ListBox.ItemContainerStyle>
+
+                            <ListBox.ItemTemplate>
+                                <DataTemplate DataType="{x:Type models:ValidatorRecord}">
+                                    <TextBlock Text="{Binding FullName}" FontWeight="SemiBold">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="Foreground" Value="{StaticResource PrimaryBrush}"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=ListBoxItem}, Path=IsSelected}" Value="True">
+                                                        <Setter Property="Foreground" Value="White"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                    </Grid>
+                </Border>
+
+                <!-- Right: Profile form -->
+                <Border Grid.Column="2" Style="{StaticResource CardStyle}">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <TextBlock Text="Profile Information"
+                                   FontSize="16"
+                                   FontWeight="SemiBold"
+                                   Foreground="{StaticResource PrimaryBrush}"/>
+
+                        <Grid Grid.Row="1" Margin="0,14,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="160"/>
+                                <ColumnDefinition Width="18"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="18"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <!-- Avatar placeholder -->
+                            <Border Width="140" Height="140" CornerRadius="70" Background="#D9ECFF"
+                                    VerticalAlignment="Top" HorizontalAlignment="Left">
+                                <TextBlock Text="👤" FontSize="44" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+
+                            <Grid Grid.Column="2">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+
+                                <TextBlock Text="Beneficiary ID" Foreground="#6B7A99" FontSize="12" Margin="2,0,0,6"/>
+                                <TextBox Grid.Row="1" Style="{StaticResource SoftTextBox}" Text="{Binding SelectedPerson.BeneficiaryId, UpdateSourceTrigger=PropertyChanged}"/>
+
+                                <TextBlock Grid.Row="2" Text="First Name" Foreground="#6B7A99" FontSize="12" Margin="2,14,0,6"/>
+                                <TextBox Grid.Row="3" Style="{StaticResource SoftTextBox}" Text="{Binding SelectedPerson.FirstName, UpdateSourceTrigger=PropertyChanged}"/>
+                            </Grid>
+
+                            <Grid Grid.Column="4">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+
+                                <TextBlock Text="Civil Registry ID" Foreground="#6B7A99" FontSize="12" Margin="2,0,0,6"/>
+                                <TextBox Grid.Row="1" Style="{StaticResource SoftTextBox}" Text="{Binding SelectedPerson.CivilRegistryId, UpdateSourceTrigger=PropertyChanged}"/>
+
+                                <TextBlock Grid.Row="2" Text="Middle Name" Foreground="#6B7A99" FontSize="12" Margin="2,14,0,6"/>
+                                <TextBox Grid.Row="3" Style="{StaticResource SoftTextBox}" Text="{Binding SelectedPerson.MiddleName, UpdateSourceTrigger=PropertyChanged}"/>
+                            </Grid>
+
+                            <!-- Second row group -->
+                            <Grid Grid.Column="2" Margin="0,120,0,0">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+
+                                <TextBlock Text="Gender" Foreground="#6B7A99" FontSize="12" Margin="2,0,0,6"/>
+                                <ComboBox Grid.Row="1" Style="{StaticResource SoftComboBox}"
+                                          ItemsSource="{Binding GenderOptions}"
+                                          SelectedItem="{Binding SelectedPerson.Gender, UpdateSourceTrigger=PropertyChanged}"/>
+
+                                <TextBlock Grid.Row="2" Text="Barangay" Foreground="#6B7A99" FontSize="12" Margin="2,14,0,6"/>
+                                <TextBox Grid.Row="3" Style="{StaticResource SoftTextBox}" Text="{Binding SelectedPerson.Barangay, UpdateSourceTrigger=PropertyChanged}"/>
+                            </Grid>
+
+                            <Grid Grid.Column="4" Margin="0,120,0,0">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+
+                                <TextBlock Text="Last Name" Foreground="#6B7A99" FontSize="12" Margin="2,0,0,6"/>
+                                <TextBox Grid.Row="1" Style="{StaticResource SoftTextBox}" Text="{Binding SelectedPerson.LastName, UpdateSourceTrigger=PropertyChanged}"/>
+
+                                <TextBlock Grid.Row="2" Text="Date of Birth" Foreground="#6B7A99" FontSize="12" Margin="2,14,0,6"/>
+                                <TextBox Grid.Row="3" Style="{StaticResource SoftTextBox}" Text="{Binding SelectedPerson.DateOfBirth, UpdateSourceTrigger=PropertyChanged}"/>
+                            </Grid>
+
+                            <!-- Third row group -->
+                            <Grid Grid.Column="4" Margin="0,260,0,0">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+
+                                <TextBlock Text="Classification" Foreground="#6B7A99" FontSize="12" Margin="2,0,0,6"/>
+                                <ComboBox Grid.Row="1"
+                                          Style="{StaticResource SoftComboBox}"
+                                          ItemsSource="{Binding ClassificationOptions}"
+                                          SelectedItem="{Binding SelectedPerson.Classification, UpdateSourceTrigger=PropertyChanged}"/>
+                            </Grid>
+
+                            <Grid Grid.Column="2" Grid.ColumnSpan="3" Margin="0,260,0,0">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                <TextBlock Text="Present Address" Foreground="#6B7A99" FontSize="12" Margin="2,0,0,6"/>
+                                <TextBox Grid.Row="1" Style="{StaticResource SoftTextBox}" Text="{Binding SelectedPerson.PresentAddress, UpdateSourceTrigger=PropertyChanged}"/>
+                            </Grid>
+                        </Grid>
+
+                        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,18,0,0">
+                            <Button Content="Save Profile" Style="{StaticResource OutlineButton}" Command="{Binding SaveProfileCommand}"/>
+                            <Button Content="Validate" Style="{StaticResource PrimaryButton}" Margin="12,0,0,0" Command="{Binding OpenValidateModalCommand}"/>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+            </Grid>
+
+            <!-- VALIDATED VIEW -->
+            <Grid Visibility="{Binding ActiveMainTab, Converter={StaticResource EnumEq}, ConverterParameter=Validated}">
+                <Border Style="{StaticResource CardStyle}">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+
+                        <!-- Search row -->
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="10"/>
+                                <ColumnDefinition Width="44"/>
+                            </Grid.ColumnDefinitions>
+
+                            <TextBox Style="{StaticResource SoftTextBox}"
+                                     Text="{Binding SearchValidatedText, UpdateSourceTrigger=PropertyChanged}"
+                                     VerticalContentAlignment="Center"
+                                     ToolTip="Search Validated"/>
+
+                            <Button Grid.Column="2"
+                                    Style="{StaticResource PrimaryButton}"
+                                    Width="44" MinWidth="44" Padding="0"
+                                    Command="{Binding SearchValidatedCommand}">
+                                <TextBlock Text="🔍" FontSize="14"/>
+                            </Button>
+                        </Grid>
+
+                        <!-- Pills -->
+                        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,14,0,0">
+                            <ToggleButton Content="Endorsed"
+                                          Style="{StaticResource SmallPillToggleStyle}"
+                                          IsChecked="{Binding ActiveStatusTab, Converter={StaticResource EnumEq}, ConverterParameter=Endorsed}"
+                                          Command="{Binding SwitchStatusTabCommand}"
+                                          CommandParameter="Endorsed"/>
+                            <ToggleButton Content="Pending"
+                                          Margin="10,0,0,0"
+                                          Style="{StaticResource SmallPillToggleStyle}"
+                                          IsChecked="{Binding ActiveStatusTab, Converter={StaticResource EnumEq}, ConverterParameter=Pending}"
+                                          Command="{Binding SwitchStatusTabCommand}"
+                                          CommandParameter="Pending"/>
+                            <ToggleButton Content="Rejected"
+                                          Margin="10,0,0,0"
+                                          Style="{StaticResource SmallPillToggleStyle}"
+                                          IsChecked="{Binding ActiveStatusTab, Converter={StaticResource EnumEq}, ConverterParameter=Rejected}"
+                                          Command="{Binding SwitchStatusTabCommand}"
+                                          CommandParameter="Rejected"/>
+                        </StackPanel>
+
+                        <!-- Table -->
+                        <DataGrid Grid.Row="2"
+                                  Margin="0,14,0,0"
+                                  Style="{StaticResource NoSelectDataGrid}"
+                                  ItemsSource="{Binding ValidatedItems}">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="70"/>
+                                <DataGridTextColumn Header="First Name" Binding="{Binding FirstName}" Width="*"/>
+                                <DataGridTextColumn Header="Last Name" Binding="{Binding LastName}" Width="*"/>
+                                <DataGridTextColumn Header="Gender" Binding="{Binding Gender}" Width="120"/>
+                                <DataGridTextColumn Header="Barangay" Binding="{Binding Barangay}" Width="160"/>
+                                <DataGridTextColumn Header="Classification" Binding="{Binding Classification}" Width="160"/>
+                                <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="140"/>
+
+                                <DataGridTemplateColumn Header="" Width="70">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <Button Style="{StaticResource IconButton}"
+                                                    ToolTip="Edit"
+                                                    Command="{Binding DataContext.OpenProfileModalCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                                    CommandParameter="{Binding}">
+                                                <TextBlock Text="✎" FontSize="14" Foreground="{StaticResource PrimaryBrush}"/>
+                                            </Button>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </Grid>
+                </Border>
+            </Grid>
+
+            <!-- ============ MODALS ============ -->
+
+            <!-- Profile Modal -->
+            <Grid Visibility="{Binding IsProfileModalOpen, Converter={StaticResource BoolToVis}}"
+                  Background="Transparent">
+                <Border Background="#80000000"
+                        MouseLeftButtonDown="Overlay_ClickToClose"/>
+
+                <Border Width="860"
+                        Height="520"
+                        Style="{StaticResource CardStyle}"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center"
+                        Padding="22">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <TextBlock Text="Profile Information"
+                                       FontSize="16"
+                                       FontWeight="SemiBold"
+                                       Foreground="{StaticResource PrimaryBrush}"/>
+
+                            <Button Grid.Column="1"
+                                    Style="{StaticResource IconButton}"
+                                    Command="{Binding CloseProfileModalCommand}">
+                                <TextBlock Text="✕" FontSize="14" Foreground="{StaticResource PrimaryBrush}"/>
+                            </Button>
+                        </Grid>
+
+                        <Grid Grid.Row="1" Margin="0,14,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="18"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <StackPanel>
+                                <TextBlock Text="Beneficiary ID" Foreground="#6B7A99" FontSize="12" Margin="2,0,0,6"/>
+                                <TextBox Style="{StaticResource SoftTextBox}" Text="{Binding SelectedPerson.BeneficiaryId, UpdateSourceTrigger=PropertyChanged}"/>
+
+                                <TextBlock Text="First Name" Foreground="#6B7A99" FontSize="12" Margin="2,14,0,6"/>
+                                <TextBox Style="{StaticResource SoftTextBox}" Text="{Binding SelectedPerson.FirstName, UpdateSourceTrigger=PropertyChanged}"/>
+
+                                <TextBlock Text="Gender" Foreground="#6B7A99" FontSize="12" Margin="2,14,0,6"/>
+                                <ComboBox Style="{StaticResource SoftComboBox}"
+                                          ItemsSource="{Binding GenderOptions}"
+                                          SelectedItem="{Binding SelectedPerson.Gender, UpdateSourceTrigger=PropertyChanged}"/>
+
+                                <TextBlock Text="Barangay" Foreground="#6B7A99" FontSize="12" Margin="2,14,0,6"/>
+                                <TextBox Style="{StaticResource SoftTextBox}" Text="{Binding SelectedPerson.Barangay, UpdateSourceTrigger=PropertyChanged}"/>
+                            </StackPanel>
+
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Text="Civil Registry ID" Foreground="#6B7A99" FontSize="12" Margin="2,0,0,6"/>
+                                <TextBox Style="{StaticResource SoftTextBox}" Text="{Binding SelectedPerson.CivilRegistryId, UpdateSourceTrigger=PropertyChanged}"/>
+
+                                <TextBlock Text="Last Name" Foreground="#6B7A99" FontSize="12" Margin="2,14,0,6"/>
+                                <TextBox Style="{StaticResource SoftTextBox}" Text="{Binding SelectedPerson.LastName, UpdateSourceTrigger=PropertyChanged}"/>
+
+                                <TextBlock Text="Date of Birth" Foreground="#6B7A99" FontSize="12" Margin="2,14,0,6"/>
+                                <TextBox Style="{StaticResource SoftTextBox}" Text="{Binding SelectedPerson.DateOfBirth, UpdateSourceTrigger=PropertyChanged}"/>
+
+                                <TextBlock Text="Classification" Foreground="#6B7A99" FontSize="12" Margin="2,14,0,6"/>
+                                <ComboBox Style="{StaticResource SoftComboBox}"
+                                          ItemsSource="{Binding ClassificationOptions}"
+                                          SelectedItem="{Binding SelectedPerson.Classification, UpdateSourceTrigger=PropertyChanged}"/>
+                            </StackPanel>
+
+                            <Grid Grid.ColumnSpan="3" Margin="0,300,0,0">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                <TextBlock Text="Present Address" Foreground="#6B7A99" FontSize="12" Margin="2,0,0,6"/>
+                                <TextBox Grid.Row="1" Style="{StaticResource SoftTextBox}" Text="{Binding SelectedPerson.PresentAddress, UpdateSourceTrigger=PropertyChanged}"/>
+                            </Grid>
+                        </Grid>
+
+                        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,18,0,0">
+                            <Button Content="Save Profile" Style="{StaticResource OutlineButton}" Command="{Binding SaveProfileCommand}"/>
+                            <Button Content="Validate" Style="{StaticResource PrimaryButton}" Margin="12,0,0,0" Command="{Binding OpenValidateModalCommand}"/>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+            </Grid>
+
+            <!-- Validate Modal -->
+            <Grid Visibility="{Binding IsValidateModalOpen, Converter={StaticResource BoolToVis}}"
+                  Background="Transparent">
+                <Border Background="#80000000"
+                        MouseLeftButtonDown="Overlay_ClickToClose"/>
+
+                <Border Width="560"
+                        Height="220"
+                        Style="{StaticResource CardStyle}"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center"
+                        Padding="22">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <TextBlock Text="Validate"
+                                       FontSize="18"
+                                       FontWeight="SemiBold"
+                                       Foreground="{StaticResource PrimaryBrush}"/>
+
+                            <Button Grid.Column="1"
+                                    Style="{StaticResource IconButton}"
+                                    Command="{Binding CloseValidateModalCommand}">
+                                <TextBlock Text="✕" FontSize="14" Foreground="{StaticResource PrimaryBrush}"/>
+                            </Button>
+                        </Grid>
+
+                        <ComboBox Grid.Row="1"
+                                  Margin="0,14,0,0"
+                                  Style="{StaticResource SoftComboBox}"
+                                  ItemsSource="{Binding ValidateStatusOptions}"
+                                  SelectedItem="{Binding ValidateSelectedStatus, UpdateSourceTrigger=PropertyChanged}"
+                                  ToolTip="Status"/>
+
+                        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,22,0,0">
+                            <Button Content="Cancel" Style="{StaticResource OutlineButton}" Command="{Binding CloseValidateModalCommand}"/>
+                            <Button Content="Confirm" Style="{StaticResource PrimaryButton}" Margin="12,0,0,0" Command="{Binding ConfirmValidateCommand}"/>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+            </Grid>
+
+        </Grid>
+    </Grid>
+</UserControl>

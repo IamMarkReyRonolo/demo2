@@ -1,14 +1,15 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using System;
 using System.Collections.ObjectModel;
 using System.Windows.Controls;
+using System.Windows.Input;
+using WpfApp3.Services;
 using WpfApp3.Views.Allotment;
 using WpfApp3.Views.Beneficiaries;
 using WpfApp3.Views.Dashboard;
 using WpfApp3.Views.Users;
-using System;
-using System.Windows.Input;
-using WpfApp3.Services;
+using WpfApp3.Views.Validators;
 
 namespace WpfApp3.ViewModels;
 
@@ -72,7 +73,11 @@ public partial class MainViewModel : ObservableObject
     }
     [RelayCommand] private void NavigateDistribution() => NavigatePlaceholder("Distribution");
     [RelayCommand] private void NavigateClientProfile() => NavigatePlaceholder("Client Profile");
-    [RelayCommand] private void NavigateValidators() => NavigatePlaceholder("Validators");
+    [RelayCommand] private void NavigateValidators()
+    {
+        PageTitle = "Navigators";
+        CurrentView = new ValidatorsView();
+    }
 
     [RelayCommand] private void NavigateUsers()
     {

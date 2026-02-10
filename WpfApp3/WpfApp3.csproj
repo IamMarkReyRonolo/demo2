@@ -18,7 +18,6 @@
 
   <ItemGroup>
     <Folder Include="Assets\" />
-    <Folder Include="Converters\" />
     <Folder Include="Themes\" />
   </ItemGroup>
 
