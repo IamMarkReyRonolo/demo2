@@ -1,7 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System.Collections.ObjectModel;
-using System.Globalization;
 using System.Linq;
 using WpfApp3.Models;
 
@@ -44,7 +43,7 @@ namespace WpfApp3.ViewModels.Validators
         [ObservableProperty] private bool isValidateModalOpen = false;
         [ObservableProperty] private bool isProfileModalOpen = false;
 
-        [ObservableProperty] private string validateSelectedStatus = ""; // dropdown selected (Endorsed/Pending/Rejected)
+        [ObservableProperty] private string validateSelectedStatus = "";
 
         // ===== UI text =====
         public string NotYetFoundText => $"Found {NotYetItems.Count} records";
@@ -58,6 +57,8 @@ namespace WpfApp3.ViewModels.Validators
         public ValidatorsViewModel()
         {
             SeedDummyData();
+
+            // initial loads
             LoadNotYet();
             LoadValidated();
 
@@ -68,7 +69,7 @@ namespace WpfApp3.ViewModels.Validators
         private void SeedDummyData()
         {
             // Not yet validated (Status = "")
-            var notYet = new[]
+            _allNotYet.AddRange(new[]
             {
                 NewPerson(101,"BENE-000101","CR-900101","Arjun","M.","Codilla","Male","25 January 1990","PWD","Male","San Jose, California, USA"),
                 NewPerson(102,"BENE-000102","CR-900102","Maria","L.","Santos","Female","03 March 1992","Senior Citizen","Admin","Quezon City, Philippines"),
@@ -78,9 +79,7 @@ namespace WpfApp3.ViewModels.Validators
                 NewPerson(106,"BENE-000106","CR-900106","Kristine","P.","Navarro","Female","21 July 1994","PWD","Admin","Iloilo City, Philippines"),
                 NewPerson(107,"BENE-000107","CR-900107","Mark","T.","Flores","Male","10 October 1993","None","Donation","Cagayan de Oro, Philippines"),
                 NewPerson(108,"BENE-000108","CR-900108","Lea","G.","Mendoza","Female","14 February 1995","PWD","Donation","Legazpi, Philippines"),
-            };
-
-            _allNotYet.AddRange(notYet);
+            });
 
             // Validated (Status = Endorsed/Pending/Rejected)
             _allValidated.AddRange(new[]
@@ -143,8 +142,8 @@ namespace WpfApp3.ViewModels.Validators
             NotYetItems.Clear();
 
             var q = _allNotYet.AsEnumerable();
-
             var s = (SearchNotYetText ?? "").Trim();
+
             if (!string.IsNullOrWhiteSpace(s))
             {
                 q = q.Where(x =>
@@ -188,30 +187,32 @@ namespace WpfApp3.ViewModels.Validators
             OnPropertyChanged(nameof(ValidatedFoundText));
         }
 
-        // ===== Commands =====
+        // =========================
+        // Commands (reliable enums)
+        // =========================
 
         [RelayCommand]
-        private void SwitchMainTab(string tab)
+        private void SetMainTab(ValidatorsMainTab tab)
         {
-            ActiveMainTab = tab == "Validated" ? ValidatorsMainTab.Validated : ValidatorsMainTab.NotYetValidated;
+            ActiveMainTab = tab;
 
-            // set a sensible selection when switching
+            // keep selection sensible
             if (ActiveMainTab == ValidatorsMainTab.NotYetValidated)
+            {
                 SelectedPerson = NotYetItems.FirstOrDefault();
+            }
             else
+            {
+                // ensure table is loaded based on current status tab
+                LoadValidated();
                 SelectedPerson = ValidatedItems.FirstOrDefault();
+            }
         }
 
         [RelayCommand]
-        private void SwitchStatusTab(string tab)
+        private void SetStatusTab(ValidatorsStatusTab tab)
         {
-            ActiveStatusTab = tab switch
-            {
-                "Pending" => ValidatorsStatusTab.Pending,
-                "Rejected" => ValidatorsStatusTab.Rejected,
-                _ => ValidatorsStatusTab.Endorsed
-            };
-
+            ActiveStatusTab = tab;
             LoadValidated();
             SelectedPerson = ValidatedItems.FirstOrDefault();
         }
@@ -223,24 +224,9 @@ namespace WpfApp3.ViewModels.Validators
         private void SearchValidated() => LoadValidated();
 
         [RelayCommand]
-        private void SelectNotYetPerson(ValidatorRecord? person)
-        {
-            if (person is null) return;
-            SelectedPerson = person;
-        }
-
-        [RelayCommand]
-        private void SelectValidatedPerson(ValidatorRecord? person)
-        {
-            if (person is null) return;
-            SelectedPerson = person;
-        }
-
-        [RelayCommand]
         private void SaveProfile()
         {
-            // dummy: do nothing; bindings already updated
-            // later we will call repository update here.
+            // dummy: do nothing (bindings already update SelectedPerson)
         }
 
         [RelayCommand]
@@ -248,8 +234,10 @@ namespace WpfApp3.ViewModels.Validators
         {
             if (SelectedPerson is null) return;
 
-            // default dropdown based on current status (or Endorsed if empty)
-            ValidateSelectedStatus = string.IsNullOrWhiteSpace(SelectedPerson.Status) ? "Endorsed" : SelectedPerson.Status;
+            ValidateSelectedStatus = string.IsNullOrWhiteSpace(SelectedPerson.Status)
+                ? "Endorsed"
+                : SelectedPerson.Status;
+
             IsValidateModalOpen = true;
         }
 
@@ -257,9 +245,10 @@ namespace WpfApp3.ViewModels.Validators
         private void CloseValidateModal() => IsValidateModalOpen = false;
 
         [RelayCommand]
-        private void OpenProfileModal()
+        private void OpenProfileModal(ValidatorRecord? person)
         {
-            if (SelectedPerson is null) return;
+            if (person is null) return;
+            SelectedPerson = person;
             IsProfileModalOpen = true;
         }
 
@@ -281,18 +270,17 @@ namespace WpfApp3.ViewModels.Validators
 
             var newStatus = ValidateSelectedStatus.Trim();
 
-            // If currently not yet validated → move to validated list
+            // If from Not Yet Validated -> move to validated
             if (ActiveMainTab == ValidatorsMainTab.NotYetValidated)
             {
                 SelectedPerson.Status = newStatus;
 
-                // move from _allNotYet to _allValidated
                 _allNotYet.Remove(SelectedPerson);
                 _allValidated.Add(SelectedPerson);
 
                 LoadNotYet();
 
-                // switch to validated view and filter to new status
+                // switch to validated tab and status tab
                 ActiveMainTab = ValidatorsMainTab.Validated;
                 ActiveStatusTab = newStatus switch
                 {
@@ -306,7 +294,7 @@ namespace WpfApp3.ViewModels.Validators
             }
             else
             {
-                // already validated → just update status, might move between filters
+                // already validated, may need to "move" between status filters
                 SelectedPerson.Status = newStatus;
 
                 ActiveStatusTab = newStatus switch
