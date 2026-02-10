@@ -46,6 +46,14 @@ namespace WpfApp3.ViewModels.Validators
 
         [ObservableProperty] private string validateSelectedStatus = ""; // Endorsed/Pending/Rejected
 
+        [RelayCommand]
+        private void CloseAllModals()
+        {
+            IsValidateModalOpen = false;
+            IsProfileModalOpen = false;
+            IsSaveConfirmOpen = false;
+        }
+
         // ===== UI text =====
         public string NotYetFoundText => $"Found {NotYetItems.Count} records";
         public string ValidatedFoundText => $"Found {ValidatedItems.Count} records";
