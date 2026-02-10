@@ -4,7 +4,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="clr-namespace:WpfApp3.ViewModels.Validators"
-             xmlns:conv="clr-namespace:WpfApp3.Views.Allotment"
+             xmlns:cv="clr-namespace:WpfApp3.Converters"
              xmlns:models="clr-namespace:WpfApp3.Models"
              mc:Ignorable="d"
              d:DesignHeight="800" d:DesignWidth="1200">
@@ -12,8 +12,8 @@
     <UserControl.Resources>
 
         <!-- Converters -->
+        <cv:EnumEqualsConverter x:Key="EnumEq"/>
         <BooleanToVisibilityConverter x:Key="BoolToVis"/>
-        <conv:EqualsToBoolConverter x:Key="EqualsToBoolConverter"/>
 
         <!-- Colors -->
         <SolidColorBrush x:Key="PrimaryBrush" Color="#2E3A59"/>
@@ -566,8 +566,18 @@
             <!-- ============ MODALS ============ -->
 
             <!-- Profile Modal -->
-            <Grid Visibility="{Binding IsProfileModalOpen, Converter={StaticResource BoolToVis}}"
+            <Grid
                   Background="Transparent">
+                <Grid.Style>
+                    <Style TargetType="Grid">
+                        <Setter Property="Visibility" Value="Collapsed"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsProfileModalOpen}" Value="True">
+                                <Setter Property="Visibility" Value="Visible"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Grid.Style>
                 <Border Background="#80000000"
                         MouseLeftButtonDown="Overlay_ClickToClose"/>
 
@@ -660,8 +670,18 @@
             </Grid>
 
             <!-- Validate Modal -->
-            <Grid Visibility="{Binding IsValidateModalOpen, Converter={StaticResource BoolToVis}}"
+            <Grid
                   Background="Transparent">
+                <Grid.Style>
+                    <Style TargetType="Grid">
+                        <Setter Property="Visibility" Value="Collapsed"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsValidateModalOpen}" Value="True">
+                                <Setter Property="Visibility" Value="Visible"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Grid.Style>
                 <Border Background="#80000000"
                         MouseLeftButtonDown="Overlay_ClickToClose"/>
 

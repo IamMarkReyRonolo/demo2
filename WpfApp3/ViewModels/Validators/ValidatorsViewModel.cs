@@ -41,8 +41,8 @@ namespace WpfApp3.ViewModels.Validators
         [ObservableProperty] private ValidatorRecord? selectedPerson;
 
         // ===== Modals =====
-        [ObservableProperty] private bool isValidateModalOpen;
-        [ObservableProperty] private bool isProfileModalOpen;
+        [ObservableProperty] private bool isValidateModalOpen = false;
+        [ObservableProperty] private bool isProfileModalOpen = false;
 
         [ObservableProperty] private string validateSelectedStatus = ""; // dropdown selected (Endorsed/Pending/Rejected)
 
