@@ -11,9 +11,24 @@
 
     <UserControl.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVis"/>
-
-        <!-- Used to highlight current page button -->
         <local:EqualsToBoolConverter x:Key="EqualsToBoolConverter"/>
+
+        <!-- Backdrop button (prevents hover turning blue) -->
+        <Style x:Key="BackdropButton" TargetType="Button">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderBrush" Value="{x:Null}"/>
+            <Setter Property="Foreground" Value="Transparent"/>
+            <Setter Property="Cursor" Value="Arrow"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="OverridesDefaultStyle" Value="True"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"/>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
 
         <!-- Icon-like square buttons -->
         <Style x:Key="IconButton" TargetType="Button">
@@ -112,23 +127,26 @@
             <Setter Property="Padding" Value="10,0"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
         </Style>
+
+        <!-- Remove selection/highlight -->
+        <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="Transparent"/>
+        <SolidColorBrush x:Key="{x:Static SystemColors.HighlightTextBrushKey}" Color="#2E3A59"/>
+        <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="Transparent"/>
+        <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightTextBrushKey}" Color="#2E3A59"/>
     </UserControl.Resources>
 
     <!-- ROOT OVERLAY GRID -->
-    <Grid>
+    <Grid VerticalAlignment="Stretch"
+          MinHeight="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Window}}">
+
         <!-- PAGE CONTENT -->
         <Grid Margin="24">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
-                <!-- Title -->
                 <RowDefinition Height="Auto"/>
-                <!-- Controls row -->
                 <RowDefinition Height="Auto"/>
-                <!-- Found text -->
                 <RowDefinition Height="*"/>
-                <!-- Table -->
                 <RowDefinition Height="Auto"/>
-                <!-- Pagination -->
             </Grid.RowDefinitions>
 
             <!-- Search + buttons + Add -->
@@ -170,7 +188,6 @@
                 </Border>
 
                 <Button Grid.Column="1" Style="{StaticResource IconButton}" Margin="10,0,0,0" Content="🔍"/>
-
                 <Button Grid.Column="2"
                         Style="{StaticResource IconButton}"
                         Margin="10,0,0,0"
@@ -214,16 +231,13 @@
                           ColumnHeaderHeight="42"
                           RowHeight="48"
                           IsReadOnly="True"
-  CanUserResizeRows="False"
-  CanUserReorderColumns="False"
-  CanUserSortColumns="False"
-IsHitTestVisible="True"
-  SelectionUnit="Cell"
-  SelectionMode="Single"
-    >
+                          CanUserResizeRows="False"
+                          CanUserReorderColumns="False"
+                          CanUserSortColumns="False"
+                          SelectionUnit="Cell"
+                          SelectionMode="Single">
 
                     <DataGrid.Resources>
-
                         <!-- Column headers -->
                         <Style TargetType="DataGridColumnHeader">
                             <Setter Property="Foreground" Value="#6B86D6"/>
@@ -246,8 +260,8 @@ IsHitTestVisible="True"
                                 <Setter.Value>
                                     <ControlTemplate TargetType="DataGridRow">
                                         <Border Background="Transparent"
-                            BorderBrush="{TemplateBinding BorderBrush}"
-                            BorderThickness="{TemplateBinding BorderThickness}">
+                                                BorderBrush="{TemplateBinding BorderBrush}"
+                                                BorderThickness="{TemplateBinding BorderThickness}">
                                             <DataGridCellsPresenter/>
                                         </Border>
                                     </ControlTemplate>
@@ -265,15 +279,13 @@ IsHitTestVisible="True"
                             <Setter Property="Template">
                                 <Setter.Value>
                                     <ControlTemplate TargetType="DataGridCell">
-                                        <Border Background="Transparent"
-                            SnapsToDevicePixels="True">
+                                        <Border Background="Transparent" SnapsToDevicePixels="True">
                                             <ContentPresenter VerticalAlignment="Center"/>
                                         </Border>
                                     </ControlTemplate>
                                 </Setter.Value>
                             </Setter>
                         </Style>
-
                     </DataGrid.Resources>
 
                     <DataGrid.Columns>
@@ -299,7 +311,7 @@ IsHitTestVisible="True"
 
                         <DataGridTextColumn Header="Project Name"
                                             Binding="{Binding ProjectName}"
-                                            Width="150"
+                                            Width="160"
                                             CellStyle="{StaticResource CenteredCellStyle}"
                                             ElementStyle="{StaticResource CenteredTextBlockStyle}"/>
 
@@ -327,12 +339,12 @@ IsHitTestVisible="True"
                                             CellStyle="{StaticResource CenteredCellStyle}"
                                             ElementStyle="{StaticResource CenteredTextBlockStyle}"/>
 
+                        <!-- NEW: Budget display (₱ or in-kind) -->
                         <DataGridTextColumn Header="Budget"
-                    Binding="{Binding BudgetDisplay}"
-                    Width="160"
-                    CellStyle="{StaticResource CenteredCellStyle}"
-                    ElementStyle="{StaticResource CenteredTextBlockStyle}"/>
-
+                                            Binding="{Binding BudgetDisplay}"
+                                            Width="170"
+                                            CellStyle="{StaticResource CenteredCellStyle}"
+                                            ElementStyle="{StaticResource CenteredTextBlockStyle}"/>
 
                         <!-- actions -->
                         <DataGridTemplateColumn Width="90" Header="">
@@ -403,8 +415,12 @@ IsHitTestVisible="True"
         </Grid>
 
         <!-- ADD / EDIT MODAL OVERLAY -->
-        <Grid Background="#80000000"
-              Visibility="{Binding IsFormOpen, Converter={StaticResource BoolToVis}}">
+        <Grid Panel.ZIndex="900"
+              Visibility="{Binding IsFormOpen, Converter={StaticResource BoolToVis}}"
+              HorizontalAlignment="Stretch"
+              VerticalAlignment="Stretch">
+            <Border Background="#80000000"/>
+            <Button Style="{StaticResource BackdropButton}" Command="{Binding CloseFormCommand}"/>
 
             <Border Width="900"
                     CornerRadius="18"
@@ -450,101 +466,88 @@ IsHitTestVisible="True"
                             <ColumnDefinition/>
                         </Grid.ColumnDefinitions>
 
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                        </Grid.RowDefinitions>
-
                         <!-- Left column -->
                         <StackPanel Grid.Column="0">
 
-                            <!-- Project Name -->
                             <TextBlock Text="Project Name" Foreground="#2E3A59" Margin="0,0,0,8"/>
                             <TextBox Text="{Binding ProjectNameInput, UpdateSourceTrigger=PropertyChanged}"
-             Height="40"
-             Padding="14,0"
-             BorderBrush="#E5ECFA"
-             Background="White"
-             VerticalContentAlignment="Center"/>
+                                     Height="40"
+                                     Padding="14,0"
+                                     BorderBrush="#E5ECFA"
+                                     Background="White"
+                                     VerticalContentAlignment="Center"/>
                             <TextBlock Text="{Binding ProjectNameError}"
-               Foreground="#E11D48"
-               FontSize="11"
-               Margin="2,6,0,0"
-               Visibility="{Binding HasProjectNameError, Converter={StaticResource BoolToVis}}"/>
+                                       Foreground="#E11D48"
+                                       FontSize="11"
+                                       Margin="2,6,0,0"
+                                       Visibility="{Binding HasProjectNameError, Converter={StaticResource BoolToVis}}"/>
 
-                            <!-- Department -->
                             <TextBlock Text="Department" Foreground="#2E3A59" Margin="0,18,0,8"/>
                             <ComboBox ItemsSource="{Binding Departments}"
-              SelectedItem="{Binding DepartmentInput}"
-              Height="40"
-              Padding="10,0"
-              BorderBrush="#E5ECFA"
-              Background="White"/>
+                                      SelectedItem="{Binding DepartmentInput}"
+                                      Height="40"
+                                      Padding="10,0"
+                                      BorderBrush="#E5ECFA"
+                                      Background="White"/>
                             <TextBlock Text="{Binding DepartmentError}"
-               Foreground="#E11D48"
-               FontSize="11"
-               Margin="2,6,0,0"
-               Visibility="{Binding HasDepartmentError, Converter={StaticResource BoolToVis}}"/>
+                                       Foreground="#E11D48"
+                                       FontSize="11"
+                                       Margin="2,6,0,0"
+                                       Visibility="{Binding HasDepartmentError, Converter={StaticResource BoolToVis}}"/>
 
-                            <!-- No of Beneficiaries -->
                             <TextBlock Text="No of Beneficiaries" Foreground="#2E3A59" Margin="0,18,0,8"/>
                             <TextBox Text="{Binding BeneficiariesInput, UpdateSourceTrigger=PropertyChanged}"
-             Height="40"
-             Padding="14,0"
-             BorderBrush="#E5ECFA"
-             Background="White"
-             VerticalContentAlignment="Center"
-             PreviewTextInput="DigitsOnly_PreviewTextInput"
-             PreviewKeyDown="BlockSpace_PreviewKeyDown"
-             Tag="digits"/>
+                                     Height="40"
+                                     Padding="14,0"
+                                     BorderBrush="#E5ECFA"
+                                     Background="White"
+                                     VerticalContentAlignment="Center"
+                                     PreviewTextInput="DigitsOnly_PreviewTextInput"
+                                     PreviewKeyDown="BlockSpace_PreviewKeyDown"
+                                     Tag="digits"/>
                             <TextBlock Text="{Binding BeneficiariesError}"
-               Foreground="#E11D48"
-               FontSize="11"
-               Margin="2,6,0,0"
-               Visibility="{Binding HasBeneficiariesError, Converter={StaticResource BoolToVis}}"/>
-
+                                       Foreground="#E11D48"
+                                       FontSize="11"
+                                       Margin="2,6,0,0"
+                                       Visibility="{Binding HasBeneficiariesError, Converter={StaticResource BoolToVis}}"/>
                         </StackPanel>
 
                         <!-- Right column -->
                         <StackPanel Grid.Column="2">
 
-                            <!-- Company -->
                             <TextBlock Text="Company" Foreground="#2E3A59" Margin="0,0,0,8"/>
                             <TextBox Text="{Binding CompanyInput, UpdateSourceTrigger=PropertyChanged}"
-             Height="40"
-             Padding="14,0"
-             BorderBrush="#E5ECFA"
-             Background="White"
-             VerticalContentAlignment="Center"/>
+                                     Height="40"
+                                     Padding="14,0"
+                                     BorderBrush="#E5ECFA"
+                                     Background="White"
+                                     VerticalContentAlignment="Center"/>
                             <TextBlock Text="{Binding CompanyError}"
-               Foreground="#E11D48"
-               FontSize="11"
-               Margin="2,6,0,0"
-               Visibility="{Binding HasCompanyError, Converter={StaticResource BoolToVis}}"/>
+                                       Foreground="#E11D48"
+                                       FontSize="11"
+                                       Margin="2,6,0,0"
+                                       Visibility="{Binding HasCompanyError, Converter={StaticResource BoolToVis}}"/>
 
-                            <!-- Source of Fund -->
                             <TextBlock Text="Source of Fund" Foreground="#2E3A59" Margin="0,18,0,8"/>
                             <ComboBox ItemsSource="{Binding SourcesOfFund}"
-              SelectedItem="{Binding SourceOfFundInput}"
-              Height="40"
-              Padding="10,0"
-              BorderBrush="#E5ECFA"
-              Background="White"/>
+                                      SelectedItem="{Binding SourceOfFundInput}"
+                                      Height="40"
+                                      Padding="10,0"
+                                      BorderBrush="#E5ECFA"
+                                      Background="White"/>
                             <TextBlock Text="{Binding SourceOfFundError}"
-               Foreground="#E11D48"
-               FontSize="11"
-               Margin="2,6,0,0"
-               Visibility="{Binding HasSourceOfFundError, Converter={StaticResource BoolToVis}}"/>
+                                       Foreground="#E11D48"
+                                       FontSize="11"
+                                       Margin="2,6,0,0"
+                                       Visibility="{Binding HasSourceOfFundError, Converter={StaticResource BoolToVis}}"/>
 
-                            <!-- Budget Type -->
                             <TextBlock Text="Budget Type" Foreground="#2E3A59" Margin="0,18,0,8"/>
                             <ComboBox ItemsSource="{Binding BudgetTypes}"
-              SelectedItem="{Binding BudgetTypeInput}"
-              Height="40"
-              Padding="10,0"
-              BorderBrush="#E5ECFA"
-              Background="White"/>
+                                      SelectedItem="{Binding BudgetTypeInput}"
+                                      Height="40"
+                                      Padding="10,0"
+                                      BorderBrush="#E5ECFA"
+                                      Background="White"/>
 
                             <!-- MONEY PANEL -->
                             <StackPanel Margin="0,14,0,0">
@@ -561,19 +564,19 @@ IsHitTestVisible="True"
 
                                 <TextBlock Text="Budget Amount (₱)" Foreground="#2E3A59" Margin="0,0,0,8"/>
                                 <TextBox Text="{Binding BudgetAmountInput, UpdateSourceTrigger=PropertyChanged}"
-                 Height="40"
-                 Padding="14,0"
-                 BorderBrush="#E5ECFA"
-                 Background="White"
-                 VerticalContentAlignment="Center"
-                 PreviewTextInput="Money_PreviewTextInput"
-                 PreviewKeyDown="BlockSpace_PreviewKeyDown"
-                 Tag="money"/>
+                                         Height="40"
+                                         Padding="14,0"
+                                         BorderBrush="#E5ECFA"
+                                         Background="White"
+                                         VerticalContentAlignment="Center"
+                                         PreviewTextInput="Money_PreviewTextInput"
+                                         PreviewKeyDown="BlockSpace_PreviewKeyDown"
+                                         Tag="money"/>
                                 <TextBlock Text="{Binding BudgetAmountError}"
-                   Foreground="#E11D48"
-                   FontSize="11"
-                   Margin="2,6,0,0"
-                   Visibility="{Binding HasBudgetAmountError, Converter={StaticResource BoolToVis}}"/>
+                                           Foreground="#E11D48"
+                                           FontSize="11"
+                                           Margin="2,6,0,0"
+                                           Visibility="{Binding HasBudgetAmountError, Converter={StaticResource BoolToVis}}"/>
                             </StackPanel>
 
                             <!-- IN-KIND PANEL -->
@@ -604,61 +607,59 @@ IsHitTestVisible="True"
 
                                     <!-- Qty -->
                                     <TextBox Grid.Row="0" Grid.Column="0"
-                     Text="{Binding BudgetQtyInput, UpdateSourceTrigger=PropertyChanged}"
-                     Height="40"
-                     Padding="14,0"
-                     BorderBrush="#E5ECFA"
-                     Background="White"
-                     VerticalContentAlignment="Center"
-                     PreviewTextInput="DigitsOnly_PreviewTextInput"
-                     PreviewKeyDown="BlockSpace_PreviewKeyDown"
-                     Tag="digits"/>
+                                             Text="{Binding BudgetQtyInput, UpdateSourceTrigger=PropertyChanged}"
+                                             Height="40"
+                                             Padding="14,0"
+                                             BorderBrush="#E5ECFA"
+                                             Background="White"
+                                             VerticalContentAlignment="Center"
+                                             PreviewTextInput="DigitsOnly_PreviewTextInput"
+                                             PreviewKeyDown="BlockSpace_PreviewKeyDown"
+                                             Tag="digits"/>
                                     <TextBlock Grid.Row="1" Grid.Column="0"
-                       Text="{Binding BudgetQtyError}"
-                       Foreground="#E11D48"
-                       FontSize="11"
-                       Margin="2,6,0,0"
-                       Visibility="{Binding HasBudgetQtyError, Converter={StaticResource BoolToVis}}"/>
+                                               Text="{Binding BudgetQtyError}"
+                                               Foreground="#E11D48"
+                                               FontSize="11"
+                                               Margin="2,6,0,0"
+                                               Visibility="{Binding HasBudgetQtyError, Converter={StaticResource BoolToVis}}"/>
 
                                     <!-- Unit -->
                                     <TextBox Grid.Row="0" Grid.Column="2"
-                     Text="{Binding BudgetUnitInput, UpdateSourceTrigger=PropertyChanged}"
-                     Height="40"
-                     Padding="14,0"
-                     BorderBrush="#E5ECFA"
-                     Background="White"
-                     VerticalContentAlignment="Center"/>
+                                             Text="{Binding BudgetUnitInput, UpdateSourceTrigger=PropertyChanged}"
+                                             Height="40"
+                                             Padding="14,0"
+                                             BorderBrush="#E5ECFA"
+                                             Background="White"
+                                             VerticalContentAlignment="Center"/>
                                     <TextBlock Grid.Row="1" Grid.Column="2"
-                       Text="{Binding BudgetUnitError}"
-                       Foreground="#E11D48"
-                       FontSize="11"
-                       Margin="2,6,0,0"
-                       Visibility="{Binding HasBudgetUnitError, Converter={StaticResource BoolToVis}}"/>
+                                               Text="{Binding BudgetUnitError}"
+                                               Foreground="#E11D48"
+                                               FontSize="11"
+                                               Margin="2,6,0,0"
+                                               Visibility="{Binding HasBudgetUnitError, Converter={StaticResource BoolToVis}}"/>
                                 </Grid>
 
                                 <TextBlock Text="Example: 100 | sacks of rice"
-                   Foreground="#6B778C"
-                   FontSize="11"
-                   Margin="0,6,0,0"/>
+                                           Foreground="#6B778C"
+                                           FontSize="11"
+                                           Margin="0,6,0,0"/>
                             </StackPanel>
-
                         </StackPanel>
-
                     </Grid>
 
                     <!-- Save button -->
                     <Grid Grid.Row="2" Margin="0,28,0,0">
                         <Button Content="Save"
-        Width="180"
-        Height="44"
-        HorizontalAlignment="Right"
-        Background="#2E3A59"
-        Foreground="White"
-        BorderBrush="Transparent"
-        FontWeight="SemiBold"
-        Cursor="Hand"
-        Command="{Binding SaveFormCommand}"
-        IsEnabled="{Binding CanSave}">
+                                Width="180"
+                                Height="44"
+                                HorizontalAlignment="Right"
+                                Background="#2E3A59"
+                                Foreground="White"
+                                BorderBrush="Transparent"
+                                FontWeight="SemiBold"
+                                Cursor="Hand"
+                                Command="{Binding SaveFormCommand}"
+                                IsEnabled="{Binding CanSave}">
                             <Button.Style>
                                 <Style TargetType="Button">
                                     <Setter Property="Opacity" Value="1"/>
@@ -677,15 +678,18 @@ IsHitTestVisible="True"
                                 </ControlTemplate>
                             </Button.Template>
                         </Button>
-
                     </Grid>
                 </Grid>
             </Border>
         </Grid>
 
         <!-- DELETE CONFIRM MODAL OVERLAY -->
-        <Grid Background="#80000000"
-              Visibility="{Binding IsDeleteOpen, Converter={StaticResource BoolToVis}}">
+        <Grid Panel.ZIndex="910"
+              Visibility="{Binding IsDeleteOpen, Converter={StaticResource BoolToVis}}"
+              HorizontalAlignment="Stretch"
+              VerticalAlignment="Stretch">
+            <Border Background="#80000000"/>
+            <Button Style="{StaticResource BackdropButton}" Command="{Binding CancelDeleteCommand}"/>
 
             <Border Width="520"
                     CornerRadius="18"
