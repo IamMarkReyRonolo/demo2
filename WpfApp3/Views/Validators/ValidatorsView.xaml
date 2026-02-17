@@ -554,17 +554,31 @@
                                     <DataGridTextColumn Header="Classification" Binding="{Binding Classification}" Width="160"/>
                                     <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="120"/>
 
-                                    <DataGridTemplateColumn Width="80" Header="">
+                                    <DataGridTemplateColumn Width="110" Header="">
                                         <DataGridTemplateColumn.CellTemplate>
                                             <DataTemplate>
-                                                <Button Style="{StaticResource RowActionButton}"
-        Content="✎"
-        Foreground="#2E3A59"
-        Command="{Binding DataContext.OpenProfileModalCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
-        CommandParameter="{Binding}"/>
+                                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                                    <!-- Edit Profile -->
+                                                    <Button Style="{StaticResource RowActionButton}"
+                        Content="✎"
+                        Foreground="#2E3A59"
+                        ToolTip="Edit Profile"
+                        Command="{Binding DataContext.OpenProfileModalCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                        CommandParameter="{Binding}"/>
+
+                                                    <!-- Validate -->
+                                                    <Button Style="{StaticResource RowActionButton}"
+                        Content="✔"
+                        Margin="10,0,0,0"
+                        Foreground="#2E3A59"
+                        ToolTip="Validate"
+                        Command="{Binding DataContext.OpenValidateModalCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                        CommandParameter="{Binding}"/>
+                                                </StackPanel>
                                             </DataTemplate>
                                         </DataGridTemplateColumn.CellTemplate>
                                     </DataGridTemplateColumn>
+
                                 </DataGrid.Columns>
 
                             </DataGrid>
@@ -778,12 +792,8 @@
                     <!-- Footer buttons -->
                     <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,18,0,0">
                         <Button Content="Save Profile"
-                        Style="{StaticResource OutlineButton}"
-                        Command="{Binding OpenSaveConfirmCommand}"/>
-                        <Button Content="Validate"
-                        Margin="12,0,0,0"
-                        Style="{StaticResource PrimaryButton}"
-                        Command="{Binding OpenValidateModalCommand}"/>
+            Style="{StaticResource OutlineButton}"
+            Command="{Binding OpenSaveConfirmCommand}"/>
                     </StackPanel>
                 </Grid>
             </Border>

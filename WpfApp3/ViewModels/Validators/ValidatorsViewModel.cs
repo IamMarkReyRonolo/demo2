@@ -247,12 +247,16 @@ namespace WpfApp3.ViewModels.Validators
 
         // ===== Validate modal =====
         [RelayCommand]
-        private void OpenValidateModal()
+        private void OpenValidateModal(ValidatorRecord? person)
         {
-            if (SelectedPerson is null) return;
-            ValidateSelectedStatus = string.IsNullOrWhiteSpace(SelectedPerson.Status) ? "Endorsed" : SelectedPerson.Status;
+            var p = person ?? SelectedPerson;
+            if (p is null) return;
+
+            SelectedPerson = p;
+            ValidateSelectedStatus = string.IsNullOrWhiteSpace(p.Status) ? "Endorsed" : p.Status;
             IsValidateModalOpen = true;
         }
+
 
         [RelayCommand] private void CloseValidateModal() => IsValidateModalOpen = false;
 
