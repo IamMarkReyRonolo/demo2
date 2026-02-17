@@ -327,11 +327,12 @@ IsHitTestVisible="True"
                                             CellStyle="{StaticResource CenteredCellStyle}"
                                             ElementStyle="{StaticResource CenteredTextBlockStyle}"/>
 
-                        <DataGridTextColumn Header="Total Budget"
-                                            Binding="{Binding TotalBudget, StringFormat='₱ {0:N2}'}"
-                                            Width="120"
-                                            CellStyle="{StaticResource CenteredCellStyle}"
-                                            ElementStyle="{StaticResource CenteredTextBlockStyle}"/>
+                        <DataGridTextColumn Header="Budget"
+                    Binding="{Binding BudgetDisplay}"
+                    Width="160"
+                    CellStyle="{StaticResource CenteredCellStyle}"
+                    ElementStyle="{StaticResource CenteredTextBlockStyle}"/>
+
 
                         <!-- actions -->
                         <DataGridTemplateColumn Width="90" Header="">
@@ -500,13 +501,81 @@ IsHitTestVisible="True"
                                       BorderBrush="#E5ECFA"
                                       Background="White"/>
 
-                            <TextBlock Text="Total Budget (₱)" Foreground="#2E3A59" Margin="0,18,0,8"/>
-                            <TextBox Text="{Binding TotalBudgetInput, UpdateSourceTrigger=PropertyChanged}"
-                                     Height="40"
-                                     Padding="14,0"
-                                     BorderBrush="#E5ECFA"
-                                     Background="White"
-                                     VerticalContentAlignment="Center"/>
+                            <TextBlock Text="Budget Type" Foreground="#2E3A59" Margin="0,18,0,8"/>
+                            <ComboBox ItemsSource="{Binding BudgetTypes}"
+          SelectedItem="{Binding BudgetTypeInput}"
+          Height="40"
+          Padding="10,0"
+          BorderBrush="#E5ECFA"
+          Background="White"/>
+
+                            <!-- MONEY PANEL -->
+                            <StackPanel Margin="0,14,0,0">
+                                <StackPanel.Style>
+                                    <Style TargetType="StackPanel">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding BudgetTypeInput}" Value="Money">
+                                                <Setter Property="Visibility" Value="Visible"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </StackPanel.Style>
+
+                                <TextBlock Text="Budget Amount (₱)" Foreground="#2E3A59" Margin="0,0,0,8"/>
+                                <TextBox Text="{Binding BudgetAmountInput, UpdateSourceTrigger=PropertyChanged}"
+             Height="40"
+             Padding="14,0"
+             BorderBrush="#E5ECFA"
+             Background="White"
+             VerticalContentAlignment="Center"/>
+                            </StackPanel>
+
+                            <!-- IN-KIND PANEL -->
+                            <StackPanel Margin="0,14,0,0">
+                                <StackPanel.Style>
+                                    <Style TargetType="StackPanel">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding BudgetTypeInput}" Value="InKind">
+                                                <Setter Property="Visibility" Value="Visible"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </StackPanel.Style>
+
+                                <TextBlock Text="In-kind Budget" Foreground="#2E3A59" Margin="0,0,0,8"/>
+
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="120"/>
+                                        <ColumnDefinition Width="12"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <TextBox Grid.Column="0"
+                 Text="{Binding BudgetQtyInput, UpdateSourceTrigger=PropertyChanged}"
+                 Height="40"
+                 Padding="14,0"
+                 BorderBrush="#E5ECFA"
+                 Background="White"
+                 VerticalContentAlignment="Center"/>
+
+                                    <TextBox Grid.Column="2"
+                 Text="{Binding BudgetUnitInput, UpdateSourceTrigger=PropertyChanged}"
+                 Height="40"
+                 Padding="14,0"
+                 BorderBrush="#E5ECFA"
+                 Background="White"
+                 VerticalContentAlignment="Center"/>
+                                </Grid>
+
+                                <TextBlock Text="Example: 100 | sacks of rice"
+               Foreground="#6B778C"
+               FontSize="11"
+               Margin="0,6,0,0"/>
+                            </StackPanel>
+
                         </StackPanel>
                     </Grid>
 

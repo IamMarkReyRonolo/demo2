@@ -1,14 +1,18 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using System;
 using System.Collections.ObjectModel;
 using System.Globalization;
+using System.Linq;
 using WpfApp3.Models;
+using WpfApp3.Services;
 
 namespace WpfApp3.ViewModels.Allotment
 {
     public partial class AllotmentViewModel : ObservableObject
     {
-        private readonly List<AllotmentRecord> _all = new();
+        private readonly AllotmentsRepository _repo = new();
+        private readonly System.Collections.Generic.List<AllotmentRecord> _all = new();
 
         // table/search/paging
         [ObservableProperty] private string searchText = "";
@@ -29,8 +33,8 @@ namespace WpfApp3.ViewModels.Allotment
 
         [ObservableProperty] private string formTitle = "Add Allotment";
 
-        private AllotmentRecord? _editingTarget;
-        private AllotmentRecord? _deleteTarget;
+        private int? _editingId;
+        private int? _deleteId;
 
         [ObservableProperty] private string deleteMessage = "";
 
@@ -40,7 +44,12 @@ namespace WpfApp3.ViewModels.Allotment
         [ObservableProperty] private string? departmentInput;
         [ObservableProperty] private string? sourceOfFundInput;
         [ObservableProperty] private string beneficiariesInput = "";
-        [ObservableProperty] private string totalBudgetInput = "";
+
+        // NEW: budget inputs
+        [ObservableProperty] private string? budgetTypeInput = "Money"; // Money | InKind
+        [ObservableProperty] private string budgetAmountInput = "";     // money
+        [ObservableProperty] private string budgetQtyInput = "";        // in-kind
+        [ObservableProperty] private string budgetUnitInput = "";       // in-kind
 
         // dropdown options (dummy)
         public ObservableCollection<string> Departments { get; } = new()
@@ -53,10 +62,22 @@ namespace WpfApp3.ViewModels.Allotment
             "Admin", "Donation"
         };
 
+        public ObservableCollection<string> BudgetTypes { get; } = new()
+        {
+            "Money", "InKind"
+        };
+
         public AllotmentViewModel()
         {
-            SeedDummy();
+            _repo.EnsureTable();
+            ReloadFromDb();
             Apply();
+        }
+
+        private void ReloadFromDb()
+        {
+            _all.Clear();
+            _all.AddRange(_repo.GetAll());
         }
 
         partial void OnSearchTextChanged(string value)
@@ -70,17 +91,18 @@ namespace WpfApp3.ViewModels.Allotment
             Apply();
         }
 
-        private List<AllotmentRecord> Filtered()
+        private System.Collections.Generic.List<AllotmentRecord> Filtered()
         {
             var q = (SearchText ?? "").Trim().ToLowerInvariant();
             if (string.IsNullOrWhiteSpace(q))
                 return _all.ToList();
 
             return _all.Where(x =>
-                    x.ProjectName.ToLowerInvariant().Contains(q) ||
-                    x.Company.ToLowerInvariant().Contains(q) ||
-                    x.Department.ToLowerInvariant().Contains(q) ||
-                    x.SourceOfFund.ToLowerInvariant().Contains(q) ||
+                    (x.ProjectName ?? "").ToLowerInvariant().Contains(q) ||
+                    (x.Company ?? "").ToLowerInvariant().Contains(q) ||
+                    (x.Department ?? "").ToLowerInvariant().Contains(q) ||
+                    (x.SourceOfFund ?? "").ToLowerInvariant().Contains(q) ||
+                    (x.BudgetDisplay ?? "").ToLowerInvariant().Contains(q) ||
                     x.Id.ToString(CultureInfo.InvariantCulture).Contains(q))
                 .ToList();
         }
@@ -106,28 +128,12 @@ namespace WpfApp3.ViewModels.Allotment
             OnPropertyChanged(nameof(FoundText));
         }
 
-        private void SeedDummy()
-        {
-            _all.AddRange(new[]
-            {
-                new AllotmentRecord { Id=1, ProjectName="School Supplies Drive", Company="BrightFuture", Department="Operations", SourceOfFund="Admin", BeneficiariesCount=100, TotalBudget=100000m },
-                new AllotmentRecord { Id=2, ProjectName="Scholarship Grants", Company="BrightFuture", Department="Operations", SourceOfFund="Admin", BeneficiariesCount=150, TotalBudget=1000000m },
-                new AllotmentRecord { Id=3, ProjectName="PWD Assistance", Company="BrightFuture", Department="Operations", SourceOfFund="Donation", BeneficiariesCount=100, TotalBudget=500000m },
-                new AllotmentRecord { Id=4, ProjectName="Farmers' Seed", Company="SafeHome PH", Department="Finance", SourceOfFund="Donation", BeneficiariesCount=100, TotalBudget=500000m },
-                new AllotmentRecord { Id=5, ProjectName="Emergency Shelter", Company="SafeHome PH", Department="Finance", SourceOfFund="Admin", BeneficiariesCount=100, TotalBudget=500000m },
-                new AllotmentRecord { Id=6, ProjectName="Community Pantry", Company="SafeHome PH", Department="Finance", SourceOfFund="Admin", BeneficiariesCount=200, TotalBudget=200000m },
-                new AllotmentRecord { Id=7, ProjectName="Coastal Clean-Up", Company="SafeHome PH", Department="Operations", SourceOfFund="Donation", BeneficiariesCount=150, TotalBudget=50000m },
-                new AllotmentRecord { Id=8, ProjectName="Water Filter", Company="SafeHome PH", Department="Operations", SourceOfFund="Admin", BeneficiariesCount=100, TotalBudget=500000m },
-            });
-        }
-
         // ===== COMMANDS =====
 
-        // Add button
         [RelayCommand]
         private void AddAllotment()
         {
-            _editingTarget = null;
+            _editingId = null;
             FormTitle = "Add Allotment";
 
             ProjectNameInput = "";
@@ -135,18 +141,21 @@ namespace WpfApp3.ViewModels.Allotment
             DepartmentInput = null;
             SourceOfFundInput = null;
             BeneficiariesInput = "";
-            TotalBudgetInput = "";
+
+            BudgetTypeInput = "Money";
+            BudgetAmountInput = "";
+            BudgetQtyInput = "";
+            BudgetUnitInput = "";
 
             IsFormOpen = true;
         }
 
-        // Pencil in row -> open edit modal
         [RelayCommand]
         private void Edit(AllotmentRecord? row)
         {
             if (row is null) return;
 
-            _editingTarget = row;
+            _editingId = row.Id;
             FormTitle = "Edit Allotment";
 
             ProjectNameInput = row.ProjectName;
@@ -154,7 +163,11 @@ namespace WpfApp3.ViewModels.Allotment
             DepartmentInput = row.Department;
             SourceOfFundInput = row.SourceOfFund;
             BeneficiariesInput = row.BeneficiariesCount.ToString(CultureInfo.InvariantCulture);
-            TotalBudgetInput = row.TotalBudget.ToString("N0", CultureInfo.InvariantCulture);
+
+            BudgetTypeInput = string.Equals(row.BudgetType, "InKind", StringComparison.OrdinalIgnoreCase) ? "InKind" : "Money";
+            BudgetAmountInput = (row.BudgetAmount ?? 0m).ToString("N2", CultureInfo.InvariantCulture);
+            BudgetQtyInput = (row.BudgetQty ?? 0).ToString(CultureInfo.InvariantCulture);
+            BudgetUnitInput = row.BudgetUnit ?? "";
 
             IsFormOpen = true;
         }
@@ -168,16 +181,9 @@ namespace WpfApp3.ViewModels.Allotment
         [RelayCommand]
         private void SaveForm()
         {
-            // basic parsing
             if (!int.TryParse((BeneficiariesInput ?? "").Trim(), out var ben))
                 ben = 0;
 
-            // allow commas in money input
-            var moneyRaw = (TotalBudgetInput ?? "").Replace(",", "").Trim();
-            if (!decimal.TryParse(moneyRaw, NumberStyles.Number, CultureInfo.InvariantCulture, out var budget))
-                budget = 0m;
-
-            // simple required defaults (no validation UI yet)
             var project = (ProjectNameInput ?? "").Trim();
             var company = (CompanyInput ?? "").Trim();
             var dept = (DepartmentInput ?? "").Trim();
@@ -188,44 +194,67 @@ namespace WpfApp3.ViewModels.Allotment
             if (string.IsNullOrWhiteSpace(dept)) dept = "Operations";
             if (string.IsNullOrWhiteSpace(source)) source = "Admin";
 
-            if (_editingTarget is null)
-            {
-                // create new
-                var nextId = _all.Count == 0 ? 1 : _all.Max(x => x.Id) + 1;
+            var type = (BudgetTypeInput ?? "Money").Trim();
+            type = type.Equals("InKind", StringComparison.OrdinalIgnoreCase) ? "InKind" : "Money";
 
-                _all.Add(new AllotmentRecord
-                {
-                    Id = nextId,
-                    ProjectName = project,
-                    Company = company,
-                    Department = dept,
-                    SourceOfFund = source,
-                    BeneficiariesCount = ben,
-                    TotalBudget = budget
-                });
+            decimal? amount = null;
+            int? qty = null;
+            string unit = "";
+
+            if (type == "Money")
+            {
+                var raw = (BudgetAmountInput ?? "").Replace(",", "").Trim();
+                if (decimal.TryParse(raw, NumberStyles.Number, CultureInfo.InvariantCulture, out var m))
+                    amount = m;
+                else
+                    amount = 0m;
             }
             else
             {
-                // update existing
-                _editingTarget.ProjectName = project;
-                _editingTarget.Company = company;
-                _editingTarget.Department = dept;
-                _editingTarget.SourceOfFund = source;
-                _editingTarget.BeneficiariesCount = ben;
-                _editingTarget.TotalBudget = budget;
+                if (int.TryParse((BudgetQtyInput ?? "").Trim(), out var q))
+                    qty = q;
+                else
+                    qty = 0;
+
+                unit = (BudgetUnitInput ?? "").Trim();
+            }
+
+            var rec = new AllotmentRecord
+            {
+                Id = _editingId ?? 0,
+                ProjectName = project,
+                Company = company,
+                Department = dept,
+                SourceOfFund = source,
+                BeneficiariesCount = ben,
+                BudgetType = type,
+                BudgetAmount = amount,
+                BudgetQty = qty,
+                BudgetUnit = unit
+            };
+
+            if (_editingId is null)
+            {
+                var newId = _repo.Insert(rec);
+                rec.Id = newId;
+            }
+            else
+            {
+                _repo.Update(rec);
             }
 
             IsFormOpen = false;
+
+            ReloadFromDb();
             Apply();
         }
 
-        // Trash in row -> open delete confirm modal
         [RelayCommand]
         private void Delete(AllotmentRecord? row)
         {
             if (row is null) return;
 
-            _deleteTarget = row;
+            _deleteId = row.Id;
             DeleteMessage = $"Are you sure you want to delete allotment, {row.ProjectName}? This action cannot be undone.";
             IsDeleteOpen = true;
         }
@@ -234,19 +263,19 @@ namespace WpfApp3.ViewModels.Allotment
         private void CancelDelete()
         {
             IsDeleteOpen = false;
-            _deleteTarget = null;
+            _deleteId = null;
         }
 
         [RelayCommand]
         private void ConfirmDelete()
         {
-            if (_deleteTarget is not null)
-            {
-                _all.Remove(_deleteTarget);
-            }
+            if (_deleteId is not null)
+                _repo.Delete(_deleteId.Value);
 
             IsDeleteOpen = false;
-            _deleteTarget = null;
+            _deleteId = null;
+
+            ReloadFromDb();
             Apply();
         }
 
