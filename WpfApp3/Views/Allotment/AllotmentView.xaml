@@ -136,8 +136,7 @@
     </UserControl.Resources>
 
     <!-- ROOT OVERLAY GRID -->
-    <Grid VerticalAlignment="Stretch"
-          MinHeight="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Window}}">
+    <Grid>
 
         <!-- PAGE CONTENT -->
         <Grid Margin="24">

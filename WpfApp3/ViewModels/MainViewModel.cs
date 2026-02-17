@@ -75,7 +75,7 @@ public partial class MainViewModel : ObservableObject
     [RelayCommand] private void NavigateClientProfile() => NavigatePlaceholder("Client Profile");
     [RelayCommand] private void NavigateValidators()
     {
-        PageTitle = "Navigators";
+        PageTitle = "Validators";
         CurrentView = new ValidatorsView();
     }
 

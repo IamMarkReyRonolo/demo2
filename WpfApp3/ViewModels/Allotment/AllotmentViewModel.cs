@@ -86,7 +86,7 @@ namespace WpfApp3.ViewModels.Allotment
 
         public ObservableCollection<string> SourcesOfFund { get; } = new()
         {
-            "Admin", "Donation"
+            "LGU Admin", "Donation"
         };
 
         public ObservableCollection<string> BudgetTypes { get; } = new()
