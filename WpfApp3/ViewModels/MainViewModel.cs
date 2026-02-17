@@ -35,7 +35,7 @@ public partial class MainViewModel : ObservableObject
             new NavItem("🔀 Allotment", NavigateAllotmentCommand),
             new NavItem("👥 Beneficiaries", NavigateBeneficiariesCommand),
             new NavItem("📦 Distribution", NavigateDistributionCommand),
-            new NavItem("👤 Client Profile", NavigateClientProfileCommand),
+            //new NavItem("👤 Client Profile", NavigateClientProfileCommand),
             new NavItem("🔐 Validators", NavigateValidatorsCommand),
             new NavItem("🖥️ Users", NavigateUsersCommand),
         };

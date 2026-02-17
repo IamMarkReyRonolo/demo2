@@ -3,133 +3,191 @@ using CommunityToolkit.Mvvm.Input;
 using System.Collections.ObjectModel;
 using System.Globalization;
 using WpfApp3.Models;
+using WpfApp3.Services;
 
 namespace WpfApp3.ViewModels.Beneficiaries
 {
     public partial class BeneficiariesViewModel : ObservableObject
     {
-        private readonly List<BeneficiaryRecord> _all = new();
-        private readonly Dictionary<string, ProjectDetails> _projects = new();
+        private readonly AllotmentsRepository _allotmentsRepo = new();
+        private readonly BeneficiariesRepository _benefRepo = new();
+        private readonly AllotmentBeneficiariesRepository _assignRepo = new();
 
-        [ObservableProperty] private string searchText = "";
+        // paging
         [ObservableProperty] private int currentPage = 1;
-
-        [ObservableProperty] private string? selectedProject;
-        [ObservableProperty] private string selectedStatus = "Endorsed";
-
         public int PageSize { get; } = 8;
 
+        // projects
+        public ObservableCollection<AllotmentProjectOption> Projects { get; } = new();
+        [ObservableProperty] private AllotmentProjectOption? selectedProject;
+
+        // main table
         public ObservableCollection<BeneficiaryRecord> Items { get; } = new();
         public ObservableCollection<int> PageNumbers { get; } = new();
-        public ObservableCollection<string> Projects { get; } = new();
 
-        public int TotalRecords => Filtered().Count;
+        public int TotalRecords => _cachedAssigned.Count;
         public int TotalPages => Math.Max(1, (int)Math.Ceiling(TotalRecords / (double)PageSize));
         public string FoundText => $"Found {TotalRecords} records";
 
-        public decimal TotalBudget => Filtered().Sum(x => x.Share);
-        public string TotalBudgetText => $"Total Budget: ₱ {TotalBudget:N2}";
+        // budget text shows PROJECT budget (not sum of shares)
+        public string TotalBudgetText
+        {
+            get
+            {
+                var p = SelectedProject;
+                if (p is null) return "Total Budget: -";
+
+                if (string.Equals(p.BudgetType, "InKind", StringComparison.OrdinalIgnoreCase))
+                    return $"Total Budget: {p.BudgetQty:N0} {p.BudgetUnit}".Trim();
+
+                return $"Total Budget: ₱ {p.BudgetAmount:N2}";
+            }
+        }
 
         // ---------------- MODALS ----------------
         [ObservableProperty] private bool isProjectDetailsOpen;
         [ObservableProperty] private bool isAddBeneficiariesOpen;
-        [ObservableProperty] private bool isEditStatusOpen;
+        [ObservableProperty] private bool isEditShareOpen;
         [ObservableProperty] private bool isRemoveOpen;
 
-        // Project details modal fields
+        // Project details fields (from allotment)
         [ObservableProperty] private string projectNameDetails = "";
         [ObservableProperty] private string companyDetails = "";
-        [ObservableProperty] private string descriptionDetails = "";
-        [ObservableProperty] private string sourceOfFundDetails = "Admin";
-        [ObservableProperty] private string totalBudgetDetails = "0";
+        [ObservableProperty] private string departmentDetails = "";
+        [ObservableProperty] private string sourceOfFundDetails = "";
+        [ObservableProperty] private string totalBudgetDetails = "";
 
-        public ObservableCollection<string> SourceOfFundOptions { get; } = new()
-        {
-            "Admin", "Donation", "Sponsor"
-        };
-
-        // Add beneficiaries modal
-        [ObservableProperty] private string addSearchText = "Search here";
+        // Add modal
+        [ObservableProperty] private string addSearchText = "";
         public ObservableCollection<BeneficiaryRecord> AddItems { get; } = new();
+
+        [ObservableProperty] private bool isAddAllSelected;
+
+        // Add share inputs + errors
+        [ObservableProperty] private string addShareAmountInput = "";
+        [ObservableProperty] private string addShareQtyInput = "";
+        [ObservableProperty] private string addShareUnitInput = "";
+
+        [ObservableProperty] private string addShareAmountError = "";
+        [ObservableProperty] private bool hasAddShareAmountError;
+
+        [ObservableProperty] private string addShareInKindError = "";
+        [ObservableProperty] private bool hasAddShareInKindError;
 
         public int AddSelectedCount => AddItems.Count(x => x.IsSelected);
         public string AddButtonText => $"Add {AddSelectedCount}";
         public string AddFoundText => $"Found {AddItems.Count} records";
 
-        // Edit status modal
-        public ObservableCollection<string> StatusOptions { get; } = new()
-        {
-            "Endorsed", "Pending", "Rejected"
-        };
-        [ObservableProperty] private string editStatusValue = "Pending";
+        public bool CanConfirmAddSelected =>
+            AddSelectedCount > 0 &&
+            !HasAddShareAmountError &&
+            !HasAddShareInKindError &&
+            ShareInputsArePresent();
+
+        // Edit share modal
         private BeneficiaryRecord? _editTarget;
+
+        [ObservableProperty] private string editShareAmountInput = "";
+        [ObservableProperty] private string editShareQtyInput = "";
+        [ObservableProperty] private string editShareUnitInput = "";
+
+        [ObservableProperty] private string editShareAmountError = "";
+        [ObservableProperty] private bool hasEditShareAmountError;
+
+        [ObservableProperty] private string editShareInKindError = "";
+        [ObservableProperty] private bool hasEditShareInKindError;
+
+        public bool CanConfirmEditShare =>
+            _editTarget is not null &&
+            !HasEditShareAmountError &&
+            !HasEditShareInKindError &&
+            EditInputsArePresent();
 
         // Remove modal
         [ObservableProperty] private string removeMessage = "";
         private BeneficiaryRecord? _removeTarget;
 
+        // cached assigned list for paging
+        private List<BeneficiaryRecord> _cachedAssigned = new();
+
         public BeneficiariesViewModel()
         {
-            SeedDummy();
-            SeedProjects();
-            BuildProjects();
-            SelectedProject = "All Projects";
-            Apply();
-            BuildAddList();
+            LoadProjects();
         }
 
-        partial void OnSearchTextChanged(string value) { CurrentPage = 1; Apply(); }
-        partial void OnCurrentPageChanged(int value) { Apply(); }
-        partial void OnSelectedProjectChanged(string? value) { CurrentPage = 1; Apply(); }
-        partial void OnSelectedStatusChanged(string value) { CurrentPage = 1; Apply(); }
+        partial void OnCurrentPageChanged(int value) => ApplyPaging();
+
+        partial void OnSelectedProjectChanged(AllotmentProjectOption? value)
+        {
+            CurrentPage = 1;
+
+            // default unit in add modal if in-kind project
+            if (value is not null && string.Equals(value.BudgetType, "InKind", StringComparison.OrdinalIgnoreCase))
+            {
+                AddShareUnitInput = value.BudgetUnit ?? "";
+                EditShareUnitInput = value.BudgetUnit ?? "";
+            }
+
+            ReloadAssigned();
+            OnPropertyChanged(nameof(TotalBudgetText));
+        }
 
         partial void OnAddSearchTextChanged(string value) => BuildAddList();
 
-        private void BuildProjects()
+        partial void OnIsAddAllSelectedChanged(bool value)
+        {
+            foreach (var r in AddItems) r.IsSelected = value;
+            OnPropertyChanged(nameof(AddSelectedCount));
+            OnPropertyChanged(nameof(AddButtonText));
+            OnPropertyChanged(nameof(CanConfirmAddSelected));
+        }
+
+        partial void OnAddShareAmountInputChanged(string value) { ValidateAddShare(); }
+        partial void OnAddShareQtyInputChanged(string value) { ValidateAddShare(); }
+        partial void OnAddShareUnitInputChanged(string value) { ValidateAddShare(); }
+
+        partial void OnEditShareAmountInputChanged(string value) { ValidateEditShare(); }
+        partial void OnEditShareQtyInputChanged(string value) { ValidateEditShare(); }
+        partial void OnEditShareUnitInputChanged(string value) { ValidateEditShare(); }
+
+        private void LoadProjects()
         {
             Projects.Clear();
-            Projects.Add("All Projects");
-            foreach (var p in _all.Select(x => x.ProjectName).Distinct().OrderBy(x => x))
-                Projects.Add(p);
 
-            if (SelectedProject is null) SelectedProject = "All Projects";
+            var list = _allotmentsRepo.GetAll();
+            foreach (var a in list)
+                Projects.Add(a);
+
+            // ✅ default to FIRST project
+            SelectedProject = Projects.FirstOrDefault();
+
+            ReloadAssigned();
         }
 
-        private List<BeneficiaryRecord> Filtered()
+        private void ReloadAssigned()
         {
-            var q = (SearchText ?? "").Trim().ToLowerInvariant();
-            IEnumerable<BeneficiaryRecord> src = _all;
+            Items.Clear();
+            _cachedAssigned.Clear();
 
-            // status tab
-            src = src.Where(x => (x.Status ?? "") == (SelectedStatus ?? "Endorsed"));
+            var p = SelectedProject;
+            if (p is null) { ApplyPaging(); return; }
 
-            // project filter
-            var proj = (SelectedProject ?? "All Projects").Trim();
-            if (!string.IsNullOrWhiteSpace(proj) && proj != "All Projects")
-                src = src.Where(x => (x.ProjectName ?? "") == proj);
+            // ✅ show endorsed only (enforced by query)
+            _cachedAssigned = _assignRepo.GetAssignedEndorsed(p.Id);
 
-            // search
-            if (!string.IsNullOrWhiteSpace(q))
-            {
-                src = src.Where(x =>
-                    x.Id.ToString(CultureInfo.InvariantCulture).Contains(q) ||
-                    (x.FirstName ?? "").ToLowerInvariant().Contains(q) ||
-                    (x.LastName ?? "").ToLowerInvariant().Contains(q) ||
-                    (x.ProjectName ?? "").ToLowerInvariant().Contains(q) ||
-                    (x.Barangay ?? "").ToLowerInvariant().Contains(q) ||
-                    (x.Gender ?? "").ToLowerInvariant().Contains(q));
-            }
+            ApplyPaging();
 
-            return src.ToList();
+            OnPropertyChanged(nameof(FoundText));
+            OnPropertyChanged(nameof(TotalBudgetText));
         }
 
-        private void Apply()
+        private void ApplyPaging()
         {
             if (CurrentPage < 1) CurrentPage = 1;
             if (CurrentPage > TotalPages) CurrentPage = TotalPages;
 
             Items.Clear();
-            foreach (var it in Filtered()
+            foreach (var it in _cachedAssigned
                 .Skip((CurrentPage - 1) * PageSize)
                 .Take(PageSize))
             {
@@ -139,148 +197,84 @@ namespace WpfApp3.ViewModels.Beneficiaries
             PageNumbers.Clear();
             for (int i = 1; i <= TotalPages; i++) PageNumbers.Add(i);
 
-            OnPropertyChanged(nameof(TotalRecords));
-            OnPropertyChanged(nameof(TotalPages));
             OnPropertyChanged(nameof(FoundText));
-            OnPropertyChanged(nameof(TotalBudget));
             OnPropertyChanged(nameof(TotalBudgetText));
         }
 
-        private void SeedProjects()
+        // ---------------- Commands ----------------
+
+        [RelayCommand]
+        private void OpenProjectDetails()
         {
-            _projects["School Supplies Drive"] = new ProjectDetails(
-                "School Supplies Drive", "BrightFuture",
-                "Donation of school supplies for public elementary students.",
-                "Admin", 1000000m);
+            var p = SelectedProject;
+            if (p is null) return;
 
-            _projects["Scholarship Grants"] = new ProjectDetails(
-                "Scholarship Grants", "BrightFuture",
-                "Educational financial assistance for qualified students.",
-                "Donation", 1000000m);
+            ProjectNameDetails = p.ProjectName;
+            CompanyDetails = p.Company;
+            DepartmentDetails = p.Department;
+            SourceOfFundDetails = p.SourceOfFund;
 
-            _projects["PWD Assistance"] = new ProjectDetails(
-                "PWD Assistance", "BrightFuture",
-                "Support program for persons with disabilities.",
-                "Donation", 500000m);
+            TotalBudgetDetails = string.Equals(p.BudgetType, "InKind", StringComparison.OrdinalIgnoreCase)
+                ? $"{p.BudgetQty:N0} {p.BudgetUnit}".Trim()
+                : $"₱ {p.BudgetAmount:N2}";
 
-            _projects["Farmers' Seed"] = new ProjectDetails(
-                "Farmers' Seed", "SafeHome PH",
-                "Seed distribution support for local farmers.",
-                "Donation", 500000m);
-
-            _projects["Emergency Shelter"] = new ProjectDetails(
-                "Emergency Shelter", "SafeHome PH",
-                "Temporary shelter assistance for displaced families.",
-                "Admin", 500000m);
-
-            _projects["Community Pantry"] = new ProjectDetails(
-                "Community Pantry", "SafeHome PH",
-                "Food and essentials distribution.",
-                "Admin", 200000m);
-
-            _projects["Coastal Clean-Up"] = new ProjectDetails(
-                "Coastal Clean-Up", "SafeHome PH",
-                "Environmental cleanup and community drive.",
-                "Donation", 50000m);
-
-            _projects["Water Filter"] = new ProjectDetails(
-                "Water Filter", "SafeHome PH",
-                "Clean water access through filter distribution.",
-                "Admin", 500000m);
+            IsProjectDetailsOpen = true;
         }
 
-        private void SeedDummy()
+        [RelayCommand] private void CloseProjectDetails() => IsProjectDetailsOpen = false;
+
+        [RelayCommand]
+        private void OpenAddBeneficiaries()
         {
-            _all.AddRange(new[]
-            {
-        // ---------------- Endorsed ----------------
-        new BeneficiaryRecord { Id=1, ProjectName="School Supplies Drive", FirstName="John",  LastName="Dela Cruz", Gender="Male",   Barangay="San Roque",      Share=10000, Status="Endorsed" },
-        new BeneficiaryRecord { Id=2, ProjectName="Scholarship Grants",    FirstName="Maria", LastName="Santos",    Gender="Female", Barangay="Sta. Maria",    Share=10000, Status="Endorsed" },
-        new BeneficiaryRecord { Id=3, ProjectName="PWD Assistance",        FirstName="Paolo", LastName="Reyes",     Gender="Male",   Barangay="Poblacion",     Share=10000, Status="Endorsed" },
-        new BeneficiaryRecord { Id=4, ProjectName="Farmers' Seed",         FirstName="Ana",   LastName="Garcia",    Gender="Female", Barangay="San Isidro",    Share=10000, Status="Endorsed" },
-        new BeneficiaryRecord { Id=5, ProjectName="Emergency Shelter",     FirstName="Mark",  LastName="Navarro",   Gender="Male",   Barangay="Maligaya",      Share=10000, Status="Endorsed" },
-        new BeneficiaryRecord { Id=6, ProjectName="Community Pantry",      FirstName="Grace", LastName="Flores",    Gender="Female", Barangay="Bagong Silang", Share=10000, Status="Endorsed" },
-        new BeneficiaryRecord { Id=7, ProjectName="Coastal Clean-Up",      FirstName="Kevin", LastName="Lopez",     Gender="Male",   Barangay="San Juan",      Share=10000, Status="Endorsed" },
-        new BeneficiaryRecord { Id=8, ProjectName="Water Filter",          FirstName="Rica",  LastName="Mendoza",   Gender="Female", Barangay="San Pedro",     Share=10000, Status="Endorsed" },
+            if (SelectedProject is null) return;
 
-        // ---------------- Pending ----------------
-        new BeneficiaryRecord { Id=9,  ProjectName="School Supplies Drive", FirstName="James", LastName="Bautista",  Gender="Male",   Barangay="Poblacion",   Share=0, Status="Pending" },
-        new BeneficiaryRecord { Id=10, ProjectName="Scholarship Grants",    FirstName="Ella",  LastName="Torres",    Gender="Female", Barangay="San Roque",   Share=0, Status="Pending" },
-        new BeneficiaryRecord { Id=11, ProjectName="PWD Assistance",        FirstName="Noah",  LastName="Cabrera",   Gender="Male",   Barangay="San Isidro",  Share=0, Status="Pending" },
+            AddSearchText = "";
+            IsAddAllSelected = false;
 
-        // ---------------- Rejected ----------------
-        new BeneficiaryRecord { Id=12, ProjectName="Farmers' Seed",         FirstName="Liam",  LastName="Ramos",     Gender="Male",   Barangay="San Juan",   Share=0, Status="Rejected" },
-        new BeneficiaryRecord { Id=13, ProjectName="Emergency Shelter",     FirstName="Sofia", LastName="Aquino",    Gender="Female", Barangay="Sta. Maria", Share=0, Status="Rejected" },
+            // reset share fields
+            AddShareAmountInput = "";
+            AddShareQtyInput = "";
+            AddShareUnitInput = string.Equals(SelectedProject.BudgetType, "InKind", StringComparison.OrdinalIgnoreCase)
+                ? (SelectedProject.BudgetUnit ?? "")
+                : "";
 
-        // ---------------- NO STATUS (for Add Beneficiaries modal) ----------------
-        new BeneficiaryRecord { Id=14, ProjectName="School Supplies Drive", FirstName="Joshua", LastName="Perez",     Gender="Male",   Barangay="San Roque",       Share=0, Status="" },
-        new BeneficiaryRecord { Id=15, ProjectName="School Supplies Drive", FirstName="Angel",  LastName="Castro",    Gender="Female", Barangay="Poblacion",       Share=0, Status="" },
-        new BeneficiaryRecord { Id=16, ProjectName="School Supplies Drive", FirstName="Miguel", LastName="Domingo",   Gender="Male",   Barangay="San Pedro",       Share=0, Status="" },
+            ValidateAddShare();
+            BuildAddList();
 
-        new BeneficiaryRecord { Id=17, ProjectName="Scholarship Grants",    FirstName="Bianca", LastName="Lim",       Gender="Female", Barangay="Sta. Maria",      Share=0, Status="" },
-        new BeneficiaryRecord { Id=18, ProjectName="Scholarship Grants",    FirstName="Carlo",  LastName="Villanueva",Gender="Male",   Barangay="Maligaya",        Share=0, Status="" },
-        new BeneficiaryRecord { Id=19, ProjectName="Scholarship Grants",    FirstName="Denise", LastName="Alvarez",   Gender="Female", Barangay="Bagong Silang",   Share=0, Status="" },
-
-        new BeneficiaryRecord { Id=20, ProjectName="PWD Assistance",        FirstName="Ronnie", LastName="Gomez",     Gender="Male",   Barangay="San Isidro",      Share=0, Status="" },
-        new BeneficiaryRecord { Id=21, ProjectName="PWD Assistance",        FirstName="Aira",   LastName="Salazar",   Gender="Female", Barangay="Poblacion",       Share=0, Status="" },
-        new BeneficiaryRecord { Id=22, ProjectName="PWD Assistance",        FirstName="Patrick",LastName="Soriano",   Gender="Male",   Barangay="San Juan",        Share=0, Status="" },
-
-        new BeneficiaryRecord { Id=23, ProjectName="Farmers' Seed",         FirstName="Cynthia",LastName="Delos Reyes",Gender="Female",Barangay="Donation",        Share=0, Status="" },
-        new BeneficiaryRecord { Id=24, ProjectName="Farmers' Seed",         FirstName="Erwin",  LastName="Manalo",    Gender="Male",   Barangay="San Pedro",       Share=0, Status="" },
-        new BeneficiaryRecord { Id=25, ProjectName="Farmers' Seed",         FirstName="Nicole", LastName="Fernandez", Gender="Female", Barangay="San Isidro",      Share=0, Status="" },
-
-        new BeneficiaryRecord { Id=26, ProjectName="Emergency Shelter",     FirstName="Ramon",  LastName="Bacani",    Gender="Male",   Barangay="Sta. Maria",      Share=0, Status="" },
-        new BeneficiaryRecord { Id=27, ProjectName="Emergency Shelter",     FirstName="Trisha", LastName="Velasco",   Gender="Female", Barangay="Maligaya",        Share=0, Status="" },
-        new BeneficiaryRecord { Id=28, ProjectName="Emergency Shelter",     FirstName="Julius", LastName="Pineda",    Gender="Male",   Barangay="San Roque",       Share=0, Status="" },
-
-        new BeneficiaryRecord { Id=29, ProjectName="Community Pantry",      FirstName="Clarice",LastName="Roxas",     Gender="Female", Barangay="Bagong Silang",   Share=0, Status="" },
-        new BeneficiaryRecord { Id=30, ProjectName="Community Pantry",      FirstName="Ian",    LastName="Padilla",   Gender="Male",   Barangay="Poblacion",       Share=0, Status="" },
-        new BeneficiaryRecord { Id=31, ProjectName="Community Pantry",      FirstName="Faith",  LastName="Guinto",    Gender="Female", Barangay="San Pedro",       Share=0, Status="" },
-
-        new BeneficiaryRecord { Id=32, ProjectName="Coastal Clean-Up",      FirstName="Leo",    LastName="De Vera",   Gender="Male",   Barangay="San Juan",        Share=0, Status="" },
-        new BeneficiaryRecord { Id=33, ProjectName="Coastal Clean-Up",      FirstName="Mika",   LastName="Valdez",    Gender="Female", Barangay="Donation",        Share=0, Status="" },
-        new BeneficiaryRecord { Id=34, ProjectName="Coastal Clean-Up",      FirstName="Arvin",  LastName="Espino",    Gender="Male",   Barangay="San Roque",       Share=0, Status="" },
-
-        new BeneficiaryRecord { Id=35, ProjectName="Water Filter",          FirstName="Shane",  LastName="Cortez",    Gender="Female", Barangay="San Pedro",       Share=0, Status="" },
-        new BeneficiaryRecord { Id=36, ProjectName="Water Filter",          FirstName="Bryan",  LastName="Sison",     Gender="Male",   Barangay="Poblacion",       Share=0, Status="" },
-        new BeneficiaryRecord { Id=37, ProjectName="Water Filter",          FirstName="Jasmine",LastName="Ortega",    Gender="Female", Barangay="Sta. Maria",      Share=0, Status="" },
-    });
+            IsAddBeneficiariesOpen = true;
         }
 
-        // -------- Add Beneficiaries list (modal 2) --------
+        [RelayCommand] private void CloseAddBeneficiaries() => IsAddBeneficiariesOpen = false;
+
+        [RelayCommand]
+        private void SearchAdd()
+        {
+            BuildAddList();
+        }
+
         private void BuildAddList()
         {
-            var q = (AddSearchText ?? "").Trim().ToLowerInvariant();
-            var src = _all.Where(x => string.IsNullOrWhiteSpace(x.Status)).ToList();
-
-
-            if (!string.IsNullOrWhiteSpace(q))
-            {
-                src = src.Where(x =>
-                    x.Id.ToString(CultureInfo.InvariantCulture).Contains(q) ||
-                    (x.FirstName ?? "").ToLowerInvariant().Contains(q) ||
-                    (x.LastName ?? "").ToLowerInvariant().Contains(q) ||
-                    (x.Barangay ?? "").ToLowerInvariant().Contains(q) ||
-                    (x.Gender ?? "").ToLowerInvariant().Contains(q)).ToList();
-            }
-
             AddItems.Clear();
-            foreach (var r in src)
+
+            var p = SelectedProject;
+            if (p is null) return;
+
+            // ✅ only Endorsed not yet assigned to this project
+            var list = _assignRepo.GetAvailableEndorsed(p.Id, AddSearchText);
+
+            foreach (var r in list)
             {
                 r.IsSelected = false;
-
-                // ✅ Update "Add X" live when a checkbox changes
                 r.PropertyChanged -= AddRow_PropertyChanged;
                 r.PropertyChanged += AddRow_PropertyChanged;
-
                 AddItems.Add(r);
             }
 
             IsAddAllSelected = false;
-
             OnPropertyChanged(nameof(AddSelectedCount));
             OnPropertyChanged(nameof(AddButtonText));
             OnPropertyChanged(nameof(AddFoundText));
+            OnPropertyChanged(nameof(CanConfirmAddSelected));
         }
 
         private void AddRow_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
@@ -289,97 +283,111 @@ namespace WpfApp3.ViewModels.Beneficiaries
             {
                 OnPropertyChanged(nameof(AddSelectedCount));
                 OnPropertyChanged(nameof(AddButtonText));
+                OnPropertyChanged(nameof(CanConfirmAddSelected));
 
-                // keep header checkbox in sync
                 if (AddItems.Count > 0)
                     IsAddAllSelected = AddItems.All(x => x.IsSelected);
             }
         }
 
-
-        // ---------------- Commands ----------------
-        [RelayCommand] private void SetEndorsed() => SelectedStatus = "Endorsed";
-        [RelayCommand] private void SetPending() => SelectedStatus = "Pending";
-        [RelayCommand] private void SetRejected() => SelectedStatus = "Rejected";
-
-        // Eye icon -> Project details modal
-        [RelayCommand]
-        private void OpenProjectDetails()
-        {
-            var key = SelectedProject;
-            if (string.IsNullOrWhiteSpace(key) || key == "All Projects")
-                key = _projects.Keys.FirstOrDefault();
-
-            if (key is null || !_projects.TryGetValue(key, out var d))
-                d = new ProjectDetails("Project Name", "Company", "Description here", "Admin", 0);
-
-            ProjectNameDetails = d.ProjectName;
-            CompanyDetails = d.Company;
-            DescriptionDetails = d.Description;
-            SourceOfFundDetails = d.SourceOfFund;
-            TotalBudgetDetails = $"₱ {d.TotalBudget:N2}";
-
-            IsProjectDetailsOpen = true;
-        }
-
-        [RelayCommand] private void CloseProjectDetails() => IsProjectDetailsOpen = false;
-
-        // Add beneficiaries modal
-        [RelayCommand]
-        private void OpenAddBeneficiaries()
-        {
-            AddSearchText = "";
-            BuildAddList();
-            IsAddBeneficiariesOpen = true;
-        }
-
-        [RelayCommand] private void CloseAddBeneficiaries() => IsAddBeneficiariesOpen = false;
-
         [RelayCommand]
         private void ConfirmAddSelected()
         {
-            var picked = AddItems.Where(x => x.IsSelected).ToList();
-            if (picked.Count == 0) return;
+            var p = SelectedProject;
+            if (p is null) return;
 
-            // demo: mark selected as Pending
-            foreach (var r in picked)
-                r.Status = "Pending";
+            ValidateAddShare();
+            if (!CanConfirmAddSelected) return;
+
+            var ids = AddItems.Where(x => x.IsSelected).Select(x => x.BeneficiaryPk).ToList();
+            if (ids.Count == 0) return;
+
+            // build share values by project type
+            decimal? shareAmount = null;
+            int? shareQty = null;
+            string? shareUnit = null;
+
+            if (string.Equals(p.BudgetType, "InKind", StringComparison.OrdinalIgnoreCase))
+            {
+                int.TryParse((AddShareQtyInput ?? "").Trim(), out var qty);
+                shareQty = qty;
+                shareUnit = (AddShareUnitInput ?? "").Trim();
+            }
+            else
+            {
+                var raw = (AddShareAmountInput ?? "").Replace(",", "").Trim();
+                decimal.TryParse(raw, NumberStyles.Number, CultureInfo.InvariantCulture, out var amt);
+                shareAmount = amt;
+            }
+
+            _assignRepo.AddMany(p.Id, ids, shareAmount, shareQty, shareUnit);
 
             IsAddBeneficiariesOpen = false;
-            Apply();
+            ReloadAssigned();
         }
 
-
-        // Edit status modal (pencil)
         [RelayCommand]
-        private void OpenEditStatus(BeneficiaryRecord? row)
+        private void OpenEditShare(BeneficiaryRecord? row)
         {
-            if (row is null) return;
+            if (row is null || SelectedProject is null) return;
+
             _editTarget = row;
-            EditStatusValue = row.Status ?? "Pending";
-            IsEditStatusOpen = true;
-        }
 
-        [RelayCommand] private void CloseEditStatus() => IsEditStatusOpen = false;
+            // prefill based on current stored values
+            EditShareAmountInput = row.ShareAmount.HasValue ? row.ShareAmount.Value.ToString("N2", CultureInfo.InvariantCulture) : "";
+            EditShareQtyInput = row.ShareQty.HasValue ? row.ShareQty.Value.ToString(CultureInfo.InvariantCulture) : "";
+            EditShareUnitInput = !string.IsNullOrWhiteSpace(row.ShareUnit) ? row.ShareUnit : (SelectedProject.BudgetUnit ?? "");
+
+            ValidateEditShare();
+            IsEditShareOpen = true;
+        }
 
         [RelayCommand]
-        private void ConfirmEditStatus()
+        private void CloseEditShare()
         {
-            if (_editTarget is not null)
-                _editTarget.Status = EditStatusValue;
-
-            IsEditStatusOpen = false;
+            IsEditShareOpen = false;
             _editTarget = null;
-            Apply();
         }
 
-        // Remove modal (trash)
+        [RelayCommand]
+        private void ConfirmEditShare()
+        {
+            var p = SelectedProject;
+            if (p is null || _editTarget is null) return;
+
+            ValidateEditShare();
+            if (!CanConfirmEditShare) return;
+
+            decimal? shareAmount = null;
+            int? shareQty = null;
+            string? shareUnit = null;
+
+            if (string.Equals(p.BudgetType, "InKind", StringComparison.OrdinalIgnoreCase))
+            {
+                int.TryParse((EditShareQtyInput ?? "").Trim(), out var qty);
+                shareQty = qty;
+                shareUnit = (EditShareUnitInput ?? "").Trim();
+            }
+            else
+            {
+                var raw = (EditShareAmountInput ?? "").Replace(",", "").Trim();
+                decimal.TryParse(raw, NumberStyles.Number, CultureInfo.InvariantCulture, out var amt);
+                shareAmount = amt;
+            }
+
+            _assignRepo.UpdateShare(_editTarget.AssignmentId, shareAmount, shareQty, shareUnit);
+
+            IsEditShareOpen = false;
+            _editTarget = null;
+            ReloadAssigned();
+        }
+
         [RelayCommand]
         private void OpenRemove(BeneficiaryRecord? row)
         {
             if (row is null) return;
             _removeTarget = row;
-            RemoveMessage = "Are you sure you want to remove the selected beneficiary? This action cannot be undone.";
+            RemoveMessage = "Are you sure you want to remove this beneficiary from the selected project?";
             IsRemoveOpen = true;
         }
 
@@ -393,13 +401,13 @@ namespace WpfApp3.ViewModels.Beneficiaries
         [RelayCommand]
         private void ConfirmRemove()
         {
-            if (_removeTarget is not null)
-                _all.Remove(_removeTarget);
+            if (_removeTarget is null) return;
+
+            _assignRepo.Remove(_removeTarget.AssignmentId);
 
             IsRemoveOpen = false;
             _removeTarget = null;
-            Apply();
-            BuildProjects();
+            ReloadAssigned();
         }
 
         // paging
@@ -407,19 +415,116 @@ namespace WpfApp3.ViewModels.Beneficiaries
         [RelayCommand] private void NextPage() { if (CurrentPage < TotalPages) CurrentPage++; }
         [RelayCommand] private void GoToPage(int page) { CurrentPage = page; }
 
-        // simple internal record
-        private record ProjectDetails(string ProjectName, string Company, string Description, string SourceOfFund, decimal TotalBudget);
+        // ---------------- Validation ----------------
 
-        [ObservableProperty] private bool isAddAllSelected;
-
-        partial void OnIsAddAllSelectedChanged(bool value)
+        private bool ShareInputsArePresent()
         {
-            foreach (var r in AddItems)
-                r.IsSelected = value;
+            var p = SelectedProject;
+            if (p is null) return false;
 
-            OnPropertyChanged(nameof(AddSelectedCount));
-            OnPropertyChanged(nameof(AddButtonText));
+            if (string.Equals(p.BudgetType, "InKind", StringComparison.OrdinalIgnoreCase))
+                return !string.IsNullOrWhiteSpace(AddShareQtyInput) && !string.IsNullOrWhiteSpace(AddShareUnitInput);
+
+            return !string.IsNullOrWhiteSpace(AddShareAmountInput);
         }
 
+        private bool EditInputsArePresent()
+        {
+            var p = SelectedProject;
+            if (p is null) return false;
+
+            if (string.Equals(p.BudgetType, "InKind", StringComparison.OrdinalIgnoreCase))
+                return !string.IsNullOrWhiteSpace(EditShareQtyInput) && !string.IsNullOrWhiteSpace(EditShareUnitInput);
+
+            return !string.IsNullOrWhiteSpace(EditShareAmountInput);
+        }
+
+        private void ValidateAddShare()
+        {
+            var p = SelectedProject;
+
+            HasAddShareAmountError = false;
+            AddShareAmountError = "";
+
+            HasAddShareInKindError = false;
+            AddShareInKindError = "";
+
+            if (p is null)
+            {
+                HasAddShareAmountError = true;
+                AddShareAmountError = "Select a project first.";
+                OnPropertyChanged(nameof(CanConfirmAddSelected));
+                return;
+            }
+
+            if (string.Equals(p.BudgetType, "InKind", StringComparison.OrdinalIgnoreCase))
+            {
+                if (!int.TryParse((AddShareQtyInput ?? "").Trim(), out var qty) || qty <= 0)
+                {
+                    HasAddShareInKindError = true;
+                    AddShareInKindError = "Share qty must be a valid number (> 0).";
+                }
+                else if (string.IsNullOrWhiteSpace(AddShareUnitInput))
+                {
+                    HasAddShareInKindError = true;
+                    AddShareInKindError = "Unit is required.";
+                }
+            }
+            else
+            {
+                var raw = (AddShareAmountInput ?? "").Replace(",", "").Trim();
+                if (!decimal.TryParse(raw, NumberStyles.Number, CultureInfo.InvariantCulture, out var amt) || amt <= 0m)
+                {
+                    HasAddShareAmountError = true;
+                    AddShareAmountError = "Share amount must be a valid number (> 0).";
+                }
+            }
+
+            OnPropertyChanged(nameof(CanConfirmAddSelected));
+        }
+
+        private void ValidateEditShare()
+        {
+            var p = SelectedProject;
+
+            HasEditShareAmountError = false;
+            EditShareAmountError = "";
+
+            HasEditShareInKindError = false;
+            EditShareInKindError = "";
+
+            if (p is null)
+            {
+                HasEditShareAmountError = true;
+                EditShareAmountError = "Select a project first.";
+                OnPropertyChanged(nameof(CanConfirmEditShare));
+                return;
+            }
+
+            if (string.Equals(p.BudgetType, "InKind", StringComparison.OrdinalIgnoreCase))
+            {
+                if (!int.TryParse((EditShareQtyInput ?? "").Trim(), out var qty) || qty <= 0)
+                {
+                    HasEditShareInKindError = true;
+                    EditShareInKindError = "Share qty must be a valid number (> 0).";
+                }
+                else if (string.IsNullOrWhiteSpace(EditShareUnitInput))
+                {
+                    HasEditShareInKindError = true;
+                    EditShareInKindError = "Unit is required.";
+                }
+            }
+            else
+            {
+                var raw = (EditShareAmountInput ?? "").Replace(",", "").Trim();
+                if (!decimal.TryParse(raw, NumberStyles.Number, CultureInfo.InvariantCulture, out var amt) || amt <= 0m)
+                {
+                    HasEditShareAmountError = true;
+                    EditShareAmountError = "Share amount must be a valid number (> 0).";
+                }
+            }
+
+            OnPropertyChanged(nameof(CanConfirmEditShare));
+        }
     }
 }

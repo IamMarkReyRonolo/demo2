@@ -1,4 +1,5 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
+using System.Globalization;
 
 namespace WpfApp3.Models
 {
@@ -6,14 +7,34 @@ namespace WpfApp3.Models
     {
         [ObservableProperty] private bool isSelected;
 
-        public int Id { get; set; }
+        public int Id { get; set; } // beneficiaries.id
 
-        [ObservableProperty] private string projectName = "";
         [ObservableProperty] private string firstName = "";
         [ObservableProperty] private string lastName = "";
         [ObservableProperty] private string gender = "";
         [ObservableProperty] private string barangay = "";
-        [ObservableProperty] private decimal share;
-        [ObservableProperty] private string status = ""; // "Endorsed" | "Pending" | "Rejected"
+
+        // assigned share (nullable)
+        [ObservableProperty] private decimal? shareAmount;
+        [ObservableProperty] private int? shareQty;
+        [ObservableProperty] private string? shareUnit;
+
+        public string ShareText
+        {
+            get
+            {
+                if (ShareAmount.HasValue && ShareAmount.Value > 0)
+                    return $"₱ {ShareAmount.Value.ToString("N0", CultureInfo.InvariantCulture)}";
+
+                if (ShareQty.HasValue && ShareQty.Value > 0)
+                    return $"{ShareQty.Value} {(ShareUnit ?? "").Trim()}".Trim();
+
+                return "";
+            }
+        }
+
+        partial void OnShareAmountChanged(decimal? value) => OnPropertyChanged(nameof(ShareText));
+        partial void OnShareQtyChanged(int? value) => OnPropertyChanged(nameof(ShareText));
+        partial void OnShareUnitChanged(string? value) => OnPropertyChanged(nameof(ShareText));
     }
 }
