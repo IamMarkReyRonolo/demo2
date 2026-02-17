@@ -1,8 +1,11 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using WpfApp3.Models;
+using WpfApp3.Services;
 
 namespace WpfApp3.ViewModels.Validators
 {
@@ -21,8 +24,10 @@ namespace WpfApp3.ViewModels.Validators
 
     public partial class ValidatorsViewModel : ObservableObject
     {
-        private readonly List<ValidatorRecord> _allNotYet = new();
-        private readonly List<ValidatorRecord> _allValidated = new();
+        private readonly BeneficiariesRepository _repo = new();
+
+        // This represents the EXTERNAL DATABASE source (replace later with real external DB pull)
+        private readonly List<ValidatorRecord> _externalPeople = new();
 
         // ===== Tabs =====
         [ObservableProperty] private ValidatorsMainTab activeMainTab = ValidatorsMainTab.NotYetValidated;
@@ -46,6 +51,31 @@ namespace WpfApp3.ViewModels.Validators
 
         [ObservableProperty] private string validateSelectedStatus = ""; // Endorsed/Pending/Rejected
 
+        // ===== UI text =====
+        public string NotYetFoundText => $"Found {NotYetItems.Count} records";
+        public string ValidatedFoundText => $"Found {ValidatedItems.Count} records";
+
+        // ===== Dropdown Sources =====
+        public ObservableCollection<string> GenderOptions { get; } = new() { "Male", "Female" };
+
+        // ✅ updated classification list (Farmer, Vendor)
+        public ObservableCollection<string> ClassificationOptions { get; } =
+            new() { "PWD", "Senior Citizen", "Indigenous", "Farmer", "Vendor", "None" };
+
+        public ObservableCollection<string> ValidateStatusOptions { get; } = new() { "Endorsed", "Pending", "Rejected" };
+
+        public ValidatorsViewModel()
+        {
+            _repo.EnsureTable();
+
+            SeedExternalPeople(); // replace later with actual external DB pull
+
+            LoadNotYet();
+            LoadValidated();
+
+            SelectedPerson = NotYetItems.FirstOrDefault() ?? ValidatedItems.FirstOrDefault();
+        }
+
         [RelayCommand]
         private void CloseAllModals()
         {
@@ -54,58 +84,40 @@ namespace WpfApp3.ViewModels.Validators
             IsSaveConfirmOpen = false;
         }
 
-        // ===== UI text =====
-        public string NotYetFoundText => $"Found {NotYetItems.Count} records";
-        public string ValidatedFoundText => $"Found {ValidatedItems.Count} records";
-
-        // ===== Dropdown Sources =====
-        public ObservableCollection<string> GenderOptions { get; } = new() { "Male", "Female" };
-        public ObservableCollection<string> ClassificationOptions { get; } = new() { "PWD", "Senior Citizen", "Indigenous", "None" };
-        public ObservableCollection<string> ValidateStatusOptions { get; } = new() { "Endorsed", "Pending", "Rejected" };
-
-        public ValidatorsViewModel()
+        private void SeedExternalPeople()
         {
-            SeedDummyData();
-            LoadNotYet();
-            LoadValidated();
-            SelectedPerson = NotYetItems.FirstOrDefault();
-        }
+            _externalPeople.Clear();
 
-        private void SeedDummyData()
-        {
-            var notYet = new[]
+            // External DB dummy list (left side)
+            _externalPeople.AddRange(new[]
             {
-                NewPerson(101,"BENE-000101","CR-900101","Arjun","M.","Codilla","Male","25 January 1990","PWD","Male","San Jose, California, USA"),
-                NewPerson(102,"BENE-000102","CR-900102","Maria","L.","Santos","Female","03 March 1992","Senior Citizen","Admin","Quezon City, Philippines"),
-                NewPerson(103,"BENE-000103","CR-900103","John","A.","Dela Cruz","Male","12 December 1988","PWD","Donation","Cebu City, Philippines"),
-                NewPerson(104,"BENE-000104","CR-900104","Angel","R.","Reyes","Female","06 June 1996","Indigenous","Donation","Davao City, Philippines"),
-                NewPerson(105,"BENE-000105","CR-900105","Paolo","S.","Garcia","Male","09 September 1991","None","Admin","Baguio City, Philippines"),
-                NewPerson(106,"BENE-000106","CR-900106","Kristine","P.","Navarro","Female","21 July 1994","PWD","Admin","Iloilo City, Philippines"),
-                NewPerson(107,"BENE-000107","CR-900107","Mark","T.","Flores","Male","10 October 1993","None","Donation","Cagayan de Oro, Philippines"),
-                NewPerson(108,"BENE-000108","CR-900108","Lea","G.","Mendoza","Female","14 February 1995","PWD","Donation","Legazpi, Philippines"),
-            };
-            _allNotYet.AddRange(notYet);
-
-            _allValidated.AddRange(new[]
-            {
-                NewValidated(1,"BENE-000001","CR-900001","School Supplies Drive","", "BrightFuture","Male","", "PWD","Admin","", "Endorsed"),
-                NewValidated(2,"BENE-000002","CR-900002","Scholarship Grants","", "BrightFuture","Male","", "PWD","Admin","", "Endorsed"),
-                NewValidated(3,"BENE-000003","CR-900003","PWD Assistance","", "BrightFuture","Male","", "PWD","Donation","", "Endorsed"),
-                NewValidated(4,"BENE-000004","CR-900004","Farmers’ Seed","", "SafeHome PH","Female","", "Indigenous","Donation","", "Endorsed"),
-                NewValidated(5,"BENE-000005","CR-900005","Emergency Shelter","", "SafeHome PH","Female","", "Senior Citizen","Admin","", "Pending"),
-                NewValidated(6,"BENE-000006","CR-900006","Community Pantry","", "SafeHome PH","Female","", "None","Admin","", "Pending"),
-                NewValidated(7,"BENE-000007","CR-900007","Coastal Clean-Up","", "SafeHome PH","Male","", "None","Donation","", "Rejected"),
-                NewValidated(8,"BENE-000008","CR-900008","Water Filter","", "SafeHome PH","Male","", "None","Admin","", "Endorsed"),
+                NewExternal(101,"BENE-000101","CR-900101","Arjun","M.","Codilla","Male","25 January 1990","PWD","San Jose","San Jose, California, USA"),
+                NewExternal(102,"BENE-000102","CR-900102","Maria","L.","Santos","Female","03 March 1992","Senior Citizen","Quezon City","Quezon City, Philippines"),
+                NewExternal(103,"BENE-000103","CR-900103","John","A.","Dela Cruz","Male","12 December 1988","PWD","Cebu City","Cebu City, Philippines"),
+                NewExternal(104,"BENE-000104","CR-900104","Angel","R.","Reyes","Female","06 June 1996","Indigenous","Davao City","Davao City, Philippines"),
+                NewExternal(105,"BENE-000105","CR-900105","Paolo","S.","Garcia","Male","09 September 1991","None","Baguio City","Baguio City, Philippines"),
+                NewExternal(106,"BENE-000106","CR-900106","Kristine","P.","Navarro","Female","21 July 1994","PWD","Iloilo City","Iloilo City, Philippines"),
+                NewExternal(107,"BENE-000107","CR-900107","Mark","T.","Flores","Male","10 October 1993","Vendor","Cagayan de Oro","Cagayan de Oro, Philippines"),
+                NewExternal(108,"BENE-000108","CR-900108","Lea","G.","Mendoza","Female","14 February 1995","Farmer","Legazpi","Legazpi, Philippines"),
             });
         }
 
-        private static ValidatorRecord NewPerson(
-            int id, string beneId, string civilId, string fn, string mn, string ln,
-            string gender, string dob, string classification, string barangay, string address)
+        private static ValidatorRecord NewExternal(
+            int sourceId,
+            string beneId,
+            string civilId,
+            string fn,
+            string mn,
+            string ln,
+            string gender,
+            string dob,
+            string classification,
+            string barangay,
+            string address)
         {
             return new ValidatorRecord
             {
-                Id = id,
+                Id = sourceId, // external id
                 BeneficiaryId = beneId,
                 CivilRegistryId = civilId,
                 FirstName = fn,
@@ -116,28 +128,35 @@ namespace WpfApp3.ViewModels.Validators
                 Classification = classification,
                 Barangay = barangay,
                 PresentAddress = address,
-                Status = ""
+                Status = "" // external has no status
             };
         }
 
-        private static ValidatorRecord NewValidated(
-            int id, string beneId, string civilId, string fn, string mn, string ln,
-            string gender, string dob, string classification, string barangay, string address, string status)
+        private static bool IsValidatedStatus(string status)
         {
-            return new ValidatorRecord
+            return string.Equals(status, "Endorsed", StringComparison.OrdinalIgnoreCase)
+                || string.Equals(status, "Pending", StringComparison.OrdinalIgnoreCase)
+                || string.Equals(status, "Rejected", StringComparison.OrdinalIgnoreCase);
+        }
+
+        private static string CanonicalStatus(string status)
+        {
+            status = (status ?? "").Trim();
+            if (status.Equals("Pending", StringComparison.OrdinalIgnoreCase)) return "Pending";
+            if (status.Equals("Rejected", StringComparison.OrdinalIgnoreCase)) return "Rejected";
+            if (status.Equals("Endorsed", StringComparison.OrdinalIgnoreCase)) return "Endorsed";
+            if (status.Equals("Not Validated", StringComparison.OrdinalIgnoreCase)) return "Not Validated";
+            return status;
+        }
+
+        private string CurrentValidatedStatus()
+        {
+            return ActiveStatusTab switch
             {
-                Id = id,
-                BeneficiaryId = beneId,
-                CivilRegistryId = civilId,
-                FirstName = fn,
-                MiddleName = mn,
-                LastName = ln,
-                Gender = gender,
-                DateOfBirth = dob,
-                Classification = classification,
-                Barangay = barangay,
-                PresentAddress = address,
-                Status = status
+                ValidatorsStatusTab.Endorsed => "Endorsed",
+                ValidatorsStatusTab.Pending => "Pending",
+                ValidatorsStatusTab.Rejected => "Rejected",
+                _ => "Endorsed"
             };
         }
 
@@ -145,7 +164,32 @@ namespace WpfApp3.ViewModels.Validators
         {
             NotYetItems.Clear();
 
-            var q = _allNotYet.AsEnumerable();
+            // Pull any saved rows from OUR DB for these external beneficiary IDs
+            var saved = _repo.GetByBeneficiaryIds(_externalPeople.Select(x => x.BeneficiaryId));
+
+            // Merge:
+            // - if already validated in DB => do NOT show in Not Yet Validated
+            // - if saved as Not Validated => show DB version (includes saved edits)
+            // - if not in DB => show external version
+            var merged = new List<ValidatorRecord>();
+
+            foreach (var ext in _externalPeople)
+            {
+                if (saved.TryGetValue(ext.BeneficiaryId, out var dbRow))
+                {
+                    var st = CanonicalStatus(dbRow.Status);
+                    if (IsValidatedStatus(st))
+                        continue;
+
+                    merged.Add(dbRow); // Not Validated rows show here
+                }
+                else
+                {
+                    merged.Add(ext);
+                }
+            }
+
+            var q = merged.AsEnumerable();
             var s = (SearchNotYetText ?? "").Trim();
 
             if (!string.IsNullOrWhiteSpace(s))
@@ -164,17 +208,12 @@ namespace WpfApp3.ViewModels.Validators
         {
             ValidatedItems.Clear();
 
-            var status = ActiveStatusTab switch
-            {
-                ValidatorsStatusTab.Endorsed => "Endorsed",
-                ValidatorsStatusTab.Pending => "Pending",
-                ValidatorsStatusTab.Rejected => "Rejected",
-                _ => "Endorsed"
-            };
+            var status = CurrentValidatedStatus();
+            var rows = _repo.GetByStatus(status);
 
-            var q = _allValidated.Where(x => string.Equals(x.Status, status, StringComparison.OrdinalIgnoreCase));
-
+            var q = rows.AsEnumerable();
             var s = (SearchValidatedText ?? "").Trim();
+
             if (!string.IsNullOrWhiteSpace(s))
             {
                 q = q.Where(x =>
@@ -241,8 +280,23 @@ namespace WpfApp3.ViewModels.Validators
         [RelayCommand]
         private void ConfirmSaveProfile()
         {
-            // dummy save for now
+            var person = SelectedPerson;
+            if (person is null) return;
+
+            // Save Profile rule:
+            // - if already validated => keep current validated status
+            // - else => set to Not Validated
+            var current = CanonicalStatus(person.Status);
+            var statusToSave = IsValidatedStatus(current) ? current : "Not Validated";
+
+            _repo.Upsert(person, statusToSave);
+            person.Status = statusToSave;
+
             IsSaveConfirmOpen = false;
+
+            // refresh lists so overlay stays correct
+            LoadNotYet();
+            LoadValidated();
         }
 
         // ===== Validate modal =====
@@ -253,61 +307,45 @@ namespace WpfApp3.ViewModels.Validators
             if (p is null) return;
 
             SelectedPerson = p;
-            ValidateSelectedStatus = string.IsNullOrWhiteSpace(p.Status) ? "Endorsed" : p.Status;
+            ValidateSelectedStatus = string.IsNullOrWhiteSpace(p.Status) || p.Status.Equals("Not Validated", StringComparison.OrdinalIgnoreCase)
+                ? "Endorsed"
+                : CanonicalStatus(p.Status);
+
             IsValidateModalOpen = true;
         }
 
-
         [RelayCommand] private void CloseValidateModal() => IsValidateModalOpen = false;
 
-        // ✅ FIXED: no more NullReference crash
         [RelayCommand]
         private void ConfirmValidate()
         {
             var person = SelectedPerson;
             if (person is null) return;
 
-            var id = person.Id; // capture BEFORE any list refresh
-            var newStatus = (ValidateSelectedStatus ?? "").Trim();
-            if (string.IsNullOrWhiteSpace(newStatus)) return;
+            var newStatus = CanonicalStatus(ValidateSelectedStatus);
+            if (!IsValidatedStatus(newStatus)) return;
 
-            // Not Yet -> move to validated
-            if (ActiveMainTab == ValidatorsMainTab.NotYetValidated)
+            // write to DB
+            person.Status = newStatus;
+            _repo.Upsert(person, newStatus);
+
+            // switch to Validated tab + correct status pill
+            ActiveMainTab = ValidatorsMainTab.Validated;
+            ActiveStatusTab = newStatus switch
             {
-                person.Status = newStatus;
+                "Pending" => ValidatorsStatusTab.Pending,
+                "Rejected" => ValidatorsStatusTab.Rejected,
+                _ => ValidatorsStatusTab.Endorsed
+            };
 
-                _allNotYet.Remove(person);
-                _allValidated.Add(person);
+            // refresh lists
+            LoadNotYet();
+            LoadValidated();
 
-                LoadNotYet();
-
-                ActiveMainTab = ValidatorsMainTab.Validated;
-                ActiveStatusTab = newStatus switch
-                {
-                    "Pending" => ValidatorsStatusTab.Pending,
-                    "Rejected" => ValidatorsStatusTab.Rejected,
-                    _ => ValidatorsStatusTab.Endorsed
-                };
-
-                LoadValidated();
-
-                SelectedPerson = ValidatedItems.FirstOrDefault(x => x.Id == id) ?? ValidatedItems.FirstOrDefault();
-            }
-            else
-            {
-                // Validated -> just update status (might move between filters)
-                person.Status = newStatus;
-
-                ActiveStatusTab = newStatus switch
-                {
-                    "Pending" => ValidatorsStatusTab.Pending,
-                    "Rejected" => ValidatorsStatusTab.Rejected,
-                    _ => ValidatorsStatusTab.Endorsed
-                };
-
-                LoadValidated();
-                SelectedPerson = ValidatedItems.FirstOrDefault(x => x.Id == id) ?? ValidatedItems.FirstOrDefault();
-            }
+            // keep selection on the newly validated row if present
+            SelectedPerson =
+                ValidatedItems.FirstOrDefault(x => string.Equals(x.BeneficiaryId, person.BeneficiaryId, StringComparison.OrdinalIgnoreCase))
+                ?? ValidatedItems.FirstOrDefault();
 
             IsValidateModalOpen = false;
         }
