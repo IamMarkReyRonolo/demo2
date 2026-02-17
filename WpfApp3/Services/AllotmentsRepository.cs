@@ -1,6 +1,7 @@
-﻿using System;
+﻿using MySqlConnector;
+using System;
 using System.Collections.Generic;
-using MySqlConnector;
+using System.Data;
 using WpfApp3.Models;
 
 namespace WpfApp3.Services
@@ -148,6 +149,48 @@ WHERE id=@id;";
                 cmd.Parameters.AddWithValue("@budget_qty", (object?)a.BudgetQty ?? DBNull.Value);
                 cmd.Parameters.AddWithValue("@budget_unit", string.IsNullOrWhiteSpace(a.BudgetUnit) ? DBNull.Value : a.BudgetUnit);
             }
+        }
+
+        public List<AllotmentProjectOption> GetAllProjects()
+        {
+            using var conn = MySqlDb.OpenConnection();
+            using var cmd = conn.CreateCommand();
+
+            // ⚠️ assumes your allotments table has these columns
+            cmd.CommandText = @"
+SELECT
+    id,
+    project_name,
+    company,
+    department,
+    source_of_fund,
+    budget_type,
+    budget_amount,
+    budget_qty,
+    budget_unit
+FROM allotments
+ORDER BY id ASC;";
+
+            using var rd = cmd.ExecuteReader();
+            var list = new List<AllotmentProjectOption>();
+
+            while (rd.Read())
+            {
+                list.Add(new AllotmentProjectOption
+                {
+                    Id = rd.GetInt32("id"),
+                    ProjectName = rd.GetString("project_name"),
+                    Company = rd.GetString("company"),
+                    Department = rd.GetString("department"),
+                    SourceOfFund = rd.GetString("source_of_fund"),
+                    BudgetType = rd.GetString("budget_type"),
+                    BudgetAmount = rd.IsDBNull("budget_amount") ? null : rd.GetDecimal("budget_amount"),
+                    BudgetQty = rd.IsDBNull("budget_qty") ? null : rd.GetInt32("budget_qty"),
+                    BudgetUnit = rd.IsDBNull("budget_unit") ? null : rd.GetString("budget_unit"),
+                });
+            }
+
+            return list;
         }
     }
 }

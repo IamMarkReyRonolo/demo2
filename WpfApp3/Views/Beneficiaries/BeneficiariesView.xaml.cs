@@ -6,8 +6,8 @@ namespace WpfApp3.Views.Beneficiaries
 {
     public partial class BeneficiariesView : UserControl
     {
-        private static readonly Regex DigitsOnly = new(@"^[0-9]+$");
-        private static readonly Regex MoneyRegex = new(@"^[0-9.,]+$");
+        private static readonly Regex DigitsOnly = new(@"^\d+$");
+        private static readonly Regex MoneyChars = new(@"^[0-9.,]+$");
 
         public BeneficiariesView()
         {
@@ -26,7 +26,7 @@ namespace WpfApp3.Views.Beneficiaries
 
         private void Money_PreviewTextInput(object sender, TextCompositionEventArgs e)
         {
-            e.Handled = !MoneyRegex.IsMatch(e.Text);
+            e.Handled = !MoneyChars.IsMatch(e.Text);
         }
     }
 }
