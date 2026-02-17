@@ -13,7 +13,7 @@
         <BooleanToVisibilityConverter x:Key="BoolToVis"/>
         <conv:EqualsToBoolConverter x:Key="EqualsToBoolConverter"/>
 
-        <!-- Backdrop button -->
+        <!-- Backdrop button (prevents hover turning blue) -->
         <Style x:Key="BackdropButton" TargetType="Button">
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="BorderBrush" Value="{x:Null}"/>
@@ -30,7 +30,7 @@
             </Setter>
         </Style>
 
-        <!-- Icon button -->
+        <!-- Icon-like square buttons -->
         <Style x:Key="IconButton" TargetType="Button">
             <Setter Property="Width" Value="40"/>
             <Setter Property="Height" Value="40"/>
@@ -71,7 +71,7 @@
             </Setter>
         </Style>
 
-        <!-- Pagination button -->
+        <!-- Pagination button base -->
         <Style x:Key="PageButton" TargetType="Button">
             <Setter Property="MinWidth" Value="34"/>
             <Setter Property="Height" Value="30"/>
@@ -96,7 +96,7 @@
             </Setter>
         </Style>
 
-        <!-- Row action -->
+        <!-- Small table action icon button -->
         <Style x:Key="RowActionButton" TargetType="Button">
             <Setter Property="Width" Value="26"/>
             <Setter Property="Height" Value="22"/>
@@ -106,6 +106,7 @@
             <Setter Property="Padding" Value="0"/>
         </Style>
 
+        <!-- Centering -->
         <Style x:Key="CenteredCellStyle" TargetType="DataGridCell">
             <Setter Property="VerticalContentAlignment" Value="Center"/>
             <Setter Property="Padding" Value="6,0"/>
@@ -118,7 +119,32 @@
             <Setter Property="VerticalAlignment" Value="Center"/>
         </Style>
 
-        <!-- Modal inputs -->
+        <!-- Rounded buttons for modals -->
+        <Style x:Key="RoundedPrimary" TargetType="Button" BasedOn="{StaticResource PrimaryButton}">
+            <Setter Property="Width" Value="160"/>
+            <Setter Property="Height" Value="40"/>
+            <Setter Property="Padding" Value="0"/>
+        </Style>
+
+        <Style x:Key="RoundedDanger" TargetType="Button">
+            <Setter Property="Width" Value="140"/>
+            <Setter Property="Height" Value="40"/>
+            <Setter Property="Background" Value="#FF0000"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderBrush" Value="Transparent"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border CornerRadius="12" Background="{TemplateBinding Background}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
         <Style x:Key="ModalTextBox" TargetType="TextBox">
             <Setter Property="Height" Value="38"/>
             <Setter Property="Padding" Value="14,0"/>
@@ -141,12 +167,13 @@
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
 
             <!-- Top row: project dropdown + eye + total budget -->
-            <Grid Grid.Row="0" Margin="0,6,0,10">
+            <Grid Grid.Row="0" Margin="0,6,0,8">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="320"/>
                     <ColumnDefinition Width="52"/>
@@ -164,6 +191,7 @@
                               FontSize="12"/>
                 </Border>
 
+                <!-- Eye icon -->
                 <Button Grid.Column="1"
                         Style="{StaticResource IconButton}"
                         Margin="10,0,0,0"
@@ -178,17 +206,20 @@
                            VerticalAlignment="Center"/>
             </Grid>
 
-            <!-- Add button row (STATUS NAV REMOVED) -->
-            <Grid Grid.Row="1" Margin="0,0,0,10">
+            <!-- Removed status navigation. Only Endorsed shown. -->
+            <Grid Grid.Row="1" Margin="0,6,0,10">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
 
-                <TextBlock Text="{Binding FoundText}"
-                           Foreground="#6B778C"
-                           FontSize="12"
-                           VerticalAlignment="Center"/>
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock Text="Endorsed Beneficiaries"
+                               Foreground="#2E3A59"
+                               FontWeight="SemiBold"
+                               FontSize="13"
+                               VerticalAlignment="Center"/>
+                </StackPanel>
 
                 <Button Grid.Column="1"
                         Style="{StaticResource PrimaryButton}"
@@ -196,11 +227,19 @@
                         Content="＋  Add Beneficiaries"/>
             </Grid>
 
+            <!-- Found text -->
+            <TextBlock Grid.Row="2"
+                       Text="{Binding FoundText}"
+                       Foreground="#6B778C"
+                       FontSize="12"
+                       Margin="2,0,0,10"/>
+
             <!-- Table -->
-            <Border Grid.Row="2"
+            <Border Grid.Row="3"
                     CornerRadius="18"
                     Background="White"
-                    Padding="10">
+                    Padding="10"
+                    Margin="0,6,0,0">
                 <Border.Effect>
                     <DropShadowEffect BlurRadius="18" ShadowDepth="2" Opacity="0.06"/>
                 </Border.Effect>
@@ -243,19 +282,20 @@
                         <Style TargetType="DataGridCell" BasedOn="{StaticResource CenteredCellStyle}">
                             <Setter Property="Background" Value="Transparent"/>
                             <Setter Property="Foreground" Value="#2E3A59"/>
+                            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
                         </Style>
                     </DataGrid.Resources>
 
                     <DataGrid.Columns>
-                        <DataGridTextColumn Header="ID" Binding="{Binding BeneficiaryId}" Width="80"
+                        <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="60"
                                             CellStyle="{StaticResource CenteredCellStyle}"
                                             ElementStyle="{StaticResource CenteredTextBlockStyle}"/>
 
-                        <DataGridTextColumn Header="First Name" Binding="{Binding FirstName}" Width="180"
+                        <DataGridTextColumn Header="First Name" Binding="{Binding FirstName}" Width="160"
                                             CellStyle="{StaticResource CenteredCellStyle}"
                                             ElementStyle="{StaticResource CenteredTextBlockStyle}"/>
 
-                        <DataGridTextColumn Header="Last Name" Binding="{Binding LastName}" Width="180"
+                        <DataGridTextColumn Header="Last Name" Binding="{Binding LastName}" Width="160"
                                             CellStyle="{StaticResource CenteredCellStyle}"
                                             ElementStyle="{StaticResource CenteredTextBlockStyle}"/>
 
@@ -267,7 +307,8 @@
                                             CellStyle="{StaticResource CenteredCellStyle}"
                                             ElementStyle="{StaticResource CenteredTextBlockStyle}"/>
 
-                        <DataGridTextColumn Header="Share" Binding="{Binding ShareDisplay}" Width="160"
+                        <!-- Share is string so it can show Money or InKind -->
+                        <DataGridTextColumn Header="Share" Binding="{Binding ShareText}" Width="160"
                                             CellStyle="{StaticResource CenteredCellStyle}"
                                             ElementStyle="{StaticResource CenteredTextBlockStyle}"/>
 
@@ -278,7 +319,6 @@
                                     <StackPanel Orientation="Horizontal"
                                                 HorizontalAlignment="Center"
                                                 VerticalAlignment="Center">
-
                                         <!-- edit share -->
                                         <Button Style="{StaticResource RowActionButton}"
                                                 Content="✎"
@@ -287,7 +327,7 @@
                                                 Command="{Binding DataContext.OpenEditShareCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
                                                 CommandParameter="{Binding}"/>
 
-                                        <!-- remove from project -->
+                                        <!-- unassign -->
                                         <Button Style="{StaticResource RowActionButton}"
                                                 Content="🗑"
                                                 Foreground="#E11D48"
@@ -302,7 +342,7 @@
             </Border>
 
             <!-- Pagination -->
-            <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,16,0,0">
+            <StackPanel Grid.Row="4" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,16,0,0">
                 <Button Content="Previous" Style="{StaticResource PageButton}" Command="{Binding PreviousPageCommand}"/>
 
                 <ItemsControl ItemsSource="{Binding PageNumbers}" Margin="6,0">
@@ -343,7 +383,9 @@
             </StackPanel>
         </Grid>
 
-        <!-- ===================== PROJECT DETAILS MODAL ===================== -->
+        <!-- ========================================================= -->
+        <!-- MODAL 1: PROJECT DETAILS (eye icon)                        -->
+        <!-- ========================================================= -->
         <Grid Panel.ZIndex="900"
               Visibility="{Binding IsProjectDetailsOpen, Converter={StaticResource BoolToVis}}">
             <Border Background="#80000000"/>
@@ -352,290 +394,220 @@
             <Border Width="920"
                     CornerRadius="18"
                     Background="White"
+                    Padding="22"
                     HorizontalAlignment="Center"
-                    VerticalAlignment="Center"
-                    MaxHeight="{x:Static SystemParameters.WorkAreaHeight}">
+                    VerticalAlignment="Center">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
 
-                <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-                    <Grid Padding="22">
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                        </Grid.RowDefinitions>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
 
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
+                        <TextBlock Text="Project"
+                                   FontSize="18"
+                                   FontWeight="Bold"
+                                   Foreground="#2E3A59"/>
 
-                            <TextBlock Text="Project"
-                                       FontSize="18"
-                                       FontWeight="Bold"
-                                       Foreground="#2E3A59"/>
-
-                            <Button Grid.Column="1"
-                                    Content="✕"
-                                    Width="30" Height="30"
-                                    Background="Transparent"
-                                    BorderBrush="Transparent"
-                                    Cursor="Hand"
-                                    Command="{Binding CloseProjectDetailsCommand}"/>
-                        </Grid>
-
-                        <Grid Grid.Row="1" Margin="0,14,0,0">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition/>
-                                <ColumnDefinition Width="24"/>
-                                <ColumnDefinition/>
-                            </Grid.ColumnDefinitions>
-
-                            <StackPanel Grid.Column="0">
-                                <TextBlock Text="Project Name" Foreground="#2E3A59" Margin="0,0,0,6"/>
-                                <TextBox Style="{StaticResource ModalTextBox}" Text="{Binding ProjectNameDetails}" IsReadOnly="True"/>
-
-                                <TextBlock Text="Department" Foreground="#2E3A59" Margin="0,14,0,6"/>
-                                <TextBox Style="{StaticResource ModalTextBox}" Text="{Binding DepartmentDetails}" IsReadOnly="True"/>
-                            </StackPanel>
-
-                            <StackPanel Grid.Column="2">
-                                <TextBlock Text="Company" Foreground="#2E3A59" Margin="0,0,0,6"/>
-                                <TextBox Style="{StaticResource ModalTextBox}" Text="{Binding CompanyDetails}" IsReadOnly="True"/>
-
-                                <TextBlock Text="Source of Fund" Foreground="#2E3A59" Margin="0,14,0,6"/>
-                                <TextBox Style="{StaticResource ModalTextBox}" Text="{Binding SourceOfFundDetails}" IsReadOnly="True"/>
-
-                                <TextBlock Text="Budget" Foreground="#2E3A59" Margin="0,14,0,6"/>
-                                <TextBox Style="{StaticResource ModalTextBox}" Text="{Binding TotalBudgetDetails}" IsReadOnly="True"/>
-                            </StackPanel>
-                        </Grid>
+                        <Button Grid.Column="1"
+                                Content="✕"
+                                Width="30" Height="30"
+                                Background="Transparent"
+                                BorderBrush="Transparent"
+                                Cursor="Hand"
+                                Command="{Binding CloseProjectDetailsCommand}"/>
                     </Grid>
-                </ScrollViewer>
+
+                    <Grid Grid.Row="1" Margin="0,14,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition/>
+                            <ColumnDefinition Width="24"/>
+                            <ColumnDefinition/>
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="Project Name" Foreground="#2E3A59" Margin="0,0,0,6"/>
+                            <TextBox Style="{StaticResource ModalTextBox}" Text="{Binding ProjectNameDetails}" IsReadOnly="True"/>
+
+                            <TextBlock Text="Department" Foreground="#2E3A59" Margin="0,14,0,6"/>
+                            <TextBox Style="{StaticResource ModalTextBox}" Text="{Binding DepartmentDetails}" IsReadOnly="True"/>
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="2">
+                            <TextBlock Text="Company" Foreground="#2E3A59" Margin="0,0,0,6"/>
+                            <TextBox Style="{StaticResource ModalTextBox}" Text="{Binding CompanyDetails}" IsReadOnly="True"/>
+
+                            <Grid Margin="0,14,0,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition/>
+                                    <ColumnDefinition Width="18"/>
+                                    <ColumnDefinition/>
+                                </Grid.ColumnDefinitions>
+
+                                <StackPanel Grid.Column="0">
+                                    <TextBlock Text="Source of Fund" Foreground="#2E3A59" Margin="0,0,0,6"/>
+                                    <TextBox Style="{StaticResource ModalTextBox}" Text="{Binding SourceOfFundDetails}" IsReadOnly="True"/>
+                                </StackPanel>
+
+                                <StackPanel Grid.Column="2">
+                                    <TextBlock Text="Total Budget" Foreground="#2E3A59" Margin="0,0,0,6"/>
+                                    <TextBox Style="{StaticResource ModalTextBox}" Text="{Binding TotalBudgetDetails}" IsReadOnly="True"/>
+                                </StackPanel>
+                            </Grid>
+                        </StackPanel>
+                    </Grid>
+                </Grid>
             </Border>
         </Grid>
 
-        <!-- ===================== ADD BENEFICIARIES MODAL ===================== -->
+        <!-- ========================================================= -->
+        <!-- MODAL 2: ADD BENEFICIARIES                                 -->
+        <!-- ========================================================= -->
         <Grid Panel.ZIndex="910"
               Visibility="{Binding IsAddBeneficiariesOpen, Converter={StaticResource BoolToVis}}">
             <Border Background="#80000000"/>
             <Button Style="{StaticResource BackdropButton}" Command="{Binding CloseAddBeneficiariesCommand}"/>
 
-            <Border Width="900"
+            <Border Width="800"
                     CornerRadius="18"
                     Background="White"
+                    Padding="18"
                     HorizontalAlignment="Center"
-                    VerticalAlignment="Center"
-                    MaxHeight="{x:Static SystemParameters.WorkAreaHeight}">
+                    VerticalAlignment="Center">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
 
-                <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-                    <Grid Padding="18">
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="*"/>
-                        </Grid.RowDefinitions>
+                    <!-- header -->
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
 
-                        <!-- header -->
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
+                        <TextBlock Text="Add Beneficiaries"
+                                   FontSize="18"
+                                   FontWeight="Bold"
+                                   Foreground="#2E3A59"/>
 
-                            <TextBlock Text="Add Beneficiaries"
-                                       FontSize="18"
-                                       FontWeight="Bold"
-                                       Foreground="#2E3A59"/>
+                        <Button Grid.Column="1"
+                                Content="✕"
+                                Width="30" Height="30"
+                                Background="Transparent"
+                                BorderBrush="Transparent"
+                                Cursor="Hand"
+                                Command="{Binding CloseAddBeneficiariesCommand}"/>
+                    </Grid>
 
-                            <Button Grid.Column="1"
-                                    Content="✕"
-                                    Width="30" Height="30"
-                                    Background="Transparent"
-                                    BorderBrush="Transparent"
-                                    Cursor="Hand"
-                                    Command="{Binding CloseAddBeneficiariesCommand}"/>
-                        </Grid>
+                    <!-- search + add count -->
+                    <Grid Grid.Row="1" Margin="0,12,0,10">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="360"/>
+                            <ColumnDefinition Width="52"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
 
-                        <!-- share inputs (VALIDATED) -->
-                        <Grid Grid.Row="1" Margin="0,14,0,10">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition/>
-                                <ColumnDefinition Width="24"/>
-                                <ColumnDefinition/>
-                            </Grid.ColumnDefinitions>
+                        <Border CornerRadius="10" Background="White" BorderBrush="#EEF2FF" BorderThickness="1" Padding="10,6">
+                            <TextBox Text="{Binding AddSearchText, UpdateSourceTrigger=PropertyChanged}"
+                                     BorderThickness="0"
+                                     Background="Transparent"
+                                     Foreground="#2E3A59"
+                                     FontSize="12"/>
+                        </Border>
 
-                            <!-- MONEY PANEL -->
-                            <StackPanel Grid.Column="0">
-                                <StackPanel.Style>
-                                    <Style TargetType="StackPanel">
-                                        <Setter Property="Visibility" Value="Collapsed"/>
-                                        <Style.Triggers>
-                                            <DataTrigger Binding="{Binding SelectedProject.BudgetType}" Value="Money">
-                                                <Setter Property="Visibility" Value="Visible"/>
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </StackPanel.Style>
+                        <Button Grid.Column="1"
+                                Style="{StaticResource IconButton}"
+                                Margin="10,0,0,0"
+                                Content="🔍"/>
 
-                                <TextBlock Text="Share Amount (₱) per Beneficiary" Foreground="#2E3A59" Margin="0,0,0,6"/>
-                                <TextBox Style="{StaticResource ModalTextBox}"
-                                         Text="{Binding AddShareAmountInput, UpdateSourceTrigger=PropertyChanged}"
-                                         PreviewTextInput="Money_PreviewTextInput"
-                                         PreviewKeyDown="BlockSpace_PreviewKeyDown"/>
+                        <Button Grid.Column="3"
+                                Style="{StaticResource PrimaryButton}"
+                                Padding="16,8"
+                                Content="{Binding AddButtonText}"
+                                Command="{Binding ConfirmAddSelectedCommand}"/>
+                    </Grid>
 
-                                <TextBlock Text="{Binding AddShareAmountError}"
-                                           Foreground="#E11D48"
-                                           FontSize="11"
-                                           Margin="2,6,0,0"
-                                           Visibility="{Binding HasAddShareAmountError, Converter={StaticResource BoolToVis}}"/>
-                            </StackPanel>
+                    <TextBlock Grid.Row="2"
+                               Text="{Binding AddFoundText}"
+                               Foreground="#6B778C"
+                               FontSize="12"
+                               Margin="2,0,0,10"/>
 
-                            <!-- IN-KIND PANEL -->
-                            <StackPanel Grid.Column="2">
-                                <StackPanel.Style>
-                                    <Style TargetType="StackPanel">
-                                        <Setter Property="Visibility" Value="Collapsed"/>
-                                        <Style.Triggers>
-                                            <DataTrigger Binding="{Binding SelectedProject.BudgetType}" Value="InKind">
-                                                <Setter Property="Visibility" Value="Visible"/>
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </StackPanel.Style>
+                    <Border Grid.Row="2" CornerRadius="14" BorderBrush="#EEF2FF" BorderThickness="1" Padding="6" Margin="0,22,0,0">
+                        <DataGrid ItemsSource="{Binding AddItems}"
+                                  AutoGenerateColumns="False"
+                                  CanUserAddRows="False"
+                                  HeadersVisibility="Column"
+                                  GridLinesVisibility="None"
+                                  RowHeaderWidth="0"
+                                  Background="Transparent"
+                                  BorderThickness="0"
+                                  FontSize="12"
+                                  Foreground="#2E3A59"
+                                  ColumnHeaderHeight="40"
+                                  RowHeight="44"
+                                  IsReadOnly="True"
+                                  SelectionUnit="FullRow"
+                                  SelectionMode="Single"
+                                  FocusVisualStyle="{x:Null}">
 
-                                <TextBlock Text="Share In-kind per Beneficiary" Foreground="#2E3A59" Margin="0,0,0,6"/>
+                            <DataGrid.Columns>
+                                <!-- checkbox -->
+                                <DataGridTemplateColumn Width="40" IsReadOnly="False">
+                                    <DataGridTemplateColumn.Header>
+                                        <CheckBox HorizontalAlignment="Center"
+                                                  VerticalAlignment="Center"
+                                                  IsChecked="{Binding IsAddAllSelected, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                                    </DataGridTemplateColumn.Header>
 
-                                <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="140"/>
-                                        <ColumnDefinition Width="12"/>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
-
-                                    <TextBox Style="{StaticResource ModalTextBox}"
-                                             Text="{Binding AddShareQtyInput, UpdateSourceTrigger=PropertyChanged}"
-                                             PreviewTextInput="DigitsOnly_PreviewTextInput"
-                                             PreviewKeyDown="BlockSpace_PreviewKeyDown"/>
-
-                                    <TextBox Grid.Column="2"
-                                             Style="{StaticResource ModalTextBox}"
-                                             Text="{Binding AddShareUnitInput, UpdateSourceTrigger=PropertyChanged}"/>
-                                </Grid>
-
-                                <TextBlock Text="{Binding AddShareInKindError}"
-                                           Foreground="#E11D48"
-                                           FontSize="11"
-                                           Margin="2,6,0,0"
-                                           Visibility="{Binding HasAddShareInKindError, Converter={StaticResource BoolToVis}}"/>
-
-                                <TextBlock Text="Example: 2 | sacks of rice"
-                                           Foreground="#6B778C"
-                                           FontSize="11"
-                                           Margin="0,4,0,0"/>
-                            </StackPanel>
-                        </Grid>
-
-                        <!-- search + add -->
-                        <Grid Grid.Row="2" Margin="0,0,0,10">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="360"/>
-                                <ColumnDefinition Width="52"/>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
-
-                            <Border CornerRadius="10" Background="White" BorderBrush="#EEF2FF" BorderThickness="1" Padding="10,6">
-                                <TextBox Text="{Binding AddSearchText, UpdateSourceTrigger=PropertyChanged}"
-                                         BorderThickness="0"
-                                         Background="Transparent"
-                                         Foreground="#2E3A59"
-                                         FontSize="12"/>
-                            </Border>
-
-                            <Button Grid.Column="1"
-                                    Style="{StaticResource IconButton}"
-                                    Margin="10,0,0,0"
-                                    Content="🔍"
-                                    Command="{Binding SearchAddCommand}"/>
-
-                            <Button Grid.Column="3"
-                                    Style="{StaticResource PrimaryButton}"
-                                    Padding="16,8"
-                                    Content="{Binding AddButtonText}"
-                                    Command="{Binding ConfirmAddSelectedCommand}"
-                                    IsEnabled="{Binding CanConfirmAddSelected}"/>
-                        </Grid>
-
-                        <TextBlock Grid.Row="3"
-                                   Text="{Binding AddFoundText}"
-                                   Foreground="#6B778C"
-                                   FontSize="12"
-                                   Margin="2,0,0,10"/>
-
-                        <Border Grid.Row="3" CornerRadius="14" BorderBrush="#EEF2FF" BorderThickness="1" Padding="6" Margin="0,22,0,0">
-                            <DataGrid ItemsSource="{Binding AddItems}"
-                                      AutoGenerateColumns="False"
-                                      CanUserAddRows="False"
-                                      HeadersVisibility="Column"
-                                      GridLinesVisibility="None"
-                                      RowHeaderWidth="0"
-                                      Background="Transparent"
-                                      BorderThickness="0"
-                                      FontSize="12"
-                                      Foreground="#2E3A59"
-                                      ColumnHeaderHeight="40"
-                                      RowHeight="44"
-                                      IsReadOnly="True"
-                                      SelectionUnit="FullRow"
-                                      SelectionMode="Single"
-                                      FocusVisualStyle="{x:Null}">
-
-                                <DataGrid.Columns>
-                                    <DataGridTemplateColumn Width="40" IsReadOnly="False">
-                                        <DataGridTemplateColumn.Header>
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
                                             <CheckBox HorizontalAlignment="Center"
                                                       VerticalAlignment="Center"
-                                                      IsChecked="{Binding IsAddAllSelected, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-                                        </DataGridTemplateColumn.Header>
+                                                      IsChecked="{Binding IsSelected, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
 
-                                        <DataGridTemplateColumn.CellTemplate>
-                                            <DataTemplate>
-                                                <CheckBox HorizontalAlignment="Center"
-                                                          VerticalAlignment="Center"
-                                                          IsChecked="{Binding IsSelected, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-                                            </DataTemplate>
-                                        </DataGridTemplateColumn.CellTemplate>
-                                    </DataGridTemplateColumn>
+                                <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="60"
+                                                    CellStyle="{StaticResource CenteredCellStyle}"
+                                                    ElementStyle="{StaticResource CenteredTextBlockStyle}"/>
 
-                                    <DataGridTextColumn Header="ID" Binding="{Binding BeneficiaryId}" Width="80"
-                                                        CellStyle="{StaticResource CenteredCellStyle}"
-                                                        ElementStyle="{StaticResource CenteredTextBlockStyle}"/>
+                                <DataGridTextColumn Header="First Name" Binding="{Binding FirstName}" Width="160"
+                                                    CellStyle="{StaticResource CenteredCellStyle}"
+                                                    ElementStyle="{StaticResource CenteredTextBlockStyle}"/>
 
-                                    <DataGridTextColumn Header="First Name" Binding="{Binding FirstName}" Width="180"
-                                                        CellStyle="{StaticResource CenteredCellStyle}"
-                                                        ElementStyle="{StaticResource CenteredTextBlockStyle}"/>
+                                <DataGridTextColumn Header="Last Name" Binding="{Binding LastName}" Width="160"
+                                                    CellStyle="{StaticResource CenteredCellStyle}"
+                                                    ElementStyle="{StaticResource CenteredTextBlockStyle}"/>
 
-                                    <DataGridTextColumn Header="Last Name" Binding="{Binding LastName}" Width="180"
-                                                        CellStyle="{StaticResource CenteredCellStyle}"
-                                                        ElementStyle="{StaticResource CenteredTextBlockStyle}"/>
+                                <DataGridTextColumn Header="Gender" Binding="{Binding Gender}" Width="120"
+                                                    CellStyle="{StaticResource CenteredCellStyle}"
+                                                    ElementStyle="{StaticResource CenteredTextBlockStyle}"/>
 
-                                    <DataGridTextColumn Header="Gender" Binding="{Binding Gender}" Width="120"
-                                                        CellStyle="{StaticResource CenteredCellStyle}"
-                                                        ElementStyle="{StaticResource CenteredTextBlockStyle}"/>
-
-                                    <DataGridTextColumn Header="Barangay" Binding="{Binding Barangay}" Width="160"
-                                                        CellStyle="{StaticResource CenteredCellStyle}"
-                                                        ElementStyle="{StaticResource CenteredTextBlockStyle}"/>
-                                </DataGrid.Columns>
-                            </DataGrid>
-                        </Border>
-                    </Grid>
-                </ScrollViewer>
+                                <DataGridTextColumn Header="Barangay" Binding="{Binding Barangay}" Width="160"
+                                                    CellStyle="{StaticResource CenteredCellStyle}"
+                                                    ElementStyle="{StaticResource CenteredTextBlockStyle}"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </Border>
+                </Grid>
             </Border>
         </Grid>
 
-        <!-- ===================== EDIT SHARE MODAL ===================== -->
+        <!-- ========================================================= -->
+        <!-- MODAL 3: EDIT SHARE (pencil)                               -->
+        <!-- ========================================================= -->
         <Grid Panel.ZIndex="920"
               Visibility="{Binding IsEditShareOpen, Converter={StaticResource BoolToVis}}">
             <Border Background="#80000000"/>
@@ -644,127 +616,128 @@
             <Border Width="520"
                     CornerRadius="18"
                     Background="White"
+                    Padding="18"
                     HorizontalAlignment="Center"
-                    VerticalAlignment="Center"
-                    MaxHeight="{x:Static SystemParameters.WorkAreaHeight}">
-                <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-                    <Grid Padding="18">
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                        </Grid.RowDefinitions>
+                    VerticalAlignment="Center">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <TextBlock Text="Edit Share"
+                                   FontSize="16"
+                                   FontWeight="Bold"
+                                   Foreground="#2E3A59"/>
+
+                        <Button Grid.Column="1"
+                                Content="✕"
+                                Width="28" Height="28"
+                                Background="Transparent"
+                                BorderBrush="Transparent"
+                                Cursor="Hand"
+                                Command="{Binding CloseEditShareCommand}"/>
+                    </Grid>
+
+                    <!-- MONEY -->
+                    <StackPanel Grid.Row="1" Margin="0,14,0,0">
+                        <StackPanel.Style>
+                            <Style TargetType="StackPanel">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding SelectedProject.BudgetType}" Value="Money">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </StackPanel.Style>
+
+                        <TextBlock Text="Share Amount (₱)" Foreground="#2E3A59" Margin="0,0,0,6"/>
+                        <TextBox Style="{StaticResource ModalTextBox}"
+                                 Text="{Binding ShareAmountInput, UpdateSourceTrigger=PropertyChanged}"
+                                 PreviewTextInput="Money_PreviewTextInput"
+                                 PreviewKeyDown="BlockSpace_PreviewKeyDown"/>
+
+                        <TextBlock Text="{Binding ShareAmountError}"
+                                   Foreground="#E11D48"
+                                   FontSize="11"
+                                   Margin="2,6,0,0"
+                                   Visibility="{Binding HasShareAmountError, Converter={StaticResource BoolToVis}}"/>
+                    </StackPanel>
+
+                    <!-- IN-KIND -->
+                    <StackPanel Grid.Row="1" Margin="0,14,0,0">
+                        <StackPanel.Style>
+                            <Style TargetType="StackPanel">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding SelectedProject.BudgetType}" Value="InKind">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </StackPanel.Style>
+
+                        <TextBlock Text="In-kind Share" Foreground="#2E3A59" Margin="0,0,0,6"/>
 
                         <Grid>
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition/>
-                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="140"/>
+                                <ColumnDefinition Width="12"/>
+                                <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
 
-                            <TextBlock Text="Edit Share"
-                                       FontSize="16"
-                                       FontWeight="Bold"
-                                       Foreground="#2E3A59"/>
-
-                            <Button Grid.Column="1"
-                                    Content="✕"
-                                    Width="28" Height="28"
-                                    Background="Transparent"
-                                    BorderBrush="Transparent"
-                                    Cursor="Hand"
-                                    Command="{Binding CloseEditShareCommand}"/>
-                        </Grid>
-
-                        <!-- Money -->
-                        <StackPanel Grid.Row="1" Margin="0,14,0,0">
-                            <StackPanel.Style>
-                                <Style TargetType="StackPanel">
-                                    <Setter Property="Visibility" Value="Collapsed"/>
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding SelectedProject.BudgetType}" Value="Money">
-                                            <Setter Property="Visibility" Value="Visible"/>
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </StackPanel.Style>
-
-                            <TextBlock Text="Share Amount (₱)" Foreground="#2E3A59" Margin="0,0,0,6"/>
-                            <TextBox Style="{StaticResource ModalTextBox}"
-                                     Text="{Binding EditShareAmountInput, UpdateSourceTrigger=PropertyChanged}"
-                                     PreviewTextInput="Money_PreviewTextInput"
+                            <TextBox Text="{Binding ShareQtyInput, UpdateSourceTrigger=PropertyChanged}"
+                                     Style="{StaticResource ModalTextBox}"
+                                     PreviewTextInput="DigitsOnly_PreviewTextInput"
                                      PreviewKeyDown="BlockSpace_PreviewKeyDown"/>
 
-                            <TextBlock Text="{Binding EditShareAmountError}"
-                                       Foreground="#E11D48"
-                                       FontSize="11"
-                                       Margin="2,6,0,0"
-                                       Visibility="{Binding HasEditShareAmountError, Converter={StaticResource BoolToVis}}"/>
-                        </StackPanel>
+                            <TextBox Grid.Column="2"
+                                     Text="{Binding ShareUnitInput, UpdateSourceTrigger=PropertyChanged}"
+                                     Style="{StaticResource ModalTextBox}"/>
+                        </Grid>
 
-                        <!-- InKind -->
-                        <StackPanel Grid.Row="1" Margin="0,14,0,0">
-                            <StackPanel.Style>
-                                <Style TargetType="StackPanel">
-                                    <Setter Property="Visibility" Value="Collapsed"/>
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding SelectedProject.BudgetType}" Value="InKind">
-                                            <Setter Property="Visibility" Value="Visible"/>
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </StackPanel.Style>
+                        <TextBlock Text="{Binding ShareInKindError}"
+                                   Foreground="#E11D48"
+                                   FontSize="11"
+                                   Margin="2,6,0,0"
+                                   Visibility="{Binding HasShareInKindError, Converter={StaticResource BoolToVis}}"/>
 
-                            <TextBlock Text="Share In-kind" Foreground="#2E3A59" Margin="0,0,0,6"/>
+                        <TextBlock Text="Example: 10 | sacks of rice"
+                                   Foreground="#6B778C"
+                                   FontSize="11"
+                                   Margin="0,6,0,0"/>
+                    </StackPanel>
 
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="140"/>
-                                    <ColumnDefinition Width="12"/>
-                                    <ColumnDefinition Width="*"/>
-                                </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,16,0,0">
+                        <Button Content="Cancel"
+                                Width="120" Height="38"
+                                Background="Transparent"
+                                BorderBrush="Transparent"
+                                Foreground="#2E3A59"
+                                FontWeight="SemiBold"
+                                Cursor="Hand"
+                                Command="{Binding CloseEditShareCommand}"/>
 
-                                <TextBox Style="{StaticResource ModalTextBox}"
-                                         Text="{Binding EditShareQtyInput, UpdateSourceTrigger=PropertyChanged}"
-                                         PreviewTextInput="DigitsOnly_PreviewTextInput"
-                                         PreviewKeyDown="BlockSpace_PreviewKeyDown"/>
-
-                                <TextBox Grid.Column="2"
-                                         Style="{StaticResource ModalTextBox}"
-                                         Text="{Binding EditShareUnitInput, UpdateSourceTrigger=PropertyChanged}"/>
-                            </Grid>
-
-                            <TextBlock Text="{Binding EditShareInKindError}"
-                                       Foreground="#E11D48"
-                                       FontSize="11"
-                                       Margin="2,6,0,0"
-                                       Visibility="{Binding HasEditShareInKindError, Converter={StaticResource BoolToVis}}"/>
-                        </StackPanel>
-
-                        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,16,0,0">
-                            <Button Content="Cancel"
-                                    Width="120" Height="38"
-                                    Background="Transparent"
-                                    BorderBrush="Transparent"
-                                    Foreground="#2E3A59"
-                                    FontWeight="SemiBold"
-                                    Cursor="Hand"
-                                    Command="{Binding CloseEditShareCommand}"/>
-
-                            <Button Content="Confirm"
-                                    Margin="16,0,0,0"
-                                    Style="{StaticResource PrimaryButton}"
-                                    Width="140"
-                                    Height="38"
-                                    Padding="0"
-                                    Command="{Binding ConfirmEditShareCommand}"
-                                    IsEnabled="{Binding CanConfirmEditShare}"/>
-                        </StackPanel>
-                    </Grid>
-                </ScrollViewer>
+                        <Button Content="Confirm"
+                                Margin="16,0,0,0"
+                                Style="{StaticResource RoundedPrimary}"
+                                Command="{Binding ConfirmEditShareCommand}"/>
+                    </StackPanel>
+                </Grid>
             </Border>
         </Grid>
 
-        <!-- ===================== REMOVE CONFIRM MODAL ===================== -->
+        <!-- ========================================================= -->
+        <!-- MODAL 4: REMOVE ASSIGNMENT (trash)                         -->
+        <!-- ========================================================= -->
         <Grid Panel.ZIndex="930"
               Visibility="{Binding IsRemoveOpen, Converter={StaticResource BoolToVis}}">
             <Border Background="#80000000"/>
@@ -821,21 +794,8 @@
 
                         <Button Content="Confirm"
                                 Margin="18,0,0,0"
-                                Width="140" Height="40"
-                                Background="#E11D48"
-                                Foreground="White"
-                                BorderBrush="Transparent"
-                                FontWeight="SemiBold"
-                                Cursor="Hand"
-                                Command="{Binding ConfirmRemoveCommand}">
-                            <Button.Template>
-                                <ControlTemplate TargetType="Button">
-                                    <Border CornerRadius="12" Background="{TemplateBinding Background}">
-                                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                    </Border>
-                                </ControlTemplate>
-                            </Button.Template>
-                        </Button>
+                                Style="{StaticResource RoundedDanger}"
+                                Command="{Binding ConfirmRemoveCommand}"/>
                     </StackPanel>
                 </Grid>
             </Border>
