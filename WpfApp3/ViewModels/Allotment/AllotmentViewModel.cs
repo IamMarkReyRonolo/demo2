@@ -51,6 +51,36 @@ namespace WpfApp3.ViewModels.Allotment
         [ObservableProperty] private string budgetQtyInput = "";        // in-kind
         [ObservableProperty] private string budgetUnitInput = "";       // in-kind
 
+        // Save enabled
+        [ObservableProperty] private bool canSave;
+
+        // Errors (message + bool)
+        [ObservableProperty] private string projectNameError = "";
+        [ObservableProperty] private bool hasProjectNameError;
+
+        [ObservableProperty] private string companyError = "";
+        [ObservableProperty] private bool hasCompanyError;
+
+        [ObservableProperty] private string departmentError = "";
+        [ObservableProperty] private bool hasDepartmentError;
+
+        [ObservableProperty] private string sourceOfFundError = "";
+        [ObservableProperty] private bool hasSourceOfFundError;
+
+        [ObservableProperty] private string beneficiariesError = "";
+        [ObservableProperty] private bool hasBeneficiariesError;
+
+        // If using budget type UI
+        [ObservableProperty] private string budgetAmountError = "";
+        [ObservableProperty] private bool hasBudgetAmountError;
+
+        [ObservableProperty] private string budgetQtyError = "";
+        [ObservableProperty] private bool hasBudgetQtyError;
+
+        [ObservableProperty] private string budgetUnitError = "";
+        [ObservableProperty] private bool hasBudgetUnitError;
+
+
         // dropdown options (dummy)
         public ObservableCollection<string> Departments { get; } = new()
         {
@@ -133,6 +163,7 @@ namespace WpfApp3.ViewModels.Allotment
         [RelayCommand]
         private void AddAllotment()
         {
+            if (!CanSave) return;
             _editingId = null;
             FormTitle = "Add Allotment";
 
@@ -153,6 +184,7 @@ namespace WpfApp3.ViewModels.Allotment
         [RelayCommand]
         private void Edit(AllotmentRecord? row)
         {
+            if (!CanSave) return;
             if (row is null) return;
 
             _editingId = row.Id;
@@ -181,6 +213,7 @@ namespace WpfApp3.ViewModels.Allotment
         [RelayCommand]
         private void SaveForm()
         {
+            if (!CanSave) return;
             if (!int.TryParse((BeneficiariesInput ?? "").Trim(), out var ben))
                 ben = 0;
 
@@ -283,5 +316,81 @@ namespace WpfApp3.ViewModels.Allotment
         [RelayCommand] private void PreviousPage() { if (CurrentPage > 1) CurrentPage--; }
         [RelayCommand] private void NextPage() { if (CurrentPage < TotalPages) CurrentPage++; }
         [RelayCommand] private void GoToPage(int page) { CurrentPage = page; }
+
+        private void ValidateForm()
+        {
+            // reset
+            ProjectNameError = ""; HasProjectNameError = false;
+            CompanyError = ""; HasCompanyError = false;
+            DepartmentError = ""; HasDepartmentError = false;
+            SourceOfFundError = ""; HasSourceOfFundError = false;
+            BeneficiariesError = ""; HasBeneficiariesError = false;
+
+            BudgetAmountError = ""; HasBudgetAmountError = false;
+            BudgetQtyError = ""; HasBudgetQtyError = false;
+            BudgetUnitError = ""; HasBudgetUnitError = false;
+
+            // required
+            if (string.IsNullOrWhiteSpace(ProjectNameInput))
+            { ProjectNameError = "Project name is required."; HasProjectNameError = true; }
+
+            if (string.IsNullOrWhiteSpace(CompanyInput))
+            { CompanyError = "Company is required."; HasCompanyError = true; }
+
+            if (string.IsNullOrWhiteSpace(DepartmentInput))
+            { DepartmentError = "Department is required."; HasDepartmentError = true; }
+
+            if (string.IsNullOrWhiteSpace(SourceOfFundInput))
+            { SourceOfFundError = "Source of fund is required."; HasSourceOfFundError = true; }
+
+            // digits-only is enforced by UI, but still validate:
+            if (!int.TryParse((BeneficiariesInput ?? "").Trim(), out var ben) || ben <= 0)
+            { BeneficiariesError = "No. of beneficiaries must be a valid number (> 0)."; HasBeneficiariesError = true; }
+
+            // Budget rules (only if you implemented BudgetTypeInput + fields)
+            var type = (BudgetTypeInput ?? "Money").Trim();
+            type = type.Equals("InKind", StringComparison.OrdinalIgnoreCase) ? "InKind" : "Money";
+
+            if (type == "Money")
+            {
+                var raw = (BudgetAmountInput ?? "").Replace(",", "").Trim();
+                if (string.IsNullOrWhiteSpace(raw) ||
+                    !decimal.TryParse(raw, NumberStyles.Number, CultureInfo.InvariantCulture, out var amt) || amt <= 0m)
+                {
+                    BudgetAmountError = "Budget amount must be a valid number (> 0).";
+                    HasBudgetAmountError = true;
+                }
+            }
+            else
+            {
+                if (!int.TryParse((BudgetQtyInput ?? "").Trim(), out var qty) || qty <= 0)
+                {
+                    BudgetQtyError = "Quantity must be a valid number (> 0).";
+                    HasBudgetQtyError = true;
+                }
+
+                if (string.IsNullOrWhiteSpace(BudgetUnitInput))
+                {
+                    BudgetUnitError = "Unit/Item is required (ex: sacks of rice).";
+                    HasBudgetUnitError = true;
+                }
+            }
+
+            CanSave =
+                !(HasProjectNameError || HasCompanyError || HasDepartmentError || HasSourceOfFundError ||
+                  HasBeneficiariesError || HasBudgetAmountError || HasBudgetQtyError || HasBudgetUnitError);
+        }
+
+        partial void OnProjectNameInputChanged(string value) => ValidateForm();
+        partial void OnCompanyInputChanged(string value) => ValidateForm();
+        partial void OnDepartmentInputChanged(string? value) => ValidateForm();
+        partial void OnSourceOfFundInputChanged(string? value) => ValidateForm();
+        partial void OnBeneficiariesInputChanged(string value) => ValidateForm();
+
+        partial void OnBudgetTypeInputChanged(string? value) => ValidateForm();
+        partial void OnBudgetAmountInputChanged(string value) => ValidateForm();
+        partial void OnBudgetQtyInputChanged(string value) => ValidateForm();
+        partial void OnBudgetUnitInputChanged(string value) => ValidateForm();
+
     }
 }
