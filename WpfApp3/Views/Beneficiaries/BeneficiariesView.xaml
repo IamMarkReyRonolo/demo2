@@ -288,56 +288,54 @@
 
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="60"
-                                            CellStyle="{StaticResource CenteredCellStyle}"
-                                            ElementStyle="{StaticResource CenteredTextBlockStyle}"/>
+                        CellStyle="{StaticResource CenteredCellStyle}"
+                        ElementStyle="{StaticResource CenteredTextBlockStyle}"/>
 
                         <DataGridTextColumn Header="First Name" Binding="{Binding FirstName}" Width="160"
-                                            CellStyle="{StaticResource CenteredCellStyle}"
-                                            ElementStyle="{StaticResource CenteredTextBlockStyle}"/>
+                        CellStyle="{StaticResource CenteredCellStyle}"
+                        ElementStyle="{StaticResource CenteredTextBlockStyle}"/>
 
                         <DataGridTextColumn Header="Last Name" Binding="{Binding LastName}" Width="160"
-                                            CellStyle="{StaticResource CenteredCellStyle}"
-                                            ElementStyle="{StaticResource CenteredTextBlockStyle}"/>
+                        CellStyle="{StaticResource CenteredCellStyle}"
+                        ElementStyle="{StaticResource CenteredTextBlockStyle}"/>
 
                         <DataGridTextColumn Header="Gender" Binding="{Binding Gender}" Width="120"
-                                            CellStyle="{StaticResource CenteredCellStyle}"
-                                            ElementStyle="{StaticResource CenteredTextBlockStyle}"/>
+                        CellStyle="{StaticResource CenteredCellStyle}"
+                        ElementStyle="{StaticResource CenteredTextBlockStyle}"/>
 
                         <DataGridTextColumn Header="Barangay" Binding="{Binding Barangay}" Width="160"
-                                            CellStyle="{StaticResource CenteredCellStyle}"
-                                            ElementStyle="{StaticResource CenteredTextBlockStyle}"/>
+                        CellStyle="{StaticResource CenteredCellStyle}"
+                        ElementStyle="{StaticResource CenteredTextBlockStyle}"/>
 
-                        <!-- Share is string so it can show Money or InKind -->
+                        <!-- ✅ NEW -->
+                        <DataGridTextColumn Header="Classification" Binding="{Binding Classification}" Width="150"
+                        CellStyle="{StaticResource CenteredCellStyle}"
+                        ElementStyle="{StaticResource CenteredTextBlockStyle}"/>
+
+                        <!-- Share (money or in-kind) -->
                         <DataGridTextColumn Header="Share" Binding="{Binding ShareText}" Width="160"
-                                            CellStyle="{StaticResource CenteredCellStyle}"
-                                            ElementStyle="{StaticResource CenteredTextBlockStyle}"/>
+                        CellStyle="{StaticResource CenteredCellStyle}"
+                        ElementStyle="{StaticResource CenteredTextBlockStyle}"/>
 
                         <!-- actions -->
                         <DataGridTemplateColumn Width="90" Header="">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
                                     <StackPanel Orientation="Horizontal"
-                                                HorizontalAlignment="Center"
-                                                VerticalAlignment="Center">
-                                        <!-- edit share -->
-                                        <Button Style="{StaticResource RowActionButton}"
-                                                Content="✎"
-                                                Margin="0,0,10,0"
-                                                Foreground="#2E3A59"
-                                                Command="{Binding DataContext.OpenEditShareCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
-                                                CommandParameter="{Binding}"/>
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center">
 
-                                        <!-- unassign -->
                                         <Button Style="{StaticResource RowActionButton}"
-                                                Content="🗑"
-                                                Foreground="#E11D48"
-                                                Command="{Binding DataContext.OpenRemoveCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
-                                                CommandParameter="{Binding}"/>
+                            Content="🗑"
+                            Foreground="#E11D48"
+                            Command="{Binding DataContext.OpenRemoveCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                            CommandParameter="{Binding}"/>
                                     </StackPanel>
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellTemplate>
                         </DataGridTemplateColumn>
                     </DataGrid.Columns>
+
                 </DataGrid>
             </Border>
 
@@ -562,43 +560,50 @@
                                   FocusVisualStyle="{x:Null}">
 
                             <DataGrid.Columns>
-                                <!-- checkbox -->
+
                                 <DataGridTemplateColumn Width="40" IsReadOnly="False">
                                     <DataGridTemplateColumn.Header>
                                         <CheckBox HorizontalAlignment="Center"
-                                                  VerticalAlignment="Center"
-                                                  IsChecked="{Binding IsAddAllSelected, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                      VerticalAlignment="Center"
+                      IsChecked="{Binding IsAddAllSelected, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                                     </DataGridTemplateColumn.Header>
 
                                     <DataGridTemplateColumn.CellTemplate>
                                         <DataTemplate>
                                             <CheckBox HorizontalAlignment="Center"
-                                                      VerticalAlignment="Center"
-                                                      IsChecked="{Binding IsSelected, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                          VerticalAlignment="Center"
+                          IsChecked="{Binding IsSelected, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                                         </DataTemplate>
                                     </DataGridTemplateColumn.CellTemplate>
                                 </DataGridTemplateColumn>
 
                                 <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="60"
-                                                    CellStyle="{StaticResource CenteredCellStyle}"
-                                                    ElementStyle="{StaticResource CenteredTextBlockStyle}"/>
+                        CellStyle="{StaticResource CenteredCellStyle}"
+                        ElementStyle="{StaticResource CenteredTextBlockStyle}"/>
 
-                                <DataGridTextColumn Header="First Name" Binding="{Binding FirstName}" Width="160"
-                                                    CellStyle="{StaticResource CenteredCellStyle}"
-                                                    ElementStyle="{StaticResource CenteredTextBlockStyle}"/>
+                                <DataGridTextColumn Header="First Name" Binding="{Binding FirstName}" Width="140"
+                        CellStyle="{StaticResource CenteredCellStyle}"
+                        ElementStyle="{StaticResource CenteredTextBlockStyle}"/>
 
-                                <DataGridTextColumn Header="Last Name" Binding="{Binding LastName}" Width="160"
-                                                    CellStyle="{StaticResource CenteredCellStyle}"
-                                                    ElementStyle="{StaticResource CenteredTextBlockStyle}"/>
+                                <DataGridTextColumn Header="Last Name" Binding="{Binding LastName}" Width="140"
+                        CellStyle="{StaticResource CenteredCellStyle}"
+                        ElementStyle="{StaticResource CenteredTextBlockStyle}"/>
 
-                                <DataGridTextColumn Header="Gender" Binding="{Binding Gender}" Width="120"
-                                                    CellStyle="{StaticResource CenteredCellStyle}"
-                                                    ElementStyle="{StaticResource CenteredTextBlockStyle}"/>
+                                <DataGridTextColumn Header="Gender" Binding="{Binding Gender}" Width="110"
+                        CellStyle="{StaticResource CenteredCellStyle}"
+                        ElementStyle="{StaticResource CenteredTextBlockStyle}"/>
 
-                                <DataGridTextColumn Header="Barangay" Binding="{Binding Barangay}" Width="160"
-                                                    CellStyle="{StaticResource CenteredCellStyle}"
-                                                    ElementStyle="{StaticResource CenteredTextBlockStyle}"/>
+                                <DataGridTextColumn Header="Barangay" Binding="{Binding Barangay}" Width="140"
+                        CellStyle="{StaticResource CenteredCellStyle}"
+                        ElementStyle="{StaticResource CenteredTextBlockStyle}"/>
+
+                                <!-- ✅ NEW -->
+                                <DataGridTextColumn Header="Classification" Binding="{Binding Classification}" Width="140"
+                        CellStyle="{StaticResource CenteredCellStyle}"
+                        ElementStyle="{StaticResource CenteredTextBlockStyle}"/>
+
                             </DataGrid.Columns>
+
                         </DataGrid>
                     </Border>
                 </Grid>

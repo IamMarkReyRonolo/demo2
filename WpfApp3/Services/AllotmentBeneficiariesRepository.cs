@@ -178,5 +178,58 @@ WHERE allotment_id = @aid AND beneficiary_id = @bid;";
 
             cmd.ExecuteNonQuery();
         }
+
+        public static void AssignAndRecompute(int allotmentId, IEnumerable<int> beneficiaryIds)
+        {
+            using var conn = MySqlDb.OpenConnection();
+            using var tx = conn.BeginTransaction();
+
+            const string insertSql = @"
+INSERT IGNORE INTO allotment_beneficiaries (allotment_id, beneficiary_id)
+VALUES (@a, @b);";
+
+            using (var cmd = new MySqlCommand(insertSql, conn, tx))
+            {
+                cmd.Parameters.Add("@a", MySqlDbType.Int32).Value = allotmentId;
+                var pB = cmd.Parameters.Add("@b", MySqlDbType.Int32);
+
+                foreach (var bid in beneficiaryIds)
+                {
+                    pB.Value = bid;
+                    cmd.ExecuteNonQuery();
+                }
+            }
+
+            using (var recompute = new MySqlCommand("CALL sp_recompute_allotment_shares(@a);", conn, tx))
+            {
+                recompute.Parameters.AddWithValue("@a", allotmentId);
+                recompute.ExecuteNonQuery();
+            }
+
+            tx.Commit();
+        }
+
+        public static void RemoveAndRecompute(int allotmentId, int beneficiaryId)
+        {
+            using var conn = MySqlDb.OpenConnection();
+            using var tx = conn.BeginTransaction();
+
+            using (var del = new MySqlCommand(
+                "DELETE FROM allotment_beneficiaries WHERE allotment_id=@a AND beneficiary_id=@b;",
+                conn, tx))
+            {
+                del.Parameters.AddWithValue("@a", allotmentId);
+                del.Parameters.AddWithValue("@b", beneficiaryId);
+                del.ExecuteNonQuery();
+            }
+
+            using (var recompute = new MySqlCommand("CALL sp_recompute_allotment_shares(@a);", conn, tx))
+            {
+                recompute.Parameters.AddWithValue("@a", allotmentId);
+                recompute.ExecuteNonQuery();
+            }
+
+            tx.Commit();
+        }
     }
 }

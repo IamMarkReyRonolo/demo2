@@ -1,5 +1,4 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
-using System.Globalization;
 
 namespace WpfApp3.Models
 {
@@ -7,14 +6,17 @@ namespace WpfApp3.Models
     {
         [ObservableProperty] private bool isSelected;
 
-        public int Id { get; set; } // beneficiaries.id
+        public int Id { get; set; }
 
         [ObservableProperty] private string firstName = "";
         [ObservableProperty] private string lastName = "";
         [ObservableProperty] private string gender = "";
         [ObservableProperty] private string barangay = "";
 
-        // assigned share (nullable)
+        // ✅ NEW
+        [ObservableProperty] private string classification = "None";
+
+        // Assignment share (from allotment_beneficiaries)
         [ObservableProperty] private decimal? shareAmount;
         [ObservableProperty] private int? shareQty;
         [ObservableProperty] private string? shareUnit;
@@ -23,13 +25,13 @@ namespace WpfApp3.Models
         {
             get
             {
-                if (ShareAmount.HasValue && ShareAmount.Value > 0)
-                    return $"₱ {ShareAmount.Value.ToString("N0", CultureInfo.InvariantCulture)}";
+                if (ShareAmount.HasValue)
+                    return $"₱ {ShareAmount.Value:N2}";
 
-                if (ShareQty.HasValue && ShareQty.Value > 0)
-                    return $"{ShareQty.Value} {(ShareUnit ?? "").Trim()}".Trim();
+                if (ShareQty.HasValue && !string.IsNullOrWhiteSpace(ShareUnit))
+                    return $"{ShareQty.Value:N0} {ShareUnit}";
 
-                return "";
+                return "-";
             }
         }
 
