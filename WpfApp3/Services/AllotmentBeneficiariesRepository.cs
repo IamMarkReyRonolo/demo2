@@ -15,7 +15,6 @@ namespace WpfApp3.Services
             cmd.CommandText = @"
 SELECT
     b.id,
-    b.beneficiary_id,
     b.first_name,
     b.last_name,
     b.gender,
@@ -46,7 +45,6 @@ ORDER BY b.last_name, b.first_name;";
             var oShareQty = rd.GetOrdinal("share_qty");
             var oShareUnit = rd.GetOrdinal("share_unit");
             var oReleased = rd.GetOrdinal("is_released");
-            var oBeneId = rd.GetOrdinal("beneficiary_id");
 
             while (rd.Read())
             {
@@ -64,8 +62,7 @@ ORDER BY b.last_name, b.first_name;";
                     ShareUnit = rd.IsDBNull(oShareUnit) ? null : rd.GetString(oShareUnit),
 
                     // ✅ new
-                    IsReleased = !rd.IsDBNull(oReleased) && Convert.ToInt32(rd.GetValue(oReleased)) == 1,
-                    BeneficiaryId = rd.IsDBNull(oBeneId) ? "" : rd.GetString(oBeneId),
+                    IsReleased = !rd.IsDBNull(oReleased) && Convert.ToInt32(rd.GetValue(oReleased)) == 1
                 });
             }
 

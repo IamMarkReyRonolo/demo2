@@ -22,8 +22,6 @@ namespace WpfApp3.Models
         [ObservableProperty] private string? shareUnit;
 
         [ObservableProperty] private bool isReleased;
-        // Models/BeneficiaryRecord.cs
-        [ObservableProperty] private string beneficiaryId = ""; // <-- barcode value e.g. "BENE-000123"
 
         // ✅ display text used by XAML binding ShareText
         public string ShareText

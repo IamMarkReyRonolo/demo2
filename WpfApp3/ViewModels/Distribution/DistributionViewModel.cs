@@ -176,11 +176,17 @@ namespace WpfApp3.ViewModels.Distribution
         private void Scan(string? scanned)
         {
             var raw = (scanned ?? "").Trim();
-            if (string.IsNullOrWhiteSpace(raw)) return;
 
-            var hit = ReleaseItems.FirstOrDefault(x =>
-                string.Equals((x.BeneficiaryId ?? "").Trim(), raw, StringComparison.OrdinalIgnoreCase));
+            if (string.IsNullOrWhiteSpace(raw))
+                return;
 
+            if (!int.TryParse(raw, out var id))
+            {
+                ShowToast($"Scan error: {raw}", "error");
+                return;
+            }
+
+            var hit = ReleaseItems.FirstOrDefault(x => x.Id == id);
             if (hit is null)
             {
                 ShowToast($"Scan not found: {raw}", "error");
@@ -196,8 +202,7 @@ namespace WpfApp3.ViewModels.Distribution
             _pendingRelease = hit;
             SelectedReleaseRow = hit;
 
-            // show scanned string in confirm modal
-            ConfirmId = hit.BeneficiaryId;
+            ConfirmId = hit.Id.ToString(CultureInfo.InvariantCulture);
             ConfirmName = $"{hit.FirstName} {hit.LastName}".Trim();
             ConfirmBarangay = hit.Barangay;
             ConfirmClassification = hit.Classification;
@@ -206,6 +211,7 @@ namespace WpfApp3.ViewModels.Distribution
             IsConfirmReleaseOpen = true;
             ShowToast($"Scan success: {raw}", "success");
         }
+
         [RelayCommand]
         private void CloseConfirmRelease()
         {
