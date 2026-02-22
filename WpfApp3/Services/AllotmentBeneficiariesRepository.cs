@@ -64,7 +64,7 @@ ORDER BY b.last_name, b.first_name;";
                     ShareUnit = rd.IsDBNull(oShareUnit) ? null : rd.GetString(oShareUnit),
 
                     // ✅ new
-                    IsReleased = !rd.IsDBNull(oReleased) && Convert.ToInt32(rd.GetValue(oReleased)) == 1
+                    IsReleased = !rd.IsDBNull(oReleased) && Convert.ToInt32(rd.GetValue(oReleased)) == 1,
                     BeneficiaryId = rd.IsDBNull(oBeneId) ? "" : rd.GetString(oBeneId),
                 });
             }
