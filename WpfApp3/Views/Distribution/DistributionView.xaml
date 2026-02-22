@@ -358,16 +358,68 @@
                             </StackPanel>
 
                             <StackPanel Grid.Column="2">
+
+                                <!-- ✅ Local resources: valid place for x:Key -->
+                                <StackPanel.Resources>
+                                    <Style x:Key="OutlineButton" TargetType="Button">
+                                        <Setter Property="Background" Value="Transparent"/>
+                                        <Setter Property="Foreground" Value="#2E3A59"/>
+                                        <Setter Property="BorderBrush" Value="#2E3A59"/>
+                                        <Setter Property="BorderThickness" Value="1"/>
+                                        <Setter Property="Padding" Value="16,10"/>
+                                        <Setter Property="FontWeight" Value="SemiBold"/>
+                                        <Setter Property="Cursor" Value="Hand"/>
+                                        <Setter Property="Template">
+                                            <Setter.Value>
+                                                <ControlTemplate TargetType="Button">
+                                                    <Border BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                Background="{TemplateBinding Background}"
+                                CornerRadius="12"
+                                Padding="{TemplateBinding Padding}">
+                                                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                    </Border>
+                                                </ControlTemplate>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Style>
+                                </StackPanel.Resources>
+
                                 <TextBlock Text="Scan Beneficiary ID" Foreground="#2E3A59" Margin="0,0,0,6"/>
+
+                                <!-- ✅ Toggle button -->
+                                <Button Content="{Binding ScanButtonText}"
+            Command="{Binding ToggleScanningCommand}">
+                                    <Button.Style>
+                                        <Style TargetType="Button" BasedOn="{StaticResource OutlineButton}">
+                                            <Setter Property="Width" Value="180"/>
+                                            <Setter Property="Height" Value="38"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsScanning}" Value="True">
+                                                    <Setter Property="Background" Value="#2E3A59"/>
+                                                    <Setter Property="Foreground" Value="White"/>
+                                                    <Setter Property="BorderBrush" Value="Transparent"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Button.Style>
+                                </Button>
+
+                                <!-- ✅ Hidden textbox that receives scanner input -->
                                 <TextBox x:Name="ScanBox"
-                                         Style="{StaticResource ModalTextBox}"
-                                         Text="{Binding ScanInput, UpdateSourceTrigger=PropertyChanged}"
-                                         KeyDown="ScanBox_KeyDown"/>
-                                <TextBlock Text="Tip: click the box then scan."
-                                           Foreground="#6B778C"
-                                           FontSize="11"
-                                           Margin="0,6,0,0"/>
+             Width="1"
+             Height="1"
+             Opacity="0"
+             IsTabStop="False"
+             Text="{Binding ScanInput, UpdateSourceTrigger=PropertyChanged}"
+             KeyDown="ScanBox_KeyDown"/>
+
+                                <TextBlock Text="{Binding ScanHintText}"
+               Foreground="#6B778C"
+               FontSize="11"
+               Margin="0,6,0,0"/>
                             </StackPanel>
+
                         </Grid>
 
                         <!-- release list -->
