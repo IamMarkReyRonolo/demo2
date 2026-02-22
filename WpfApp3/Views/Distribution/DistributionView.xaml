@@ -359,14 +359,12 @@
 
                             <StackPanel Grid.Column="2">
                                 <TextBlock Text="Scan Beneficiary ID" Foreground="#2E3A59" Margin="0,0,0,6"/>
-                                <TextBox x:Name="ScanBox"
-                                         Style="{StaticResource ModalTextBox}"
-                                         Text="{Binding ScanInput, UpdateSourceTrigger=PropertyChanged}"
-                                         KeyDown="ScanBox_KeyDown"/>
-                                <TextBlock Text="Tip: click the box then scan."
-                                           Foreground="#6B778C"
-                                           FontSize="11"
-                                           Margin="0,6,0,0"/>
+
+                                <TextBox Style="{StaticResource ModalTextBox}"
+             IsReadOnly="True"
+             IsTabStop="False"
+             Cursor="Arrow"
+             Text="{Binding ScanInput, UpdateSourceTrigger=PropertyChanged}"/>
                             </StackPanel>
                         </Grid>
 

@@ -14,6 +14,7 @@ namespace WpfApp3.ViewModels.Distribution
 
         private List<BeneficiaryRecord> _cache = new();
 
+        // paging (main page)
         [ObservableProperty] private int currentPage = 1;
         public int PageSize { get; } = 8;
 
@@ -40,6 +41,8 @@ namespace WpfApp3.ViewModels.Distribution
         [ObservableProperty] private bool isReleaseSessionOpen;
         public ObservableCollection<BeneficiaryRecord> ReleaseItems { get; } = new();
         [ObservableProperty] private BeneficiaryRecord? selectedReleaseRow;
+
+        // shows scanned text in UI textbox
         [ObservableProperty] private string scanInput = "";
 
         public string ReleaseProjectText => SelectedProject is null ? "" : $"Project: {SelectedProject.ProjectName}";
@@ -115,6 +118,21 @@ namespace WpfApp3.ViewModels.Distribution
             OnPropertyChanged(nameof(FoundText));
         }
 
+        // ===== Reload list inside Release modal (keeps Released column updated) =====
+        private void ReloadReleaseItems()
+        {
+            ReleaseItems.Clear();
+
+            if (SelectedProject is null) return;
+
+            foreach (var r in _assignRepo.GetAssignedEndorsed(SelectedProject.Id))
+                ReleaseItems.Add(r);
+
+            OnPropertyChanged(nameof(ReleaseProjectText));
+            OnPropertyChanged(nameof(ReleaseBudgetText));
+            OnPropertyChanged(nameof(ReleaseProgressText));
+        }
+
         private async void ShowToast(string msg, string kind)
         {
             _toastCts?.Cancel();
@@ -145,7 +163,7 @@ namespace WpfApp3.ViewModels.Distribution
         [RelayCommand]
         private void OpenProjectDetails()
         {
-            // Optional: you can reuse the Beneficiaries project details modal later
+            // optional – reuse Beneficiaries project modal later if you want
             ShowToast("Project details is optional here.", "info");
         }
 
@@ -154,13 +172,11 @@ namespace WpfApp3.ViewModels.Distribution
         {
             if (SelectedProject is null) return;
 
-            ReleaseItems.Clear();
-            foreach (var r in _assignRepo.GetAssignedEndorsed(SelectedProject.Id))
-                ReleaseItems.Add(r);
+            // reset scan display on open
+            ScanInput = "";
 
-            OnPropertyChanged(nameof(ReleaseProjectText));
-            OnPropertyChanged(nameof(ReleaseBudgetText));
-            OnPropertyChanged(nameof(ReleaseProgressText));
+            // load table for release modal
+            ReloadReleaseItems();
 
             IsReleaseSessionOpen = true;
         }
@@ -169,14 +185,18 @@ namespace WpfApp3.ViewModels.Distribution
         private void CloseReleaseSession()
         {
             IsReleaseSessionOpen = false;
+            ScanInput = "";
         }
 
-        // called by code-behind on Enter key
+        // called by code-behind (global scan capture) on Enter
         [RelayCommand]
         private void Scan(string? scanned)
         {
             var raw = (scanned ?? "").Trim();
             if (string.IsNullOrWhiteSpace(raw)) return;
+
+            // ✅ always show scanned value in textbox
+            ScanInput = raw;
 
             // ✅ compare as-is (case-insensitive)
             var hit = ReleaseItems.FirstOrDefault(x =>
@@ -197,7 +217,7 @@ namespace WpfApp3.ViewModels.Distribution
             _pendingRelease = hit;
             SelectedReleaseRow = hit;
 
-            ConfirmId = hit.BeneficiaryId; // show barcode id (not numeric PK)
+            ConfirmId = hit.BeneficiaryId; // show barcode string
             ConfirmName = $"{hit.FirstName} {hit.LastName}".Trim();
             ConfirmBarangay = hit.Barangay;
             ConfirmClassification = hit.Classification;
@@ -206,6 +226,7 @@ namespace WpfApp3.ViewModels.Distribution
             IsConfirmReleaseOpen = true;
             ShowToast($"Scan success: {raw}", "success");
         }
+
         [RelayCommand]
         private void CloseConfirmRelease()
         {
@@ -220,19 +241,18 @@ namespace WpfApp3.ViewModels.Distribution
 
             _assignRepo.MarkReleased(SelectedProject.Id, _pendingRelease.Id);
 
-            // update local view
-            _pendingRelease.IsReleased = true;
-            OnPropertyChanged(nameof(ReleaseProgressText));
+            // ✅ refresh release modal table so Released column updates
+            ReloadReleaseItems();
 
-            // refresh main table
+            // ✅ refresh main page too
             Reload();
 
             IsConfirmReleaseOpen = false;
-            ShowToast($"Released to ID {_pendingRelease.Id}", "success");
+            ShowToast($"Released to ID {_pendingRelease.BeneficiaryId}", "success");
             _pendingRelease = null;
         }
 
-        // paging
+        // paging (main page)
         [RelayCommand] private void PreviousPage() { if (CurrentPage > 1) CurrentPage--; }
         [RelayCommand] private void NextPage() { if (CurrentPage < TotalPages) CurrentPage++; }
         [RelayCommand] private void GoToPage(int page) { CurrentPage = page; }
