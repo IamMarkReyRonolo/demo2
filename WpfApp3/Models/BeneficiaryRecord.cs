@@ -16,25 +16,27 @@ namespace WpfApp3.Models
         // ✅ NEW
         [ObservableProperty] private string classification = "None";
 
-        // Assignment share (from allotment_beneficiaries)
+        // share fields from allotment_beneficiaries
         [ObservableProperty] private decimal? shareAmount;
         [ObservableProperty] private int? shareQty;
         [ObservableProperty] private string? shareUnit;
 
+        // ✅ display text used by XAML binding ShareText
         public string ShareText
         {
             get
             {
-                if (ShareAmount.HasValue)
+                if (ShareAmount is not null)
                     return $"₱ {ShareAmount.Value:N2}";
 
-                if (ShareQty.HasValue && !string.IsNullOrWhiteSpace(ShareUnit))
+                if (ShareQty is not null && !string.IsNullOrWhiteSpace(ShareUnit))
                     return $"{ShareQty.Value:N0} {ShareUnit}";
 
-                return "-";
+                return "";
             }
         }
 
+        // make ShareText refresh whenever underlying fields change
         partial void OnShareAmountChanged(decimal? value) => OnPropertyChanged(nameof(ShareText));
         partial void OnShareQtyChanged(int? value) => OnPropertyChanged(nameof(ShareText));
         partial void OnShareUnitChanged(string? value) => OnPropertyChanged(nameof(ShareText));

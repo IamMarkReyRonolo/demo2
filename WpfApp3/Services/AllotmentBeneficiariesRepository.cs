@@ -19,6 +19,7 @@ SELECT
     b.last_name,
     b.gender,
     b.barangay,
+    IFNULL(b.classification,'None') AS classification,
     ab.share_amount,
     ab.share_qty,
     ab.share_unit
@@ -27,6 +28,7 @@ JOIN beneficiaries b ON b.id = ab.beneficiary_id
 WHERE ab.allotment_id = @aid
   AND b.status = 'Endorsed'
 ORDER BY b.last_name, b.first_name;";
+
 
             cmd.Parameters.AddWithValue("@aid", allotmentId);
 
@@ -42,6 +44,7 @@ ORDER BY b.last_name, b.first_name;";
                     LastName = rd.GetString("last_name"),
                     Gender = rd.GetString("gender"),
                     Barangay = rd.GetString("barangay"),
+                    Classification = rd.GetString("classification"),
                     ShareAmount = rd.IsDBNull("share_amount") ? null : rd.GetDecimal("share_amount"),
                     ShareQty = rd.IsDBNull("share_qty") ? null : rd.GetInt32("share_qty"),
                     ShareUnit = rd.IsDBNull("share_unit") ? null : rd.GetString("share_unit"),
@@ -63,7 +66,8 @@ SELECT
     b.first_name,
     b.last_name,
     b.gender,
-    b.barangay
+    b.barangay,
+    IFNULL(b.classification,'None') AS classification
 FROM beneficiaries b
 LEFT JOIN allotment_beneficiaries ab
     ON ab.beneficiary_id = b.id
@@ -76,9 +80,11 @@ WHERE b.status = 'Endorsed'
         LOWER(b.first_name) LIKE CONCAT('%', @q, '%') OR
         LOWER(b.last_name) LIKE CONCAT('%', @q, '%') OR
         LOWER(b.gender) LIKE CONCAT('%', @q, '%') OR
-        LOWER(b.barangay) LIKE CONCAT('%', @q, '%')
+        LOWER(b.barangay) LIKE CONCAT('%', @q, '%') OR
+        LOWER(IFNULL(b.classification,'')) LIKE CONCAT('%', @q, '%')
       )
 ORDER BY b.last_name, b.first_name;";
+
 
             cmd.Parameters.AddWithValue("@aid", allotmentId);
             cmd.Parameters.AddWithValue("@q", (searchLower ?? "").Trim().ToLowerInvariant());
@@ -95,6 +101,7 @@ ORDER BY b.last_name, b.first_name;";
                     LastName = rd.GetString("last_name"),
                     Gender = rd.GetString("gender"),
                     Barangay = rd.GetString("barangay"),
+                    Classification = rd.GetString("classification"),
                 });
             }
 
@@ -118,12 +125,21 @@ ON DUPLICATE KEY UPDATE updated_at = CURRENT_TIMESTAMP;";
 
                 cmd.Parameters.AddWithValue("@aid", allotmentId);
                 cmd.Parameters.AddWithValue("@bid", bid);
-
                 cmd.ExecuteNonQuery();
+            }
+
+            // ✅ IMPORTANT: recompute shares after insert
+            using (var recompute = conn.CreateCommand())
+            {
+                recompute.Transaction = tx;
+                recompute.CommandText = "CALL sp_recompute_allotment_shares(@aid);";
+                recompute.Parameters.AddWithValue("@aid", allotmentId);
+                recompute.ExecuteNonQuery();
             }
 
             tx.Commit();
         }
+
 
         public void UpdateShareMoney(int allotmentId, int beneficiaryId, decimal amount)
         {
@@ -167,17 +183,31 @@ WHERE allotment_id = @aid AND beneficiary_id = @bid;";
         public void RemoveAssignment(int allotmentId, int beneficiaryId)
         {
             using var conn = MySqlDb.OpenConnection();
-            using var cmd = conn.CreateCommand();
+            using var tx = conn.BeginTransaction();
 
-            cmd.CommandText = @"
+            using (var cmd = conn.CreateCommand())
+            {
+                cmd.Transaction = tx;
+                cmd.CommandText = @"
 DELETE FROM allotment_beneficiaries
 WHERE allotment_id = @aid AND beneficiary_id = @bid;";
+                cmd.Parameters.AddWithValue("@aid", allotmentId);
+                cmd.Parameters.AddWithValue("@bid", beneficiaryId);
+                cmd.ExecuteNonQuery();
+            }
 
-            cmd.Parameters.AddWithValue("@aid", allotmentId);
-            cmd.Parameters.AddWithValue("@bid", beneficiaryId);
+            // ✅ recompute shares after delete
+            using (var recompute = conn.CreateCommand())
+            {
+                recompute.Transaction = tx;
+                recompute.CommandText = "CALL sp_recompute_allotment_shares(@aid);";
+                recompute.Parameters.AddWithValue("@aid", allotmentId);
+                recompute.ExecuteNonQuery();
+            }
 
-            cmd.ExecuteNonQuery();
+            tx.Commit();
         }
+
 
         public static void AssignAndRecompute(int allotmentId, IEnumerable<int> beneficiaryIds)
         {
