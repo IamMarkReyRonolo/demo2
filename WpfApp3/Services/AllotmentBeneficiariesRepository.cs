@@ -22,38 +22,52 @@ SELECT
     IFNULL(b.classification,'None') AS classification,
     ab.share_amount,
     ab.share_qty,
-    ab.share_unit
+    ab.share_unit,
+    ab.is_released
 FROM allotment_beneficiaries ab
 JOIN beneficiaries b ON b.id = ab.beneficiary_id
 WHERE ab.allotment_id = @aid
   AND b.status = 'Endorsed'
 ORDER BY b.last_name, b.first_name;";
 
-
             cmd.Parameters.AddWithValue("@aid", allotmentId);
 
             using var rd = cmd.ExecuteReader();
             var list = new List<BeneficiaryRecord>();
 
+            var oId = rd.GetOrdinal("id");
+            var oFirst = rd.GetOrdinal("first_name");
+            var oLast = rd.GetOrdinal("last_name");
+            var oGender = rd.GetOrdinal("gender");
+            var oBarangay = rd.GetOrdinal("barangay");
+            var oClass = rd.GetOrdinal("classification");
+            var oShareAmt = rd.GetOrdinal("share_amount");
+            var oShareQty = rd.GetOrdinal("share_qty");
+            var oShareUnit = rd.GetOrdinal("share_unit");
+            var oReleased = rd.GetOrdinal("is_released");
+
             while (rd.Read())
             {
                 list.Add(new BeneficiaryRecord
                 {
-                    Id = rd.GetInt32("id"),
-                    FirstName = rd.GetString("first_name"),
-                    LastName = rd.GetString("last_name"),
-                    Gender = rd.GetString("gender"),
-                    Barangay = rd.GetString("barangay"),
-                    Classification = rd.GetString("classification"),
-                    ShareAmount = rd.IsDBNull("share_amount") ? null : rd.GetDecimal("share_amount"),
-                    ShareQty = rd.IsDBNull("share_qty") ? null : rd.GetInt32("share_qty"),
-                    ShareUnit = rd.IsDBNull("share_unit") ? null : rd.GetString("share_unit"),
+                    Id = rd.IsDBNull(oId) ? 0 : rd.GetInt32(oId),
+                    FirstName = rd.IsDBNull(oFirst) ? "" : rd.GetString(oFirst),
+                    LastName = rd.IsDBNull(oLast) ? "" : rd.GetString(oLast),
+                    Gender = rd.IsDBNull(oGender) ? "" : rd.GetString(oGender),
+                    Barangay = rd.IsDBNull(oBarangay) ? "" : rd.GetString(oBarangay),
+                    Classification = rd.IsDBNull(oClass) ? "None" : rd.GetString(oClass),
+
+                    ShareAmount = rd.IsDBNull(oShareAmt) ? (decimal?)null : rd.GetDecimal(oShareAmt),
+                    ShareQty = rd.IsDBNull(oShareQty) ? (int?)null : rd.GetInt32(oShareQty),
+                    ShareUnit = rd.IsDBNull(oShareUnit) ? null : rd.GetString(oShareUnit),
+
+                    // ✅ new
+                    IsReleased = !rd.IsDBNull(oReleased) && Convert.ToInt32(rd.GetValue(oReleased)) == 1
                 });
             }
 
             return list;
         }
-
         // For Add modal: endorsed NOT assigned to this project (+ optional search)
         public List<BeneficiaryRecord> GetAvailableEndorsedNotAssigned(int allotmentId, string searchLower)
         {
@@ -154,6 +168,22 @@ SET share_amount = @amt,
 WHERE allotment_id = @aid AND beneficiary_id = @bid;";
 
             cmd.Parameters.AddWithValue("@amt", amount);
+            cmd.Parameters.AddWithValue("@aid", allotmentId);
+            cmd.Parameters.AddWithValue("@bid", beneficiaryId);
+
+            cmd.ExecuteNonQuery();
+        }
+
+        public void MarkReleased(int allotmentId, int beneficiaryId)
+        {
+            using var conn = MySqlDb.OpenConnection();
+            using var cmd = conn.CreateCommand();
+
+            cmd.CommandText = @"
+UPDATE allotment_beneficiaries
+SET is_released = 1
+WHERE allotment_id = @aid AND beneficiary_id = @bid;";
+
             cmd.Parameters.AddWithValue("@aid", allotmentId);
             cmd.Parameters.AddWithValue("@bid", beneficiaryId);
 

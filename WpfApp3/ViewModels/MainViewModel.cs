@@ -8,6 +8,7 @@ using WpfApp3.Services;
 using WpfApp3.Views.Allotment;
 using WpfApp3.Views.Beneficiaries;
 using WpfApp3.Views.Dashboard;
+using WpfApp3.Views.Distribution;
 using WpfApp3.Views.Users;
 using WpfApp3.Views.Validators;
 
@@ -71,7 +72,11 @@ public partial class MainViewModel : ObservableObject
         PageTitle = "Beneficiaries";
         CurrentView = new BeneficiariesView();
     }
-    [RelayCommand] private void NavigateDistribution() => NavigatePlaceholder("Distribution");
+    [RelayCommand] private void NavigateDistribution()
+    {
+        PageTitle = "Distribution";
+        CurrentView = new DistributionView();
+    }
     [RelayCommand] private void NavigateClientProfile() => NavigatePlaceholder("Client Profile");
     [RelayCommand] private void NavigateValidators()
     {

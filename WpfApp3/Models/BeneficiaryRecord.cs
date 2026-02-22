@@ -21,6 +21,8 @@ namespace WpfApp3.Models
         [ObservableProperty] private int? shareQty;
         [ObservableProperty] private string? shareUnit;
 
+        [ObservableProperty] private bool isReleased;
+
         // ✅ display text used by XAML binding ShareText
         public string ShareText
         {
@@ -35,6 +37,8 @@ namespace WpfApp3.Models
                 return "";
             }
         }
+
+        public string ReleasedText => IsReleased ? "Released" : "Not Released";
 
         // make ShareText refresh whenever underlying fields change
         partial void OnShareAmountChanged(decimal? value) => OnPropertyChanged(nameof(ShareText));
