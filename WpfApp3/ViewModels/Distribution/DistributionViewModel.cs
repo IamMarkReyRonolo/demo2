@@ -60,34 +60,6 @@ namespace WpfApp3.ViewModels.Distribution
 
         private bool _ready;
 
-        [ObservableProperty] private bool isScanning;
-
-        public string ScanButtonText => IsScanning ? "Scanning" : "Start Scanning";
-        public string ScanHintText => IsScanning ? "Scanning... scan now." : "Click Start Scanning then scan.";
-
-        partial void OnIsScanningChanged(bool value)
-        {
-            OnPropertyChanged(nameof(ScanButtonText));
-            OnPropertyChanged(nameof(ScanHintText));
-
-            if (!value)
-                ScanInput = "";
-        }
-
-        [RelayCommand]
-        private void ToggleScanning()
-        {
-            IsScanning = !IsScanning;
-
-            // When turning on, focus is handled by code-behind
-            if (IsScanning)
-                ShowToast("Scanning started.", "info");
-            else
-                ShowToast("Scanning stopped.", "info");
-        }
-
-
-
         public DistributionViewModel()
         {
             LoadProjectsFromDb();
@@ -182,24 +154,15 @@ namespace WpfApp3.ViewModels.Distribution
         {
             if (SelectedProject is null) return;
 
-            IsScanning = false;
-            ScanInput = "";
-
-            ReloadReleaseItems();
-
-            IsReleaseSessionOpen = true;
-        }
-
-        private void ReloadReleaseItems()
-        {
             ReleaseItems.Clear();
-
-            if (SelectedProject is null) return;
-
             foreach (var r in _assignRepo.GetAssignedEndorsed(SelectedProject.Id))
                 ReleaseItems.Add(r);
 
+            OnPropertyChanged(nameof(ReleaseProjectText));
+            OnPropertyChanged(nameof(ReleaseBudgetText));
             OnPropertyChanged(nameof(ReleaseProgressText));
+
+            IsReleaseSessionOpen = true;
         }
 
         [RelayCommand]
@@ -257,19 +220,16 @@ namespace WpfApp3.ViewModels.Distribution
 
             _assignRepo.MarkReleased(SelectedProject.Id, _pendingRelease.Id);
 
-            // ✅ refresh modal list from DB so Released column updates
-            ReloadReleaseItems();
+            // update local view
+            _pendingRelease.IsReleased = true;
+            OnPropertyChanged(nameof(ReleaseProgressText));
 
-            // refresh main table too
+            // refresh main table
             Reload();
 
             IsConfirmReleaseOpen = false;
-            ShowToast($"Released to {ConfirmId}", "success");
-
+            ShowToast($"Released to ID {_pendingRelease.Id}", "success");
             _pendingRelease = null;
-
-            // keep scanning active if user wants (optional)
-            // IsScanning = true;  // uncomment if you want it to auto-continue
         }
 
         // paging
