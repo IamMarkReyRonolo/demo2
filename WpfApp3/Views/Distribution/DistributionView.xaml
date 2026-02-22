@@ -311,7 +311,7 @@
                     HorizontalAlignment="Center"
                     VerticalAlignment="Center"
                     MaxHeight="700"
-                    Loaded="ReleaseModal_Loaded">
+                    >
 
                 <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
                     <!-- ✅ Grid has no Padding, use Margin -->
