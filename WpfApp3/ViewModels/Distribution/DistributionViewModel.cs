@@ -192,6 +192,7 @@ namespace WpfApp3.ViewModels.Distribution
         [RelayCommand]
         private void Scan(string? scanned)
         {
+            ShowToast($"Scanning", "warning");
             var raw = (scanned ?? "").Trim();
             if (string.IsNullOrWhiteSpace(raw)) return;
 
