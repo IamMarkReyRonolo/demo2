@@ -310,8 +310,7 @@
                     Background="White"
                     HorizontalAlignment="Center"
                     VerticalAlignment="Center"
-                    MaxHeight="700"
-                    >
+                    MaxHeight="700">
 
                 <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
                     <!-- ✅ Grid has no Padding, use Margin -->

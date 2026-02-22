@@ -122,14 +122,11 @@ namespace WpfApp3.ViewModels.Distribution
         private void ReloadReleaseItems()
         {
             ReleaseItems.Clear();
-
             if (SelectedProject is null) return;
 
             foreach (var r in _assignRepo.GetAssignedEndorsed(SelectedProject.Id))
                 ReleaseItems.Add(r);
 
-            OnPropertyChanged(nameof(ReleaseProjectText));
-            OnPropertyChanged(nameof(ReleaseBudgetText));
             OnPropertyChanged(nameof(ReleaseProgressText));
         }
 
@@ -192,7 +189,6 @@ namespace WpfApp3.ViewModels.Distribution
         [RelayCommand]
         private void Scan(string? scanned)
         {
-            ShowToast($"Scanning", "warning");
             var raw = (scanned ?? "").Trim();
             if (string.IsNullOrWhiteSpace(raw)) return;
 
@@ -233,6 +229,7 @@ namespace WpfApp3.ViewModels.Distribution
         {
             IsConfirmReleaseOpen = false;
             _pendingRelease = null;
+            ScanInput = "";
         }
 
         [RelayCommand]
@@ -242,15 +239,16 @@ namespace WpfApp3.ViewModels.Distribution
 
             _assignRepo.MarkReleased(SelectedProject.Id, _pendingRelease.Id);
 
-            // ✅ refresh release modal table so Released column updates
+            // ✅ update modal table
             ReloadReleaseItems();
 
-            // ✅ refresh main page too
+            // ✅ update main page table
             Reload();
 
             IsConfirmReleaseOpen = false;
             ShowToast($"Released to ID {_pendingRelease.BeneficiaryId}", "success");
             _pendingRelease = null;
+            ScanInput = "";
         }
 
         // paging (main page)
