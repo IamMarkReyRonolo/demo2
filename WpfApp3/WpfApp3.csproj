@@ -9,6 +9,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Views\Login\ekaling.png" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
     <PackageReference Include="LiveCharts.Wpf" Version="0.9.7" />
@@ -19,6 +23,10 @@
   <ItemGroup>
     <Folder Include="Assets\" />
     <Folder Include="Themes\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Views\Login\ekaling.png" />
   </ItemGroup>
 
 </Project>

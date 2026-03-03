@@ -24,6 +24,10 @@ namespace WpfApp3.Models
         [ObservableProperty] private bool isReleased;
         [ObservableProperty] private string beneficiaryId = "";  // e.g. "BENE-000123"
 
+        [ObservableProperty] private string civilRegistryId = "";
+        [ObservableProperty] private string middleName = "";
+        [ObservableProperty] private string presentAddress = "";
+
         // ✅ display text used by XAML binding ShareText
         public string ShareText
         {

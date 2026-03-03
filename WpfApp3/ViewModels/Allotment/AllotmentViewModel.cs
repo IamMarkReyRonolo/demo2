@@ -6,12 +6,17 @@ using System.Globalization;
 using System.Linq;
 using WpfApp3.Models;
 using WpfApp3.Services;
+using System.ComponentModel;
+using System.Windows;
 
 namespace WpfApp3.ViewModels.Allotment
 {
     public partial class AllotmentViewModel : ObservableObject
     {
-        private readonly AllotmentsRepository _repo = new();
+        // ✅ LAZY repo so Designer won't crash trying to read EkalingaDb
+        private readonly Lazy<AllotmentsRepository> _repo = new(() => new AllotmentsRepository());
+        private AllotmentsRepository Repo => _repo.Value;
+
         private readonly System.Collections.Generic.List<AllotmentRecord> _all = new();
 
         // table/search/paging
@@ -96,8 +101,26 @@ namespace WpfApp3.ViewModels.Allotment
 
         public AllotmentViewModel()
         {
-            _repo.EnsureTable();
-            ReloadFromDb();
+            // ✅ IMPORTANT: do nothing in Visual Studio Designer
+            if (DesignerProperties.GetIsInDesignMode(new DependencyObject()))
+            {
+                // keep UI working in designer without DB
+                ValidateForm();
+                Apply();
+                return;
+            }
+
+            try
+            {
+                Repo.EnsureTable();
+                ReloadFromDb();
+            }
+            catch
+            {
+                // If DB/config is not available, just show empty list (prevents crash)
+                _all.Clear();
+            }
+
             Apply();
             ValidateForm();
         }
@@ -105,7 +128,7 @@ namespace WpfApp3.ViewModels.Allotment
         private void ReloadFromDb()
         {
             _all.Clear();
-            _all.AddRange(_repo.GetAll());
+            _all.AddRange(Repo.GetAll());
         }
 
         partial void OnSearchTextChanged(string value)
@@ -329,12 +352,12 @@ namespace WpfApp3.ViewModels.Allotment
 
             if (_editingId is null)
             {
-                var newId = _repo.Insert(rec);
+                var newId = Repo.Insert(rec);
                 rec.Id = newId;
             }
             else
             {
-                _repo.Update(rec);
+                Repo.Update(rec);
             }
 
             IsFormOpen = false;
@@ -363,7 +386,7 @@ namespace WpfApp3.ViewModels.Allotment
         private void ConfirmDelete()
         {
             if (_deleteId is not null)
-                _repo.Delete(_deleteId.Value);
+                Repo.Delete(_deleteId.Value);
 
             IsDeleteOpen = false;
             _deleteId = null;

@@ -314,7 +314,7 @@
                                             CellStyle="{StaticResource CenteredCellStyle}"
                                             ElementStyle="{StaticResource CenteredTextBlockStyle}"/>
 
-                        <DataGridTextColumn Header="Company"
+                        <DataGridTextColumn Header="Description"
                                             Binding="{Binding Company}"
                                             Width="140"
                                             CellStyle="{StaticResource CenteredCellStyle}"
@@ -514,14 +514,14 @@
                         <!-- Right column -->
                         <StackPanel Grid.Column="2">
 
-                            <TextBlock Text="Company" Foreground="#2E3A59" Margin="0,0,0,8"/>
+                            <TextBlock Text="Description" Foreground="#2E3A59" Margin="0,0,0,8"/>
                             <TextBox Text="{Binding CompanyInput, UpdateSourceTrigger=PropertyChanged}"
                                      Height="40"
                                      Padding="14,0"
                                      BorderBrush="#E5ECFA"
                                      Background="White"
                                      VerticalContentAlignment="Center"/>
-                            <TextBlock Text="{Binding CompanyError}"
+                            <TextBlock Text="{Binding Error}"
                                        Foreground="#E11D48"
                                        FontSize="11"
                                        Margin="2,6,0,0"

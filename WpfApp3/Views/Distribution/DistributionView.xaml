@@ -143,6 +143,11 @@
 
             <!-- Top row: project dropdown + eye + total budget -->
             <Grid Grid.Row="0" Margin="0,6,0,8">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="320"/>
                     <ColumnDefinition Width="52"/>
@@ -150,47 +155,101 @@
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
 
-                <Border CornerRadius="12" Background="White" Padding="12,6">
+                <!-- Label -->
+                <TextBlock Grid.Row="0"
+               Grid.Column="0"
+               Text="Select Project/Allotment"
+               Foreground="#6B778C"
+               FontSize="11"
+               FontWeight="SemiBold"
+               Margin="6,0,0,6"/>
+
+                <!-- Dropdown -->
+                <Border Grid.Row="1"
+            Grid.Column="0"
+            CornerRadius="12"
+            Background="White"
+            Padding="12,6">
                     <ComboBox ItemsSource="{Binding Projects}"
-                              SelectedItem="{Binding SelectedProject}"
-                              DisplayMemberPath="ProjectName"
-                              BorderThickness="0"
-                              Background="Transparent"
-                              Foreground="#2E3A59"
-                              FontSize="12"/>
+                  SelectedItem="{Binding SelectedProject}"
+                  DisplayMemberPath="ProjectName"
+                  BorderThickness="0"
+                  Background="Transparent"
+                  Foreground="#2E3A59"
+                  FontSize="12"/>
                 </Border>
 
-                <Button Grid.Column="1"
-                        Style="{StaticResource IconButton}"
-                        Margin="10,0,0,0"
-                        Content="👁"
-                        Command="{Binding OpenProjectDetailsCommand}"/>
+                <!-- Eye button (align with dropdown row) -->
+                <Button Grid.Row="1"
+            Grid.Column="1"
+            Style="{StaticResource IconButton}"
+            Margin="10,0,0,0"
+            Content="👁"
+            Command="{Binding OpenProjectDetailsCommand}"/>
 
-                <TextBlock Grid.Column="3"
-                           FontSize="18"
-                           Text="{Binding TotalBudgetText}"
-                           Foreground="#2E3A59"
-                           FontWeight="SemiBold"
-                           VerticalAlignment="Center"/>
+                <!-- Total Budget (align with dropdown row) -->
+                <TextBlock Grid.Row="1"
+               Grid.Column="3"
+               FontSize="18"
+               Text="{Binding TotalBudgetText}"
+               Foreground="#2E3A59"
+               FontWeight="SemiBold"
+               VerticalAlignment="Center"/>
             </Grid>
 
             <!-- Release button row -->
+            <!-- Release button row + Classification filter -->
             <Grid Grid.Row="1" Margin="0,6,0,10">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
 
-                <TextBlock Text="Endorsed Beneficiaries"
-                           Foreground="#2E3A59"
-                           FontWeight="SemiBold"
-                           FontSize="13"
-                           VerticalAlignment="Center"/>
+                <TextBlock Grid.Row="0"
+               Grid.Column="0"
+               Text="Endorsed Beneficiaries"
+               Foreground="#2E3A59"
+               FontWeight="SemiBold"
+               FontSize="13"
+               VerticalAlignment="Center"/>
 
-                <Button Grid.Column="1"
-                        Style="{StaticResource PrimaryButton}"
-                        Command="{Binding OpenReleaseSessionCommand}"
-                        Content="Release"/>
+                <Button Grid.Row="0"
+            Grid.Column="1"
+            Grid.RowSpan="3"
+            Style="{StaticResource PrimaryButton}"
+            Command="{Binding OpenReleaseSessionCommand}"
+            Content="Release"
+            VerticalAlignment="Center"/>
+
+                <TextBlock Grid.Row="1"
+               Grid.Column="0"
+               Text="Select Classification"
+               Foreground="#6B778C"
+               FontSize="11"
+               FontWeight="SemiBold"
+               Margin="0,8,0,6"
+               HorizontalAlignment="Left"/>
+
+                <Border Grid.Row="2"
+            Grid.Column="0"
+            Width="320"
+            HorizontalAlignment="Left"
+            CornerRadius="12"
+            Background="White"
+            Padding="12,6">
+                    <ComboBox ItemsSource="{Binding ClassificationOptions}"
+                  SelectedItem="{Binding SelectedClassification}"
+                  BorderThickness="0"
+                  Background="Transparent"
+                  Foreground="#2E3A59"
+                  FontSize="12"/>
+                </Border>
             </Grid>
 
             <!-- Found text -->
@@ -226,6 +285,25 @@
                           SelectionUnit="FullRow"
                           SelectionMode="Single"
                           FocusVisualStyle="{x:Null}">
+
+                    <DataGrid.Resources>
+                        <Style TargetType="DataGridColumnHeader">
+                            <Setter Property="Foreground" Value="#6B86D6"/>
+                            <Setter Property="FontWeight" Value="SemiBold"/>
+                            <Setter Property="BorderBrush" Value="#EEF2FF"/>
+                            <Setter Property="BorderThickness" Value="0,0,0,1"/>
+                            <Setter Property="Background" Value="Transparent"/>
+                            <Setter Property="VerticalContentAlignment" Value="Center"/>
+                            <Setter Property="Padding" Value="8,0"/>
+                        </Style>
+
+                        <Style TargetType="DataGridRow">
+                            <Setter Property="BorderBrush" Value="#EEF2FF"/>
+                            <Setter Property="BorderThickness" Value="0,0,0,1"/>
+                            <Setter Property="Background" Value="Transparent"/>
+                            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+                        </Style>
+                    </DataGrid.Resources>
 
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="60"
@@ -265,7 +343,9 @@
 
             <!-- Pagination -->
             <StackPanel Grid.Row="4" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,16,0,0">
-                <Button Content="Previous" Style="{StaticResource PageButton}" Command="{Binding PreviousPageCommand}"/>
+                <Button Content="Previous"
+            Style="{StaticResource PageButton}"
+            Command="{Binding PreviousPageCommand}"/>
 
                 <ItemsControl ItemsSource="{Binding PageNumbers}" Margin="6,0">
                     <ItemsControl.ItemsPanel>
@@ -277,13 +357,33 @@
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
                             <Button Content="{Binding}"
-                                    Command="{Binding DataContext.GoToPageCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                    CommandParameter="{Binding}"/>
+                        Command="{Binding DataContext.GoToPageCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                        CommandParameter="{Binding}">
+                                <Button.Style>
+                                    <Style TargetType="Button" BasedOn="{StaticResource PageButton}">
+                                        <Style.Triggers>
+                                            <DataTrigger Value="True">
+                                                <DataTrigger.Binding>
+                                                    <MultiBinding Converter="{StaticResource EqualsToBoolConverter}">
+                                                        <Binding/>
+                                                        <Binding Path="DataContext.CurrentPage"
+                                                     RelativeSource="{RelativeSource AncestorType=UserControl}"/>
+                                                    </MultiBinding>
+                                                </DataTrigger.Binding>
+                                                <Setter Property="Background" Value="#2E3A59"/>
+                                                <Setter Property="Foreground" Value="White"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Button.Style>
+                            </Button>
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
 
-                <Button Content="Next" Style="{StaticResource PageButton}" Command="{Binding NextPageCommand}"/>
+                <Button Content="Next"
+            Style="{StaticResource PageButton}"
+            Command="{Binding NextPageCommand}"/>
             </StackPanel>
         </Grid>
 
@@ -317,8 +417,13 @@
                     <Grid Margin="18">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
+                            <!-- header -->
                             <RowDefinition Height="Auto"/>
+                            <!-- details + scan -->
+                            <RowDefinition Height="Auto"/>
+                            <!-- classification filter -->
                             <RowDefinition Height="*"/>
+                            <!-- table + pagination -->
                         </Grid.RowDefinitions>
 
                         <!-- header -->
@@ -351,9 +456,17 @@
                             </Grid.ColumnDefinitions>
 
                             <StackPanel>
-                                <TextBlock Text="{Binding ReleaseProjectText}" Foreground="#2E3A59" FontWeight="SemiBold"/>
-                                <TextBlock Text="{Binding ReleaseBudgetText}" Foreground="#6B778C" Margin="0,4,0,0"/>
-                                <TextBlock Text="{Binding ReleaseProgressText}" Foreground="#6B778C" Margin="0,4,0,0"/>
+                                <TextBlock Text="{Binding SelectedProject.ProjectName}"
+               Foreground="#2E3A59"
+               FontWeight="SemiBold"/>
+
+                                <TextBlock Text="{Binding TotalBudgetText}"
+               Foreground="#6B778C"
+               Margin="0,4,0,0"/>
+
+                                <TextBlock Text="{Binding ReleaseProgressText}"
+               Foreground="#6B778C"
+               Margin="0,4,0,0"/>
                             </StackPanel>
 
                             <StackPanel Grid.Column="2">
@@ -367,47 +480,136 @@
                             </StackPanel>
                         </Grid>
 
+                        <!-- classification filter (modal) -->
+                        <StackPanel Grid.Row="2" Margin="0,0,0,12">
+                            <TextBlock Text="Select Classification"
+               Foreground="#6B778C"
+               FontSize="11"
+               FontWeight="SemiBold"
+               Margin="0,0,0,6"/>
+
+                            <Border Width="320"
+            HorizontalAlignment="Left"
+            CornerRadius="12"
+            Background="White"
+            Padding="12,6">
+                                <!-- reuse the same options list -->
+                                <ComboBox ItemsSource="{Binding ClassificationOptions}"
+                  SelectedItem="{Binding ReleaseSelectedClassification}"
+                  BorderThickness="0"
+                  Background="Transparent"
+                  Foreground="#2E3A59"
+                  FontSize="12"/>
+                            </Border>
+                        </StackPanel>
+
                         <!-- release list -->
-                        <Border Grid.Row="2" CornerRadius="14" BorderBrush="#EEF2FF" BorderThickness="1" Padding="6">
-                            <DataGrid ItemsSource="{Binding ReleaseItems}"
-                                      SelectedItem="{Binding SelectedReleaseRow}"
-                                      AutoGenerateColumns="False"
-                                      CanUserAddRows="False"
-                                      HeadersVisibility="Column"
-                                      GridLinesVisibility="None"
-                                      RowHeaderWidth="0"
-                                      Background="Transparent"
-                                      BorderThickness="0"
-                                      FontSize="12"
-                                      Foreground="#2E3A59"
-                                      ColumnHeaderHeight="40"
-                                      RowHeight="44"
-                                      IsReadOnly="True"
-                                      SelectionUnit="FullRow"
-                                      SelectionMode="Single"
-                                      FocusVisualStyle="{x:Null}">
+                        <!-- release list + pagination -->
+                        <Grid Grid.Row="3">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
 
-                                <DataGrid.RowStyle>
-                                    <Style TargetType="DataGridRow">
-                                        <Style.Triggers>
-                                            <DataTrigger Binding="{Binding IsReleased}" Value="True">
-                                                <Setter Property="Opacity" Value="0.55"/>
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </DataGrid.RowStyle>
+                            <!-- Table -->
+                            <Border Grid.Row="0" MinHeight="380" CornerRadius="14" BorderBrush="#EEF2FF" BorderThickness="1" Padding="6">
+                                <DataGrid ItemsSource="{Binding ReleasePagedItems}"
+                  SelectedItem="{Binding SelectedReleaseRow}"
+                  AutoGenerateColumns="False"
+                  CanUserAddRows="False"
+                  HeadersVisibility="Column"
+                  GridLinesVisibility="None"
+                  RowHeaderWidth="0"
+                  Background="Transparent"
+                  BorderThickness="0"
+                  FontSize="12"
+                  Foreground="#2E3A59"
+                  ColumnHeaderHeight="40"
+                  RowHeight="44"
+                  IsReadOnly="True"
+                  SelectionUnit="FullRow"
+                  SelectionMode="Single"
+                  FocusVisualStyle="{x:Null}">
 
-                                <DataGrid.Columns>
-                                    <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="70"/>
-                                    <DataGridTextColumn Header="First Name" Binding="{Binding FirstName}" Width="150"/>
-                                    <DataGridTextColumn Header="Last Name" Binding="{Binding LastName}" Width="150"/>
-                                    <DataGridTextColumn Header="Barangay" Binding="{Binding Barangay}" Width="150"/>
-                                    <DataGridTextColumn Header="Classification" Binding="{Binding Classification}" Width="150"/>
-                                    <DataGridTextColumn Header="Share" Binding="{Binding ShareText}" Width="150"/>
-                                    <DataGridTextColumn Header="Released" Binding="{Binding ReleasedText}" Width="120"/>
-                                </DataGrid.Columns>
-                            </DataGrid>
-                        </Border>
+                                    <DataGrid.RowStyle>
+                                        <Style TargetType="DataGridRow">
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsReleased}" Value="True">
+                                                    <Setter Property="Opacity" Value="0.55"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </DataGrid.RowStyle>
+
+                                    <DataGrid.Resources>
+                                        <Style TargetType="DataGridColumnHeader">
+                                            <Setter Property="Foreground" Value="#6B86D6"/>
+                                            <Setter Property="FontWeight" Value="SemiBold"/>
+                                            <Setter Property="BorderBrush" Value="#EEF2FF"/>
+                                            <Setter Property="BorderThickness" Value="0,0,0,1"/>
+                                            <Setter Property="Background" Value="Transparent"/>
+                                            <Setter Property="VerticalContentAlignment" Value="Center"/>
+                                            <Setter Property="Padding" Value="8,0"/>
+                                        </Style>
+                                    </DataGrid.Resources>
+
+                                    <DataGrid.Columns>
+                                        <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="70"/>
+                                        <DataGridTextColumn Header="First Name" Binding="{Binding FirstName}" Width="150"/>
+                                        <DataGridTextColumn Header="Last Name" Binding="{Binding LastName}" Width="150"/>
+                                        <DataGridTextColumn Header="Barangay" Binding="{Binding Barangay}" Width="150"/>
+                                        <DataGridTextColumn Header="Classification" Binding="{Binding Classification}" Width="150"/>
+                                        <DataGridTextColumn Header="Share" Binding="{Binding ShareText}" Width="150"/>
+                                        <DataGridTextColumn Header="Released" Binding="{Binding ReleasedText}" Width="120"/>
+                                    </DataGrid.Columns>
+                                </DataGrid>
+                            </Border>
+
+                            <!-- Pagination (same design as Beneficiaries) -->
+                            <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,12,0,0">
+                                <Button Content="Previous"
+                Style="{StaticResource PageButton}"
+                Command="{Binding ReleasePreviousPageCommand}"/>
+
+                                <ItemsControl ItemsSource="{Binding ReleasePageNumbers}" Margin="6,0">
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <StackPanel Orientation="Horizontal"/>
+                                        </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Button Content="{Binding}"
+                            Command="{Binding DataContext.ReleaseGoToPageCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                            CommandParameter="{Binding}">
+                                                <Button.Style>
+                                                    <Style TargetType="Button" BasedOn="{StaticResource PageButton}">
+                                                        <Style.Triggers>
+                                                            <DataTrigger Value="True">
+                                                                <DataTrigger.Binding>
+                                                                    <MultiBinding Converter="{StaticResource EqualsToBoolConverter}">
+                                                                        <Binding/>
+                                                                        <Binding Path="DataContext.ReleaseCurrentPage"
+                                                         RelativeSource="{RelativeSource AncestorType=UserControl}"/>
+                                                                    </MultiBinding>
+                                                                </DataTrigger.Binding>
+                                                                <Setter Property="Background" Value="#2E3A59"/>
+                                                                <Setter Property="Foreground" Value="White"/>
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </Button.Style>
+                                            </Button>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+
+                                <Button Content="Next"
+                Style="{StaticResource PageButton}"
+                Command="{Binding ReleaseNextPageCommand}"/>
+                            </StackPanel>
+                        </Grid>
                     </Grid>
                 </ScrollViewer>
             </Border>
@@ -415,23 +617,31 @@
 
         <!-- ================= CONFIRM RELEASE MODAL ================= -->
         <Grid Panel.ZIndex="920"
-              Visibility="{Binding IsConfirmReleaseOpen, Converter={StaticResource BoolToVis}}">
+      DataContext="{Binding DataContext, RelativeSource={RelativeSource AncestorType=UserControl}}"
+      Visibility="{Binding IsConfirmReleaseOpen, Converter={StaticResource BoolToVis}}">
             <Border Background="#80000000"/>
             <Button Style="{StaticResource BackdropButton}" Command="{Binding CloseConfirmReleaseCommand}"/>
 
-            <Border Width="620"
-                    CornerRadius="18"
-                    Background="White"
-                    Padding="18"
-                    HorizontalAlignment="Center"
-                    VerticalAlignment="Center">
+            <Border Width="760"
+            CornerRadius="18"
+            Background="White"
+            Padding="18"
+            HorizontalAlignment="Center"
+            VerticalAlignment="Center">
+
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
+                        <!-- header -->
                         <RowDefinition Height="Auto"/>
+                        <!-- avatar -->
                         <RowDefinition Height="Auto"/>
+                        <!-- fields -->
+                        <RowDefinition Height="Auto"/>
+                        <!-- buttons -->
                     </Grid.RowDefinitions>
 
+                    <!-- header -->
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition/>
@@ -439,60 +649,158 @@
                         </Grid.ColumnDefinitions>
 
                         <TextBlock Text="Confirm Release"
-                                   FontSize="16"
-                                   FontWeight="Bold"
-                                   Foreground="#2E3A59"/>
+                           FontSize="16"
+                           FontWeight="Bold"
+                           Foreground="#2E3A59"/>
 
                         <Button Grid.Column="1"
-                                Content="✕"
-                                Width="28" Height="28"
-                                Background="Transparent"
-                                BorderBrush="Transparent"
-                                Cursor="Hand"
-                                Command="{Binding CloseConfirmReleaseCommand}"/>
+                        Content="✕"
+                        Width="28" Height="28"
+                        Background="Transparent"
+                        BorderBrush="Transparent"
+                        Cursor="Hand"
+                        Command="{Binding CloseConfirmReleaseCommand}"/>
                     </Grid>
 
-                    <Grid Grid.Row="1" Margin="0,14,0,0">
+                    <!-- Picture Placeholder (TOP) -->
+                    <Grid Grid.Row="1" Margin="0,14,0,14" HorizontalAlignment="Center">
+                        <Ellipse Width="96" Height="96" Fill="#D9ECFF"/>
+                        <TextBlock Text="👤"
+                           FontSize="40"
+                           VerticalAlignment="Center"
+                           HorizontalAlignment="Center"/>
+                    </Grid>
+
+                    <!-- Profile Information fields -->
+                    <Grid Grid.Row="2" Margin="0,0,0,0">
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition/>
                             <ColumnDefinition Width="18"/>
-                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition/>
                         </Grid.ColumnDefinitions>
 
-                        <StackPanel>
-                            <TextBlock Text="Beneficiary ID" Foreground="#6B778C" FontSize="12"/>
-                            <TextBlock Text="{Binding ConfirmId}" Foreground="#2E3A59" FontWeight="SemiBold" Margin="0,4,0,0"/>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
 
-                            <TextBlock Text="Name" Foreground="#6B778C" FontSize="12" Margin="0,12,0,0"/>
-                            <TextBlock Text="{Binding ConfirmName}" Foreground="#2E3A59" FontWeight="SemiBold" Margin="0,4,0,0"/>
-
-                            <TextBlock Text="Classification" Foreground="#6B778C" FontSize="12" Margin="0,12,0,0"/>
-                            <TextBlock Text="{Binding ConfirmClassification}" Foreground="#2E3A59" Margin="0,4,0,0"/>
+                        <!-- Row 0 -->
+                        <StackPanel Grid.Row="0" Grid.Column="0">
+                            <TextBlock Text="Beneficiary ID" Foreground="#6B778C" FontSize="12" Margin="0,0,0,6"/>
+                            <Border CornerRadius="10" BorderBrush="#EEF2FF" BorderThickness="1" Background="White" Padding="10,6">
+                                <TextBox Text="{Binding PendingRelease.BeneficiaryId, TargetNullValue=''}"
+                                 BorderThickness="0" Background="Transparent"
+                                 Foreground="#2E3A59" IsReadOnly="True"/>
+                            </Border>
                         </StackPanel>
 
-                        <StackPanel Grid.Column="2">
-                            <TextBlock Text="Barangay" Foreground="#6B778C" FontSize="12"/>
-                            <TextBlock Text="{Binding ConfirmBarangay}" Foreground="#2E3A59" Margin="0,4,0,0"/>
+                        <StackPanel Grid.Row="0" Grid.Column="2">
+                            <TextBlock Text="Civil Registry ID" Foreground="#6B778C" FontSize="12" Margin="0,0,0,6"/>
+                            <Border CornerRadius="10" BorderBrush="#EEF2FF" BorderThickness="1" Background="White" Padding="10,6">
+                                <TextBox Text="{Binding PendingRelease.CivilRegistryId, TargetNullValue=''}"
+                                 BorderThickness="0" Background="Transparent"
+                                 Foreground="#2E3A59" IsReadOnly="True"/>
+                            </Border>
+                        </StackPanel>
 
-                            <TextBlock Text="Share to Release" Foreground="#6B778C" FontSize="12" Margin="0,12,0,0"/>
-                            <TextBlock Text="{Binding ConfirmShare}" Foreground="#2E3A59" FontWeight="SemiBold" Margin="0,4,0,0"/>
+                        <!-- Row 1 -->
+                        <StackPanel Grid.Row="1" Grid.Column="0" Margin="0,12,0,0">
+                            <TextBlock Text="First Name" Foreground="#6B778C" FontSize="12" Margin="0,0,0,6"/>
+                            <Border CornerRadius="10" BorderBrush="#EEF2FF" BorderThickness="1" Background="White" Padding="10,6">
+                                <TextBox Text="{Binding PendingRelease.FirstName, TargetNullValue=''}"
+                                 BorderThickness="0" Background="Transparent"
+                                 Foreground="#2E3A59" IsReadOnly="True"/>
+                            </Border>
+                        </StackPanel>
+
+                        <StackPanel Grid.Row="1" Grid.Column="2" Margin="0,12,0,0">
+                            <TextBlock Text="Middle Name" Foreground="#6B778C" FontSize="12" Margin="0,0,0,6"/>
+                            <Border CornerRadius="10" BorderBrush="#EEF2FF" BorderThickness="1" Background="White" Padding="10,6">
+                                <TextBox Text="{Binding PendingRelease.MiddleName, TargetNullValue=''}"
+                                 BorderThickness="0" Background="Transparent"
+                                 Foreground="#2E3A59" IsReadOnly="True"/>
+                            </Border>
+                        </StackPanel>
+
+                        <!-- Row 2 -->
+                        <StackPanel Grid.Row="2" Grid.Column="0" Margin="0,12,0,0">
+                            <TextBlock Text="Gender" Foreground="#6B778C" FontSize="12" Margin="0,0,0,6"/>
+                            <Border CornerRadius="10" BorderBrush="#EEF2FF" BorderThickness="1" Background="White" Padding="10,6">
+                                <TextBox Text="{Binding PendingRelease.Gender, TargetNullValue=''}"
+                                 BorderThickness="0" Background="Transparent"
+                                 Foreground="#2E3A59" IsReadOnly="True"/>
+                            </Border>
+                        </StackPanel>
+
+                        <StackPanel Grid.Row="2" Grid.Column="2" Margin="0,12,0,0">
+                            <TextBlock Text="Last Name" Foreground="#6B778C" FontSize="12" Margin="0,0,0,6"/>
+                            <Border CornerRadius="10" BorderBrush="#EEF2FF" BorderThickness="1" Background="White" Padding="10,6">
+                                <TextBox Text="{Binding PendingRelease.LastName, TargetNullValue=''}"
+                                 BorderThickness="0" Background="Transparent"
+                                 Foreground="#2E3A59" IsReadOnly="True"/>
+                            </Border>
+                        </StackPanel>
+
+                        <!-- Row 3 -->
+                        <StackPanel Grid.Row="3" Grid.Column="0" Margin="0,12,0,0">
+                            <TextBlock Text="Barangay" Foreground="#6B778C" FontSize="12" Margin="0,0,0,6"/>
+                            <Border CornerRadius="10" BorderBrush="#EEF2FF" BorderThickness="1" Background="White" Padding="10,6">
+                                <TextBox Text="{Binding PendingRelease.Barangay, TargetNullValue=''}"
+                                 BorderThickness="0" Background="Transparent"
+                                 Foreground="#2E3A59" IsReadOnly="True"/>
+                            </Border>
+                        </StackPanel>
+
+                        <StackPanel Grid.Row="3" Grid.Column="2" Margin="0,12,0,0">
+                            <TextBlock Text="Classification" Foreground="#6B778C" FontSize="12" Margin="0,0,0,6"/>
+                            <Border CornerRadius="10" BorderBrush="#EEF2FF" BorderThickness="1" Background="White" Padding="10,6">
+                                <TextBox Text="{Binding PendingRelease.Classification, TargetNullValue=''}"
+                                 BorderThickness="0" Background="Transparent"
+                                 Foreground="#2E3A59" IsReadOnly="True"/>
+                            </Border>
+                        </StackPanel>
+
+                        <!-- Row 4 (full width) -->
+                        <StackPanel Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="3" Margin="0,12,0,0">
+                            <TextBlock Text="Present Address" Foreground="#6B778C" FontSize="12" Margin="0,0,0,6"/>
+                            <Border CornerRadius="10" BorderBrush="#EEF2FF" BorderThickness="1" Background="White" Padding="10,6">
+                                <TextBox Text="{Binding PendingRelease.PresentAddress, TargetNullValue=''}"
+                                 BorderThickness="0" Background="Transparent"
+                                 Foreground="#2E3A59" IsReadOnly="True"/>
+                            </Border>
+                        </StackPanel>
+
+                        <!-- Row 5 (full width) -->
+                        <StackPanel Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="3" Margin="0,12,0,0">
+                            <TextBlock Text="Share to Release" Foreground="#6B778C" FontSize="12" Margin="0,0,0,6"/>
+                            <Border CornerRadius="10" BorderBrush="#EEF2FF" BorderThickness="1" Background="White" Padding="10,6">
+                                <TextBlock Text="{Binding PendingRelease.ShareText}"
+                   Foreground="#2E3A59"
+                   FontWeight="SemiBold"
+                   VerticalAlignment="Center"/>
+                            </Border>
                         </StackPanel>
                     </Grid>
 
-                    <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,16,0,0">
+                    <!-- buttons -->
+                    <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,16,0,0">
                         <Button Content="Cancel"
-                                Width="140" Height="40"
-                                Background="Transparent"
-                                BorderBrush="Transparent"
-                                Foreground="#2E3A59"
-                                FontWeight="SemiBold"
-                                Cursor="Hand"
-                                Command="{Binding CloseConfirmReleaseCommand}"/>
+                        Width="140" Height="40"
+                        Background="Transparent"
+                        BorderBrush="Transparent"
+                        Foreground="#2E3A59"
+                        FontWeight="SemiBold"
+                        Cursor="Hand"
+                        Command="{Binding CloseConfirmReleaseCommand}"/>
 
                         <Button Content="Confirm"
-                                Margin="18,0,0,0"
-                                Style="{StaticResource RoundedPrimary}"
-                                Command="{Binding ConfirmReleaseCommand}"/>
+                        Margin="18,0,0,0"
+                        Style="{StaticResource RoundedPrimary}"
+                        Command="{Binding ConfirmReleaseCommand}"/>
                     </StackPanel>
                 </Grid>
             </Border>

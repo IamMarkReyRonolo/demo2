@@ -74,14 +74,42 @@ namespace WpfApp3.ViewModels.Beneficiaries
 
         private bool _ready;
 
+        public ObservableCollection<string> ClassificationOptions { get; } = new();
+        [ObservableProperty] private string? selectedClassification;
+
+        // ===== Add modal paging =====
+        [ObservableProperty] private int addCurrentPage = 1;
+        public int AddPageSize { get; } = 8;
+
+        public ObservableCollection<BeneficiaryRecord> AddPagedItems { get; } = new();
+        public ObservableCollection<int> AddPageNumbers { get; } = new();
+
+
         public BeneficiariesViewModel()
         {
+            // classification filter options
+            ClassificationOptions.Add("All");
+            ClassificationOptions.Add("PWD");
+            ClassificationOptions.Add("Senior Citizen");
+            ClassificationOptions.Add("Indigenous");
+            ClassificationOptions.Add("Farmer");
+            ClassificationOptions.Add("Vendor");
+            ClassificationOptions.Add("None");
+
+            SelectedClassification = "All";
             LoadProjectsFromDb();
             _ready = true;
 
             // default to first project
             SelectedProject = Projects.FirstOrDefault();
             ReloadEverything();
+        }
+
+        partial void OnSelectedClassificationChanged(string? value)
+        {
+            if (!_ready) return;
+            CurrentPage = 1;
+            Apply();
         }
 
         partial void OnSearchTextChanged(string value) { CurrentPage = 1; Apply(); }
@@ -94,7 +122,12 @@ namespace WpfApp3.ViewModels.Beneficiaries
             ReloadEverything();
         }
 
-        partial void OnAddSearchTextChanged(string value) => BuildAddList();
+        partial void OnAddSearchTextChanged(string value)
+        {
+            BuildAddList();
+            AddCurrentPage = 1;
+            ApplyAddPaging();
+        } 
 
         private void LoadProjectsFromDb()
         {
@@ -128,6 +161,25 @@ namespace WpfApp3.ViewModels.Beneficiaries
         {
             IEnumerable<BeneficiaryRecord> src = _assignedCache;
 
+            // classification filter (optional)
+            var cls = (SelectedClassification ?? "").Trim();
+            if (!string.IsNullOrWhiteSpace(cls) && !cls.Equals("All", StringComparison.OrdinalIgnoreCase))
+            {
+                if (cls.Equals("None", StringComparison.OrdinalIgnoreCase))
+                {
+                    src = src.Where(x =>
+                    {
+                        var v = (x.Classification ?? "").Trim();
+                        return string.IsNullOrWhiteSpace(v) || v.Equals("None", StringComparison.OrdinalIgnoreCase);
+                    });
+                }
+                else
+                {
+                    src = src.Where(x =>
+                        string.Equals((x.Classification ?? "").Trim(), cls, StringComparison.OrdinalIgnoreCase));
+                }
+            }
+
             var q = (SearchText ?? "").Trim().ToLowerInvariant();
             if (!string.IsNullOrWhiteSpace(q))
             {
@@ -136,7 +188,9 @@ namespace WpfApp3.ViewModels.Beneficiaries
                     (x.FirstName ?? "").ToLowerInvariant().Contains(q) ||
                     (x.LastName ?? "").ToLowerInvariant().Contains(q) ||
                     (x.Barangay ?? "").ToLowerInvariant().Contains(q) ||
+                    (x.Classification ?? "").ToLowerInvariant().Contains(q) ||
                     (x.Gender ?? "").ToLowerInvariant().Contains(q));
+                    ;
             }
 
             return src.ToList();
@@ -203,15 +257,6 @@ namespace WpfApp3.ViewModels.Beneficiaries
             }
         }
 
-        partial void OnIsAddAllSelectedChanged(bool value)
-        {
-            foreach (var r in AddItems)
-                r.IsSelected = value;
-
-            OnPropertyChanged(nameof(AddSelectedCount));
-            OnPropertyChanged(nameof(AddButtonText));
-        }
-
         // ---------------- Commands ----------------
 
         [RelayCommand]
@@ -236,6 +281,8 @@ namespace WpfApp3.ViewModels.Beneficiaries
             AddSearchText = "";
             BuildAddList();
             IsAddBeneficiariesOpen = true;
+            AddCurrentPage = 1;
+            ApplyAddPaging();
         }
 
         [RelayCommand] private void CloseAddBeneficiaries() => IsAddBeneficiariesOpen = false;
@@ -366,9 +413,49 @@ namespace WpfApp3.ViewModels.Beneficiaries
             ReloadEverything();
         }
 
+        private IEnumerable<BeneficiaryRecord> AddFiltered()
+        {
+            var q = (AddSearchText ?? "").Trim().ToLowerInvariant();
+
+            IEnumerable<BeneficiaryRecord> src = AddItems; // <-- your master list
+            if (!string.IsNullOrWhiteSpace(q))
+            {
+                src = src.Where(x =>
+                    (x.FirstName ?? "").ToLowerInvariant().Contains(q) ||
+                    (x.LastName ?? "").ToLowerInvariant().Contains(q) ||
+                    (x.Barangay ?? "").ToLowerInvariant().Contains(q) ||
+                    (x.Classification ?? "").ToLowerInvariant().Contains(q) ||
+                    x.Id.ToString().Contains(q));
+            }
+
+            return src;
+        }
+
+        private void ApplyAddPaging()
+        {
+            var filtered = AddFiltered().ToList();
+            var totalPages = Math.Max(1, (int)Math.Ceiling(filtered.Count / (double)AddPageSize));
+
+            if (AddCurrentPage < 1) AddCurrentPage = 1;
+            if (AddCurrentPage > totalPages) AddCurrentPage = totalPages;
+
+            AddPagedItems.Clear();
+            foreach (var it in filtered.Skip((AddCurrentPage - 1) * AddPageSize).Take(AddPageSize))
+                AddPagedItems.Add(it);
+
+            AddPageNumbers.Clear();
+            for (int i = 1; i <= totalPages; i++) AddPageNumbers.Add(i);
+
+            OnPropertyChanged(nameof(AddFoundText));
+        }
+
         // paging
         [RelayCommand] private void PreviousPage() { if (CurrentPage > 1) CurrentPage--; }
         [RelayCommand] private void NextPage() { if (CurrentPage < TotalPages) CurrentPage++; }
         [RelayCommand] private void GoToPage(int page) { CurrentPage = page; }
+
+        [RelayCommand] private void AddPreviousPage() { if (AddCurrentPage > 1) AddCurrentPage--; ApplyAddPaging(); }
+        [RelayCommand] private void AddNextPage() { AddCurrentPage++; ApplyAddPaging(); }
+        [RelayCommand] private void AddGoToPage(int page) { AddCurrentPage = page; ApplyAddPaging(); }
     }
 }

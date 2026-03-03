@@ -6,7 +6,8 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using WpfApp3.Models;
 using WpfApp3.Services;
-
+using System.ComponentModel;
+using System.Windows;
 namespace WpfApp3.ViewModels.Validators
 {
     public enum ValidatorsMainTab
@@ -51,6 +52,13 @@ namespace WpfApp3.ViewModels.Validators
 
         [ObservableProperty] private string validateSelectedStatus = ""; // Endorsed/Pending/Rejected
 
+        // ✅ Add Profile state
+        private bool _isAddingProfile;
+        public bool IsAddingProfile
+        {
+            get => _isAddingProfile;
+            set => SetProperty(ref _isAddingProfile, value);
+        }
         // ===== UI text =====
         public string NotYetFoundText => $"Found {NotYetItems.Count} records";
         public string ValidatedFoundText => $"Found {ValidatedItems.Count} records";
@@ -189,6 +197,29 @@ namespace WpfApp3.ViewModels.Validators
                 }
             }
 
+            // ✅ IMPORTANT FIX:
+            // Include DB "Not Validated" rows that are NOT in the external list
+            // (this is what makes newly added profiles appear after reload)
+            var extIds = new HashSet<string>(
+                _externalPeople.Select(x => x.BeneficiaryId),
+                StringComparer.OrdinalIgnoreCase);
+
+            var mergedIds = new HashSet<string>(
+                merged.Select(x => x.BeneficiaryId),
+                StringComparer.OrdinalIgnoreCase);
+
+            var dbNotValidated = _repo.GetByStatus("Not Validated") ?? new List<ValidatorRecord>();
+            foreach (var dbRow in dbNotValidated)
+            {
+                if (!string.IsNullOrWhiteSpace(dbRow.BeneficiaryId)
+                    && !extIds.Contains(dbRow.BeneficiaryId)
+                    && !mergedIds.Contains(dbRow.BeneficiaryId))
+                {
+                    merged.Add(dbRow);
+                    mergedIds.Add(dbRow.BeneficiaryId);
+                }
+            }
+
             var q = merged.AsEnumerable();
             var s = (SearchNotYetText ?? "").Trim();
 
@@ -209,7 +240,7 @@ namespace WpfApp3.ViewModels.Validators
             ValidatedItems.Clear();
 
             var status = CurrentValidatedStatus();
-            var rows = _repo.GetByStatus(status);
+            var rows = _repo.GetByStatus(status) ?? new List<ValidatorRecord>();
 
             var q = rows.AsEnumerable();
             var s = (SearchValidatedText ?? "").Trim();
@@ -243,6 +274,8 @@ namespace WpfApp3.ViewModels.Validators
                 LoadValidated();
                 SelectedPerson = ValidatedItems.FirstOrDefault();
             }
+
+            IsAddingProfile = false;
         }
 
         [RelayCommand]
@@ -251,10 +284,53 @@ namespace WpfApp3.ViewModels.Validators
             ActiveStatusTab = tab;
             LoadValidated();
             SelectedPerson = ValidatedItems.FirstOrDefault();
+
+            IsAddingProfile = false;
         }
 
         [RelayCommand] private void SearchNotYet() => LoadNotYet();
         [RelayCommand] private void SearchValidated() => LoadValidated();
+
+        // ✅ ADD PROFILE (new)
+        [RelayCommand]
+        private void AddProfile()
+        {
+            // Ensure we are in Not Yet Validated tab
+            ActiveMainTab = ValidatorsMainTab.NotYetValidated;
+
+            // Clear search so the new record won't be hidden
+            SearchNotYetText = "";
+
+            // reload list first (so we insert into the current view)
+            LoadNotYet();
+
+            // Generate new ids
+            var next = GetNextBeneNumber();
+            var beneId = $"BENE-{next:000000}";
+            var civilId = $"CR-{next:000000}";
+
+            var fresh = new ValidatorRecord
+            {
+                Id = 0,
+                BeneficiaryId = beneId,
+                CivilRegistryId = civilId,
+                FirstName = "",
+                MiddleName = "",
+                LastName = "",
+                Gender = GenderOptions.FirstOrDefault() ?? "Male",
+                DateOfBirth = "",
+                Classification = ClassificationOptions.FirstOrDefault() ?? "None",
+                Barangay = "",
+                PresentAddress = "",
+                Status = "Not Validated"
+            };
+
+            NotYetItems.Insert(0, fresh);
+            SelectedPerson = fresh;
+
+            IsAddingProfile = true;
+            OnPropertyChanged(nameof(NotYetFoundText));
+        }
 
         // ✅ OPEN PROFILE MODAL FROM TABLE ROW (pencil)
         [RelayCommand]
@@ -263,6 +339,8 @@ namespace WpfApp3.ViewModels.Validators
             if (person is null) return;
             SelectedPerson = person;
             IsProfileModalOpen = true;
+
+            IsAddingProfile = false;
         }
 
         [RelayCommand] private void CloseProfileModal() => IsProfileModalOpen = false;
@@ -294,9 +372,20 @@ namespace WpfApp3.ViewModels.Validators
 
             IsSaveConfirmOpen = false;
 
+            var bene = person.BeneficiaryId;
+
             // refresh lists so overlay stays correct
             LoadNotYet();
             LoadValidated();
+
+            // keep selection on the saved row if present
+            SelectedPerson =
+                NotYetItems.FirstOrDefault(x => string.Equals(x.BeneficiaryId, bene, StringComparison.OrdinalIgnoreCase))
+                ?? ValidatedItems.FirstOrDefault(x => string.Equals(x.BeneficiaryId, bene, StringComparison.OrdinalIgnoreCase))
+                ?? NotYetItems.FirstOrDefault()
+                ?? ValidatedItems.FirstOrDefault();
+
+            IsAddingProfile = false;
         }
 
         // ===== Validate modal =====
@@ -348,6 +437,35 @@ namespace WpfApp3.ViewModels.Validators
                 ?? ValidatedItems.FirstOrDefault();
 
             IsValidateModalOpen = false;
+            IsAddingProfile = false;
+        }
+
+        // ===== Helpers =====
+
+        private int GetNextBeneNumber()
+        {
+            // Start from external max
+            var max = _externalPeople.Count == 0 ? 0 : _externalPeople.Max(x => ExtractDigits(x.BeneficiaryId));
+
+            // Include DB rows across statuses to avoid duplicates
+            foreach (var st in new[] { "Not Validated", "Endorsed", "Pending", "Rejected" })
+            {
+                var rows = _repo.GetByStatus(st) ?? new List<ValidatorRecord>();
+                if (rows.Count > 0)
+                    max = Math.Max(max, rows.Max(x => ExtractDigits(x.BeneficiaryId)));
+            }
+
+            // Fallback
+            if (max <= 0) max = 100000;
+
+            return max + 1;
+        }
+
+        private static int ExtractDigits(string? value)
+        {
+            if (string.IsNullOrWhiteSpace(value)) return 0;
+            var digits = new string(value.Where(char.IsDigit).ToArray());
+            return int.TryParse(digits, out var n) ? n : 0;
         }
     }
 }

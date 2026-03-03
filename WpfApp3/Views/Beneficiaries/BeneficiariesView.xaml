@@ -173,7 +173,12 @@
             </Grid.RowDefinitions>
 
             <!-- Top row: project dropdown + eye + total budget -->
+            <!-- Top row: project label + dropdown + eye + total budget -->
             <Grid Grid.Row="0" Margin="0,6,0,8">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="320"/>
                     <ColumnDefinition Width="52"/>
@@ -181,50 +186,98 @@
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
 
-                <Border CornerRadius="12" Background="White" Padding="12,6">
+                <TextBlock Grid.Row="0"
+               Grid.Column="0"
+               Text="Select Project/Allotment"
+               Foreground="#6B778C"
+               FontSize="11"
+               FontWeight="SemiBold"
+               Margin="6,0,0,6"/>
+
+                <Border Grid.Row="1" Grid.Column="0" CornerRadius="12" Background="White" Padding="12,6">
                     <ComboBox ItemsSource="{Binding Projects}"
-                              SelectedItem="{Binding SelectedProject}"
-                              DisplayMemberPath="ProjectName"
-                              BorderThickness="0"
-                              Background="Transparent"
-                              Foreground="#2E3A59"
-                              FontSize="12"/>
+                  SelectedItem="{Binding SelectedProject}"
+                  DisplayMemberPath="ProjectName"
+                  BorderThickness="0"
+                  Background="Transparent"
+                  Foreground="#2E3A59"
+                  FontSize="12"/>
                 </Border>
 
                 <!-- Eye icon -->
-                <Button Grid.Column="1"
-                        Style="{StaticResource IconButton}"
-                        Margin="10,0,0,0"
-                        Content="👁"
-                        Command="{Binding OpenProjectDetailsCommand}"/>
+                <Button Grid.Row="1"
+            Grid.Column="1"
+            Style="{StaticResource IconButton}"
+            Margin="10,0,0,0"
+            Content="👁"
+            Command="{Binding OpenProjectDetailsCommand}"/>
 
-                <TextBlock Grid.Column="3"
-                           FontSize="18"
-                           Text="{Binding TotalBudgetText}"
-                           Foreground="#2E3A59"
-                           FontWeight="SemiBold"
-                           VerticalAlignment="Center"/>
+                <TextBlock Grid.Row="1"
+               Grid.Column="3"
+               FontSize="18"
+               Text="{Binding TotalBudgetText}"
+               Foreground="#2E3A59"
+               FontWeight="SemiBold"
+               VerticalAlignment="Center"/>
             </Grid>
 
             <!-- Removed status navigation. Only Endorsed shown. -->
+            <!-- Endorsed + Classification (LEFT) | Add button (RIGHT) -->
             <Grid Grid.Row="1" Margin="0,6,0,10">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition/>
+                    <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
 
-                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                    <TextBlock Text="Endorsed Beneficiaries"
-                               Foreground="#2E3A59"
-                               FontWeight="SemiBold"
-                               FontSize="13"
-                               VerticalAlignment="Center"/>
-                </StackPanel>
+                <!-- Header -->
+                <TextBlock Grid.Row="0"
+               Grid.Column="0"
+               Text="Endorsed Beneficiaries"
+               Foreground="#2E3A59"
+               FontWeight="SemiBold"
+               FontSize="13"
+               VerticalAlignment="Center"/>
 
-                <Button Grid.Column="1"
-                        Style="{StaticResource PrimaryButton}"
-                        Command="{Binding OpenAddBeneficiariesCommand}"
-                        Content="＋  Add Beneficiaries"/>
+                <!-- Add button on the right -->
+                <Button Grid.Row="0"
+            Grid.Column="1"
+            Grid.RowSpan="3"
+            Style="{StaticResource PrimaryButton}"
+            Command="{Binding OpenAddBeneficiariesCommand}"
+            Content="＋  Add Beneficiaries"
+            VerticalAlignment="Center"/>
+
+                <!-- Classification label (leftmost) -->
+                <TextBlock Grid.Row="1"
+               Grid.Column="0"
+               Text="Select Classification"
+               Foreground="#6B778C"
+               FontSize="11"
+               FontWeight="SemiBold"
+               Margin="0,8,0,6"
+               HorizontalAlignment="Left"/>
+
+                <!-- Classification dropdown (leftmost) -->
+                <Border Grid.Row="2"
+            Grid.Column="0"
+            Width="320"
+            HorizontalAlignment="Left"
+            CornerRadius="12"
+            Background="White"
+            Padding="12,6">
+                    <ComboBox ItemsSource="{Binding ClassificationOptions}"
+                  SelectedItem="{Binding SelectedClassification}"
+                  BorderThickness="0"
+                  Background="Transparent"
+                  Foreground="#2E3A59"
+                  FontSize="12"/>
+                </Border>
             </Grid>
 
             <!-- Found text -->
@@ -480,9 +533,13 @@
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
+                        <!-- header -->
                         <RowDefinition Height="Auto"/>
+                        <!-- search -->
+                        <RowDefinition Height="Auto"/>
+                        <!-- found text -->
                         <RowDefinition Height="*"/>
-                        <RowDefinition Height="Auto"/>
+                        <!-- table + pagination -->
                     </Grid.RowDefinitions>
 
                     <!-- header -->
@@ -536,76 +593,151 @@
                     </Grid>
 
                     <TextBlock Grid.Row="2"
-                               Text="{Binding AddFoundText}"
-                               Foreground="#6B778C"
-                               FontSize="12"
-                               Margin="2,0,0,10"/>
+           Text="{Binding AddFoundText}"
+           Foreground="#6B778C"
+           FontSize="12"
+           Margin="2,0,0,10"/>
 
-                    <Border Grid.Row="2" CornerRadius="14" BorderBrush="#EEF2FF" BorderThickness="1" Padding="6" Margin="0,22,0,0">
-                        <DataGrid ItemsSource="{Binding AddItems}"
-                                  AutoGenerateColumns="False"
-                                  CanUserAddRows="False"
-                                  HeadersVisibility="Column"
-                                  GridLinesVisibility="None"
-                                  RowHeaderWidth="0"
-                                  Background="Transparent"
-                                  BorderThickness="0"
-                                  FontSize="12"
-                                  Foreground="#2E3A59"
-                                  ColumnHeaderHeight="40"
-                                  RowHeight="44"
-                                  IsReadOnly="True"
-                                  SelectionUnit="FullRow"
-                                  SelectionMode="Single"
-                                  FocusVisualStyle="{x:Null}">
+                    <Grid Grid.Row="3">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
 
-                            <DataGrid.Columns>
+                        <!-- TABLE -->
+                        <Border Grid.Row="0"
+            MinHeight="380"
+            CornerRadius="14"
+            BorderBrush="#EEF2FF"
+            BorderThickness="1"
+            Padding="6">
 
-                                <DataGridTemplateColumn Width="40" IsReadOnly="False">
-                                    <DataGridTemplateColumn.Header>
-                                        <CheckBox HorizontalAlignment="Center"
-                      VerticalAlignment="Center"
-                      IsChecked="{Binding IsAddAllSelected, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-                                    </DataGridTemplateColumn.Header>
+                            <DataGrid ItemsSource="{Binding AddPagedItems}"
+                  AutoGenerateColumns="False"
+                  CanUserAddRows="False"
+                  HeadersVisibility="Column"
+                  GridLinesVisibility="None"
+                  RowHeaderWidth="0"
+                  Background="Transparent"
+                  BorderThickness="0"
+                  FontSize="12"
+                  Foreground="#2E3A59"
+                  ColumnHeaderHeight="40"
+                  RowHeight="44"
+                  IsReadOnly="False"
+                  SelectionUnit="FullRow"
+                  SelectionMode="Single"
+                  FocusVisualStyle="{x:Null}">
 
-                                    <DataGridTemplateColumn.CellTemplate>
-                                        <DataTemplate>
+                                <!-- Match Release header style -->
+                                <DataGrid.Resources>
+                                    <Style TargetType="DataGridColumnHeader">
+                                        <Setter Property="Foreground" Value="#6B86D6"/>
+                                        <Setter Property="FontWeight" Value="SemiBold"/>
+                                        <Setter Property="BorderBrush" Value="#EEF2FF"/>
+                                        <Setter Property="BorderThickness" Value="0,0,0,1"/>
+                                        <Setter Property="Background" Value="Transparent"/>
+                                        <Setter Property="VerticalContentAlignment" Value="Center"/>
+                                        <Setter Property="Padding" Value="8,0"/>
+                                    </Style>
+                                </DataGrid.Resources>
+
+                                <DataGrid.Columns>
+
+                                    <!-- SELECT ALL / PER ROW CHECKBOX -->
+                                    <DataGridTemplateColumn Width="40">
+                                        <DataGridTemplateColumn.Header>
                                             <CheckBox HorizontalAlignment="Center"
-                          VerticalAlignment="Center"
-                          IsChecked="{Binding IsSelected, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-                                        </DataTemplate>
-                                    </DataGridTemplateColumn.CellTemplate>
-                                </DataGridTemplateColumn>
+              VerticalAlignment="Center"
+              IsThreeState="True"
+              IsChecked="{Binding DataContext.IsAddAllSelected,
+                                  RelativeSource={RelativeSource AncestorType=DataGrid},
+                                  Mode=TwoWay,
+                                  UpdateSourceTrigger=PropertyChanged}"/>
+                                        </DataGridTemplateColumn.Header>
 
-                                <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="60"
-                        CellStyle="{StaticResource CenteredCellStyle}"
-                        ElementStyle="{StaticResource CenteredTextBlockStyle}"/>
+                                        <!-- Show -->
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <CheckBox HorizontalAlignment="Center"
+                                      VerticalAlignment="Center"
+                                      IsChecked="{Binding IsSelected, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                      Focusable="False"/>
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
 
-                                <DataGridTextColumn Header="First Name" Binding="{Binding FirstName}" Width="140"
-                        CellStyle="{StaticResource CenteredCellStyle}"
-                        ElementStyle="{StaticResource CenteredTextBlockStyle}"/>
+                                        <!-- Edit (IMPORTANT: makes click work reliably) -->
+                                        <DataGridTemplateColumn.CellEditingTemplate>
+                                            <DataTemplate>
+                                                <CheckBox HorizontalAlignment="Center"
+                                      VerticalAlignment="Center"
+                                      IsChecked="{Binding IsSelected, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                      Focusable="False"/>
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellEditingTemplate>
+                                    </DataGridTemplateColumn>
 
-                                <DataGridTextColumn Header="Last Name" Binding="{Binding LastName}" Width="140"
-                        CellStyle="{StaticResource CenteredCellStyle}"
-                        ElementStyle="{StaticResource CenteredTextBlockStyle}"/>
+                                    <!-- Text columns: keep read-only -->
+                                    <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="60" IsReadOnly="True"/>
+                                    <DataGridTextColumn Header="First Name" Binding="{Binding FirstName}" Width="140" IsReadOnly="True"/>
+                                    <DataGridTextColumn Header="Last Name" Binding="{Binding LastName}" Width="140" IsReadOnly="True"/>
+                                    <DataGridTextColumn Header="Gender" Binding="{Binding Gender}" Width="110" IsReadOnly="True"/>
+                                    <DataGridTextColumn Header="Barangay" Binding="{Binding Barangay}" Width="140" IsReadOnly="True"/>
+                                    <DataGridTextColumn Header="Classification" Binding="{Binding Classification}" Width="140" IsReadOnly="True"/>
 
-                                <DataGridTextColumn Header="Gender" Binding="{Binding Gender}" Width="110"
-                        CellStyle="{StaticResource CenteredCellStyle}"
-                        ElementStyle="{StaticResource CenteredTextBlockStyle}"/>
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </Border>
 
-                                <DataGridTextColumn Header="Barangay" Binding="{Binding Barangay}" Width="140"
-                        CellStyle="{StaticResource CenteredCellStyle}"
-                        ElementStyle="{StaticResource CenteredTextBlockStyle}"/>
+                        <!-- PAGINATION (same as Release/Beneficiaries) -->
+                        <StackPanel Grid.Row="1"
+                Orientation="Horizontal"
+                HorizontalAlignment="Center"
+                Margin="0,12,0,0">
 
-                                <!-- ✅ NEW -->
-                                <DataGridTextColumn Header="Classification" Binding="{Binding Classification}" Width="140"
-                        CellStyle="{StaticResource CenteredCellStyle}"
-                        ElementStyle="{StaticResource CenteredTextBlockStyle}"/>
+                            <Button Content="Previous"
+                Style="{StaticResource PageButton}"
+                Command="{Binding AddPreviousPageCommand}"/>
 
-                            </DataGrid.Columns>
+                            <ItemsControl ItemsSource="{Binding AddPageNumbers}" Margin="6,0">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <StackPanel Orientation="Horizontal"/>
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
 
-                        </DataGrid>
-                    </Border>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Button Content="{Binding}"
+                            Command="{Binding DataContext.AddGoToPageCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                            CommandParameter="{Binding}">
+                                            <Button.Style>
+                                                <Style TargetType="Button" BasedOn="{StaticResource PageButton}">
+                                                    <Style.Triggers>
+                                                        <DataTrigger Value="True">
+                                                            <DataTrigger.Binding>
+                                                                <MultiBinding Converter="{StaticResource EqualsToBoolConverter}">
+                                                                    <Binding/>
+                                                                    <Binding Path="DataContext.AddCurrentPage"
+                                                         RelativeSource="{RelativeSource AncestorType=UserControl}"/>
+                                                                </MultiBinding>
+                                                            </DataTrigger.Binding>
+                                                            <Setter Property="Background" Value="#2E3A59"/>
+                                                            <Setter Property="Foreground" Value="White"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Button.Style>
+                                        </Button>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+
+                            <Button Content="Next"
+                Style="{StaticResource PageButton}"
+                Command="{Binding AddNextPageCommand}"/>
+                        </StackPanel>
+                    </Grid>
                 </Grid>
             </Border>
         </Grid>

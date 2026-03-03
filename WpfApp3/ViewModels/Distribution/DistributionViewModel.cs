@@ -24,7 +24,7 @@ namespace WpfApp3.ViewModels.Distribution
         public ObservableCollection<BeneficiaryRecord> Items { get; } = new();
         public ObservableCollection<int> PageNumbers { get; } = new();
 
-        public int TotalRecords => _cache.Count;
+        public int TotalRecords => Filtered().Count;
         public int TotalPages => Math.Max(1, (int)Math.Ceiling(TotalRecords / (double)PageSize));
         public string FoundText => $"Found {TotalRecords} records";
 
@@ -63,13 +63,72 @@ namespace WpfApp3.ViewModels.Distribution
 
         private bool _ready;
 
+        public ObservableCollection<string> ClassificationOptions { get; } = new();
+        [ObservableProperty] private string? selectedClassification;
+
+        // ===== Release modal paging =====
+        [ObservableProperty] private int releaseCurrentPage = 1;
+        public int ReleasePageSize { get; } = 8;
+
+        public ObservableCollection<BeneficiaryRecord> ReleasePagedItems { get; } = new();
+        public ObservableCollection<int> ReleasePageNumbers { get; } = new();
+
+        public int ReleaseTotalRecords => ReleaseFiltered().Count();
+        public int ReleaseTotalPages => Math.Max(1, (int)Math.Ceiling(ReleaseTotalRecords / (double)ReleasePageSize));
+
+        [ObservableProperty] private string? releaseSelectedClassification = "All";
+
+        [ObservableProperty] private BeneficiaryRecord? pendingRelease;
+
         public DistributionViewModel()
         {
             LoadProjectsFromDb();
+
+            ClassificationOptions.Add("All");
+            ClassificationOptions.Add("PWD");
+            ClassificationOptions.Add("Senior Citizen");
+            ClassificationOptions.Add("Indigenous");
+            ClassificationOptions.Add("Farmer");
+            ClassificationOptions.Add("Vendor");
+            ClassificationOptions.Add("None");
+
+            SelectedClassification = "All";
             _ready = true;
 
             SelectedProject = Projects.FirstOrDefault();
             Reload();
+        }
+
+        partial void OnSelectedClassificationChanged(string? value)
+        {
+            if (!_ready) return;
+            CurrentPage = 1;
+            ApplyPaging();
+        }
+
+        private List<BeneficiaryRecord> Filtered()
+        {
+            IEnumerable<BeneficiaryRecord> src = _cache;
+
+            var cls = (SelectedClassification ?? "").Trim();
+            if (!string.IsNullOrWhiteSpace(cls) && !cls.Equals("All", StringComparison.OrdinalIgnoreCase))
+            {
+                if (cls.Equals("None", StringComparison.OrdinalIgnoreCase))
+                {
+                    src = src.Where(x =>
+                    {
+                        var v = (x.Classification ?? "").Trim();
+                        return string.IsNullOrWhiteSpace(v) || v.Equals("None", StringComparison.OrdinalIgnoreCase);
+                    });
+                }
+                else
+                {
+                    src = src.Where(x =>
+                        string.Equals((x.Classification ?? "").Trim(), cls, StringComparison.OrdinalIgnoreCase));
+                }
+            }
+
+            return src.ToList();
         }
 
         partial void OnSelectedProjectChanged(AllotmentProjectOption? value)
@@ -105,16 +164,21 @@ namespace WpfApp3.ViewModels.Distribution
 
         private void ApplyPaging()
         {
+            var filtered = Filtered();
+
             if (CurrentPage < 1) CurrentPage = 1;
-            if (CurrentPage > TotalPages) CurrentPage = TotalPages;
+            var totalPages = Math.Max(1, (int)Math.Ceiling(filtered.Count / (double)PageSize));
+            if (CurrentPage > totalPages) CurrentPage = totalPages;
 
             Items.Clear();
-            foreach (var it in _cache.Skip((CurrentPage - 1) * PageSize).Take(PageSize))
+            foreach (var it in filtered.Skip((CurrentPage - 1) * PageSize).Take(PageSize))
                 Items.Add(it);
 
             PageNumbers.Clear();
-            for (int i = 1; i <= TotalPages; i++) PageNumbers.Add(i);
+            for (int i = 1; i <= totalPages; i++) PageNumbers.Add(i);
 
+            OnPropertyChanged(nameof(TotalRecords));
+            OnPropertyChanged(nameof(TotalPages));
             OnPropertyChanged(nameof(FoundText));
         }
 
@@ -127,6 +191,10 @@ namespace WpfApp3.ViewModels.Distribution
             foreach (var r in _assignRepo.GetAssignedEndorsed(SelectedProject.Id))
                 ReleaseItems.Add(r);
 
+            if (ReleaseCurrentPage > ReleaseTotalPages)
+                ReleaseCurrentPage = ReleaseTotalPages;
+
+            ApplyReleasePaging();
             OnPropertyChanged(nameof(ReleaseProgressText));
         }
 
@@ -169,10 +237,10 @@ namespace WpfApp3.ViewModels.Distribution
         {
             if (SelectedProject is null) return;
 
-            // reset scan display on open
             ScanInput = "";
 
-            // load table for release modal
+            ReleaseCurrentPage = 1;     // ✅ start at page 1
+            ReleaseSelectedClassification = SelectedClassification ?? "All";
             ReloadReleaseItems();
 
             IsReleaseSessionOpen = true;
@@ -199,6 +267,13 @@ namespace WpfApp3.ViewModels.Distribution
             var hit = ReleaseItems.FirstOrDefault(x =>
                 string.Equals((x.BeneficiaryId ?? "").Trim(), raw, StringComparison.OrdinalIgnoreCase));
 
+            var idx = ReleaseItems.IndexOf(hit);
+            if (idx >= 0)
+            {
+                ReleaseCurrentPage = (idx / ReleasePageSize) + 1;
+                ApplyReleasePaging();
+            }
+
             if (hit is null)
             {
                 ShowToast($"Scan not found: {raw}", "error");
@@ -212,6 +287,8 @@ namespace WpfApp3.ViewModels.Distribution
             }
 
             _pendingRelease = hit;
+            PendingRelease = hit;
+            OnPropertyChanged(nameof(PendingRelease));
             SelectedReleaseRow = hit;
 
             ConfirmId = hit.BeneficiaryId; // show barcode string
@@ -230,6 +307,8 @@ namespace WpfApp3.ViewModels.Distribution
             IsConfirmReleaseOpen = false;
             _pendingRelease = null;
             ScanInput = "";
+            PendingRelease = null;
+            OnPropertyChanged(nameof(PendingRelease));
         }
 
         [RelayCommand]
@@ -251,9 +330,69 @@ namespace WpfApp3.ViewModels.Distribution
             ScanInput = "";
         }
 
+        partial void OnReleaseCurrentPageChanged(int value) => ApplyReleasePaging();
+
+        private void ApplyReleasePaging()
+        {
+            var filtered = ReleaseFiltered().ToList();
+
+            if (ReleaseCurrentPage < 1) ReleaseCurrentPage = 1;
+            var totalPages = Math.Max(1, (int)Math.Ceiling(filtered.Count / (double)ReleasePageSize));
+            if (ReleaseCurrentPage > totalPages) ReleaseCurrentPage = totalPages;
+
+            ReleasePagedItems.Clear();
+            foreach (var it in filtered.Skip((ReleaseCurrentPage - 1) * ReleasePageSize).Take(ReleasePageSize))
+                ReleasePagedItems.Add(it);
+
+            ReleasePageNumbers.Clear();
+            for (int i = 1; i <= totalPages; i++) ReleasePageNumbers.Add(i);
+
+            OnPropertyChanged(nameof(ReleaseTotalRecords));
+            OnPropertyChanged(nameof(ReleaseTotalPages));
+        }
+
+        partial void OnReleaseSelectedClassificationChanged(string? value)
+        {
+            if (!_ready) return;
+            ReleaseCurrentPage = 1;
+            ApplyReleasePaging();
+        }
+
+        private IEnumerable<BeneficiaryRecord> ReleaseFiltered()
+        {
+            IEnumerable<BeneficiaryRecord> src = ReleaseItems;
+
+            var cls = (ReleaseSelectedClassification ?? "").Trim();
+            if (!string.IsNullOrWhiteSpace(cls) && !cls.Equals("All", StringComparison.OrdinalIgnoreCase))
+            {
+                if (cls.Equals("None", StringComparison.OrdinalIgnoreCase))
+                {
+                    src = src.Where(x =>
+                    {
+                        var v = (x.Classification ?? "").Trim();
+                        return string.IsNullOrWhiteSpace(v) || v.Equals("None", StringComparison.OrdinalIgnoreCase);
+                    });
+                }
+                else
+                {
+                    src = src.Where(x =>
+                        string.Equals((x.Classification ?? "").Trim(), cls, StringComparison.OrdinalIgnoreCase));
+                }
+            }
+
+            return src;
+        }
+
+
+
         // paging (main page)
         [RelayCommand] private void PreviousPage() { if (CurrentPage > 1) CurrentPage--; }
         [RelayCommand] private void NextPage() { if (CurrentPage < TotalPages) CurrentPage++; }
         [RelayCommand] private void GoToPage(int page) { CurrentPage = page; }
+
+
+        [RelayCommand] private void ReleasePreviousPage() { if (ReleaseCurrentPage > 1) ReleaseCurrentPage--; }
+        [RelayCommand] private void ReleaseNextPage() { if (ReleaseCurrentPage < ReleaseTotalPages) ReleaseCurrentPage++; }
+        [RelayCommand] private void ReleaseGoToPage(int page) { ReleaseCurrentPage = page; }
     }
 }
