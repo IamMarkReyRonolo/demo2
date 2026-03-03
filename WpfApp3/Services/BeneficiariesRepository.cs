@@ -11,9 +11,11 @@ namespace WpfApp3.Services
         public void EnsureTable()
         {
             using var conn = MySqlDb.OpenConnection();
-            using var cmd = conn.CreateCommand();
 
-            cmd.CommandText = @"
+            // Create table (fresh installs)
+            using (var cmd = conn.CreateCommand())
+            {
+                cmd.CommandText = @"
 CREATE TABLE IF NOT EXISTS beneficiaries (
   id INT AUTO_INCREMENT PRIMARY KEY,
   source_person_id INT NULL,
@@ -32,6 +34,9 @@ CREATE TABLE IF NOT EXISTS beneficiaries (
   barangay VARCHAR(100) NULL,
   present_address VARCHAR(255) NULL,
 
+  -- ✅ NEW
+  profile_image LONGBLOB NULL,
+
   status ENUM('Not Validated','Endorsed','Pending','Rejected') NOT NULL DEFAULT 'Not Validated',
 
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -41,7 +46,32 @@ CREATE TABLE IF NOT EXISTS beneficiaries (
   KEY idx_status (status),
   KEY idx_source_person_id (source_person_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;";
-            cmd.ExecuteNonQuery();
+                cmd.ExecuteNonQuery();
+            }
+
+            // ✅ If table already existed before, ensure column exists
+            if (!ColumnExists(conn, "beneficiaries", "profile_image"))
+            {
+                using var alter = conn.CreateCommand();
+                alter.CommandText = @"ALTER TABLE beneficiaries ADD COLUMN profile_image LONGBLOB NULL;";
+                alter.ExecuteNonQuery();
+            }
+        }
+
+        private static bool ColumnExists(MySqlConnection conn, string table, string column)
+        {
+            using var cmd = conn.CreateCommand();
+            cmd.CommandText = @"
+SELECT COUNT(*)
+FROM information_schema.columns
+WHERE table_schema = DATABASE()
+  AND table_name = @table
+  AND column_name = @column;";
+            cmd.Parameters.AddWithValue("@table", table);
+            cmd.Parameters.AddWithValue("@column", column);
+
+            var n = Convert.ToInt32(cmd.ExecuteScalar());
+            return n > 0;
         }
 
         public List<ValidatorRecord> GetByStatus(string status)
@@ -63,6 +93,7 @@ SELECT
   classification,
   barangay,
   present_address,
+  profile_image,
   status
 FROM beneficiaries
 WHERE status = @status
@@ -78,7 +109,6 @@ ORDER BY updated_at DESC, id DESC;";
             return list;
         }
 
-        // Used to "overlay" external list with saved DB info (by BeneficiaryId)
         public Dictionary<string, ValidatorRecord> GetByBeneficiaryIds(IEnumerable<string> beneficiaryIds)
         {
             var ids = beneficiaryIds
@@ -92,7 +122,6 @@ ORDER BY updated_at DESC, id DESC;";
             using var conn = MySqlDb.OpenConnection();
             using var cmd = conn.CreateCommand();
 
-            // IN (@p0,@p1,...) safely
             var paramNames = new List<string>();
             for (int i = 0; i < ids.Count; i++)
             {
@@ -115,6 +144,7 @@ SELECT
   classification,
   barangay,
   present_address,
+  profile_image,
   status
 FROM beneficiaries
 WHERE beneficiary_id IN ({string.Join(",", paramNames)});";
@@ -155,6 +185,7 @@ INSERT INTO beneficiaries (
   classification,
   barangay,
   present_address,
+  profile_image,
   status
 )
 VALUES (
@@ -169,6 +200,7 @@ VALUES (
   @classification,
   @barangay,
   @present_address,
+  @profile_image,
   @status
 )
 ON DUPLICATE KEY UPDATE
@@ -182,6 +214,7 @@ ON DUPLICATE KEY UPDATE
   classification = VALUES(classification),
   barangay = VALUES(barangay),
   present_address = VALUES(present_address),
+  profile_image = VALUES(profile_image),
   status = VALUES(status);";
 
             cmd.Parameters.AddWithValue("@source_person_id", person.Id); // external id (from left list)
@@ -195,6 +228,10 @@ ON DUPLICATE KEY UPDATE
             cmd.Parameters.AddWithValue("@classification", (person.Classification ?? "").Trim());
             cmd.Parameters.AddWithValue("@barangay", (person.Barangay ?? "").Trim());
             cmd.Parameters.AddWithValue("@present_address", (person.PresentAddress ?? "").Trim());
+
+            var pImg = cmd.Parameters.Add("@profile_image", MySqlDbType.LongBlob);
+            pImg.Value = person.ProfileImage is null ? DBNull.Value : person.ProfileImage;
+
             cmd.Parameters.AddWithValue("@status", status);
 
             cmd.ExecuteNonQuery();
@@ -202,10 +239,13 @@ ON DUPLICATE KEY UPDATE
 
         private static ValidatorRecord Map(MySqlDataReader r)
         {
-            // UI 'Id' column: prefer source_person_id; fallback to internal id
             var internalId = Convert.ToInt32(r["id"]);
             var sourceIdObj = r["source_person_id"];
             var sourceId = sourceIdObj == DBNull.Value ? (int?)null : Convert.ToInt32(sourceIdObj);
+
+            byte[]? img = null;
+            if (r["profile_image"] != DBNull.Value)
+                img = (byte[])r["profile_image"];
 
             return new ValidatorRecord
             {
@@ -220,7 +260,70 @@ ON DUPLICATE KEY UPDATE
                 Classification = Convert.ToString(r["classification"]) ?? "",
                 Barangay = Convert.ToString(r["barangay"]) ?? "",
                 PresentAddress = Convert.ToString(r["present_address"]) ?? "",
+                ProfileImage = img,
                 Status = Convert.ToString(r["status"]) ?? ""
+            };
+        }
+
+
+        public sealed class BeneficiaryDetails
+        {
+            public int Id { get; set; }
+            public string BeneficiaryId { get; set; } = "";
+            public string CivilRegistryId { get; set; } = "";
+            public string FirstName { get; set; } = "";
+            public string MiddleName { get; set; } = "";
+            public string LastName { get; set; } = "";
+            public string Gender { get; set; } = "";
+            public string Classification { get; set; } = "";
+            public string Barangay { get; set; } = "";
+            public string PresentAddress { get; set; } = "";
+            public byte[]? ProfileImage { get; set; }
+        }
+
+        public BeneficiaryDetails? GetDetailsByInternalId(int internalId)
+        {
+            using var conn = MySqlDb.OpenConnection();
+            using var cmd = conn.CreateCommand();
+
+            cmd.CommandText = @"
+SELECT
+  id,
+  beneficiary_id,
+  civil_registry_id,
+  first_name,
+  middle_name,
+  last_name,
+  gender,
+  classification,
+  barangay,
+  present_address,
+  profile_image
+FROM beneficiaries
+WHERE id = @id
+LIMIT 1;";
+            cmd.Parameters.AddWithValue("@id", internalId);
+
+            using var r = cmd.ExecuteReader();
+            if (!r.Read()) return null;
+
+            byte[]? img = null;
+            if (r["profile_image"] != DBNull.Value)
+                img = (byte[])r["profile_image"];
+
+            return new BeneficiaryDetails
+            {
+                Id = Convert.ToInt32(r["id"]),
+                BeneficiaryId = Convert.ToString(r["beneficiary_id"]) ?? "",
+                CivilRegistryId = Convert.ToString(r["civil_registry_id"]) ?? "",
+                FirstName = Convert.ToString(r["first_name"]) ?? "",
+                MiddleName = Convert.ToString(r["middle_name"]) ?? "",
+                LastName = Convert.ToString(r["last_name"]) ?? "",
+                Gender = Convert.ToString(r["gender"]) ?? "",
+                Classification = Convert.ToString(r["classification"]) ?? "",
+                Barangay = Convert.ToString(r["barangay"]) ?? "",
+                PresentAddress = Convert.ToString(r["present_address"]) ?? "",
+                ProfileImage = img
             };
         }
     }

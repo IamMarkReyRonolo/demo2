@@ -75,6 +75,13 @@
             </Setter>
         </Style>
 
+        <!-- Small outline button (for image upload actions) -->
+        <Style x:Key="SmallOutlineButton" TargetType="Button" BasedOn="{StaticResource OutlineButton}">
+            <Setter Property="Height" Value="32"/>
+            <Setter Property="Padding" Value="12,6"/>
+            <Setter Property="FontSize" Value="12"/>
+        </Style>
+
         <!-- Icon-like square button -->
         <Style x:Key="IconButton" TargetType="Button">
             <Setter Property="Width" Value="40"/>
@@ -341,9 +348,66 @@
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
 
-                            <Border Width="140" Height="140" CornerRadius="70" Background="#D9ECFF">
-                                <TextBlock Text="👤" FontSize="44" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                            </Border>
+                            <StackPanel Width="140">
+                                <Grid Width="140" Height="140">
+                                    <Ellipse Fill="#D9ECFF"/>
+
+                                    <Ellipse>
+                                        <Ellipse.Fill>
+                                            <ImageBrush ImageSource="{Binding SelectedPerson.ProfileImagePreview}" Stretch="UniformToFill"/>
+                                        </Ellipse.Fill>
+                                        <Ellipse.Style>
+                                            <Style TargetType="Ellipse">
+                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding SelectedPerson.HasProfileImage}" Value="True">
+                                                        <Setter Property="Visibility" Value="Visible"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Ellipse.Style>
+                                    </Ellipse>
+
+                                    <TextBlock Text="👤" FontSize="44" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="Visibility" Value="Visible"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding SelectedPerson.HasProfileImage}" Value="True">
+                                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+                                </Grid>
+
+                                <Button Content="Upload Photo"
+            Margin="0,10,0,0"
+            Height="32"
+            Padding="10,6"
+            FontSize="12"
+            Style="{StaticResource OutlineButton}"
+            Command="{Binding UploadProfileImageCommand}"/>
+
+                                <Button Content="Remove"
+            Margin="0,8,0,0"
+            Command="{Binding RemoveProfileImageCommand}">
+                                    <Button.Style>
+                                        <Style TargetType="Button" BasedOn="{StaticResource OutlineButton}">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                            <Setter Property="Height" Value="32"/>
+                                            <Setter Property="Padding" Value="10,6"/>
+                                            <Setter Property="FontSize" Value="12"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding SelectedPerson.HasProfileImage}" Value="True">
+                                                    <Setter Property="Visibility" Value="Visible"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Button.Style>
+                                </Button>
+                            </StackPanel>
 
                             <!-- Left fields -->
                             <StackPanel Grid.Column="2">
@@ -707,9 +771,67 @@
                         </Grid.ColumnDefinitions>
 
                         <!-- Avatar -->
-                        <Border Width="160" Height="160" CornerRadius="80" Background="#D9ECFF" VerticalAlignment="Top">
-                            <TextBlock Text="👤" FontSize="54" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
+
+                        <StackPanel Width="160" VerticalAlignment="Top">
+                            <Grid Width="160" Height="160">
+                                <Ellipse Fill="#D9ECFF"/>
+
+                                <Ellipse>
+                                    <Ellipse.Fill>
+                                        <ImageBrush ImageSource="{Binding SelectedPerson.ProfileImagePreview}" Stretch="UniformToFill"/>
+                                    </Ellipse.Fill>
+                                    <Ellipse.Style>
+                                        <Style TargetType="Ellipse">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding SelectedPerson.HasProfileImage}" Value="True">
+                                                    <Setter Property="Visibility" Value="Visible"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Ellipse.Style>
+                                </Ellipse>
+
+                                <TextBlock Text="👤" FontSize="54" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding SelectedPerson.HasProfileImage}" Value="True">
+                                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+                            </Grid>
+
+                            <Button Content="Upload Photo"
+            Margin="0,10,0,0"
+            Height="32"
+            Padding="10,6"
+            FontSize="12"
+            Style="{StaticResource OutlineButton}"
+            Command="{Binding UploadProfileImageCommand}"/>
+
+                            <Button Content="Remove"
+            Margin="0,8,0,0"
+            Command="{Binding RemoveProfileImageCommand}">
+                                <Button.Style>
+                                    <Style TargetType="Button" BasedOn="{StaticResource OutlineButton}">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                        <Setter Property="Height" Value="32"/>
+                                        <Setter Property="Padding" Value="10,6"/>
+                                        <Setter Property="FontSize" Value="12"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding SelectedPerson.HasProfileImage}" Value="True">
+                                                <Setter Property="Visibility" Value="Visible"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Button.Style>
+                            </Button>
+                        </StackPanel>
 
                         <!-- Form -->
                         <Grid Grid.Column="2">
@@ -870,5 +992,5 @@
         </Grid>
 
     </Grid>
-       
+
 </UserControl>

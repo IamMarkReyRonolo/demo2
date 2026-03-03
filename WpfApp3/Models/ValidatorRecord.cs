@@ -1,4 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
+using System.IO;
+using System.Windows.Media.Imaging;
 
 namespace WpfApp3.Models
 {
@@ -14,15 +16,50 @@ namespace WpfApp3.Models
         [ObservableProperty] private string lastName = "";
 
         [ObservableProperty] private string gender = "";
-        [ObservableProperty] private string dateOfBirth = "";     // keep as string for now (dummy)
+        [ObservableProperty] private string dateOfBirth = "";
         [ObservableProperty] private string classification = "";
 
         [ObservableProperty] private string barangay = "";
         [ObservableProperty] private string presentAddress = "";
 
-        // "", "Endorsed", "Pending", "Rejected"
+        // "", "Not Validated", "Endorsed", "Pending", "Rejected"
         [ObservableProperty] private string status = "";
 
+        // ✅ NEW: stored in DB
+        [ObservableProperty] private byte[]? profileImage;
+
+        // ✅ UI preview
+        [ObservableProperty] private BitmapImage? profileImagePreview;
+
+        public bool HasProfileImage => ProfileImagePreview != null;
+
         public string FullName => $"{LastName}, {FirstName} {MiddleName}".Replace("  ", " ").Trim();
+
+        partial void OnProfileImageChanged(byte[]? value)
+        {
+            ProfileImagePreview = ToBitmap(value);
+            OnPropertyChanged(nameof(HasProfileImage));
+        }
+
+        private static BitmapImage? ToBitmap(byte[]? bytes)
+        {
+            if (bytes is null || bytes.Length == 0) return null;
+
+            try
+            {
+                using var ms = new MemoryStream(bytes);
+                var bmp = new BitmapImage();
+                bmp.BeginInit();
+                bmp.CacheOption = BitmapCacheOption.OnLoad;
+                bmp.StreamSource = ms;
+                bmp.EndInit();
+                bmp.Freeze();
+                return bmp;
+            }
+            catch
+            {
+                return null;
+            }
+        }
     }
 }

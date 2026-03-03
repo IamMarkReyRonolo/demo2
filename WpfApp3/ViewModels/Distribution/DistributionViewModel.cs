@@ -4,6 +4,8 @@ using System.Collections.ObjectModel;
 using System.Globalization;
 using WpfApp3.Models;
 using WpfApp3.Services;
+using System.IO;
+using System.Windows.Media.Imaging;
 
 namespace WpfApp3.ViewModels.Distribution
 {
@@ -80,9 +82,16 @@ namespace WpfApp3.ViewModels.Distribution
 
         [ObservableProperty] private BeneficiaryRecord? pendingRelease;
 
+        private readonly BeneficiariesRepository _beneRepo = new();
+
+        [ObservableProperty] private BitmapImage? confirmProfileImagePreview;
+
+        public bool ConfirmHasProfileImage => ConfirmProfileImagePreview != null;
+
         public DistributionViewModel()
         {
             LoadProjectsFromDb();
+
 
             ClassificationOptions.Add("All");
             ClassificationOptions.Add("PWD");
@@ -291,6 +300,8 @@ namespace WpfApp3.ViewModels.Distribution
             OnPropertyChanged(nameof(PendingRelease));
             SelectedReleaseRow = hit;
 
+            HydratePendingReleaseFromDb(hit);
+
             ConfirmId = hit.BeneficiaryId; // show barcode string
             ConfirmName = $"{hit.FirstName} {hit.LastName}".Trim();
             ConfirmBarangay = hit.Barangay;
@@ -309,6 +320,7 @@ namespace WpfApp3.ViewModels.Distribution
             ScanInput = "";
             PendingRelease = null;
             OnPropertyChanged(nameof(PendingRelease));
+            ConfirmProfileImagePreview = null;
         }
 
         [RelayCommand]
@@ -394,5 +406,64 @@ namespace WpfApp3.ViewModels.Distribution
         [RelayCommand] private void ReleasePreviousPage() { if (ReleaseCurrentPage > 1) ReleaseCurrentPage--; }
         [RelayCommand] private void ReleaseNextPage() { if (ReleaseCurrentPage < ReleaseTotalPages) ReleaseCurrentPage++; }
         [RelayCommand] private void ReleaseGoToPage(int page) { ReleaseCurrentPage = page; }
+
+        partial void OnConfirmProfileImagePreviewChanged(BitmapImage? value)
+        {
+            OnPropertyChanged(nameof(ConfirmHasProfileImage));
+        }
+
+        private static BitmapImage? ToBitmap(byte[]? bytes)
+        {
+            if (bytes is null || bytes.Length == 0) return null;
+
+            try
+            {
+                using var ms = new MemoryStream(bytes);
+                var bmp = new BitmapImage();
+                bmp.BeginInit();
+                bmp.CacheOption = BitmapCacheOption.OnLoad;
+                bmp.StreamSource = ms;
+                bmp.EndInit();
+                bmp.Freeze();
+                return bmp;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        private void HydratePendingReleaseFromDb(BeneficiaryRecord target)
+        {
+            try
+            {
+                // ✅ internal id is target.Id (b.id)
+                var full = _beneRepo.GetDetailsByInternalId(target.Id);
+                if (full is null)
+                {
+                    ConfirmProfileImagePreview = null;
+                    return;
+                }
+
+                // ✅ fill the missing fields so the modal bindings work
+                target.BeneficiaryId = full.BeneficiaryId;
+                target.CivilRegistryId = full.CivilRegistryId;
+                target.FirstName = full.FirstName;
+                target.MiddleName = full.MiddleName;
+                target.LastName = full.LastName;
+                target.Gender = full.Gender;
+                target.Barangay = full.Barangay;
+                target.Classification = string.IsNullOrWhiteSpace(full.Classification) ? "None" : full.Classification;
+                target.PresentAddress = full.PresentAddress;
+
+                // ✅ image for modal avatar
+                ConfirmProfileImagePreview = ToBitmap(full.ProfileImage);
+            }
+            catch (Exception ex)
+            {
+                ConfirmProfileImagePreview = null;
+                ShowToast($"Failed to load beneficiary details: {ex.Message}", "error");
+            }
+        }
     }
 }

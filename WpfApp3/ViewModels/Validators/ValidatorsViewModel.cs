@@ -1,13 +1,16 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
+using System.Windows;
 using WpfApp3.Models;
 using WpfApp3.Services;
-using System.ComponentModel;
-using System.Windows;
+
+
 namespace WpfApp3.ViewModels.Validators
 {
     public enum ValidatorsMainTab
@@ -59,6 +62,7 @@ namespace WpfApp3.ViewModels.Validators
             get => _isAddingProfile;
             set => SetProperty(ref _isAddingProfile, value);
         }
+
         // ===== UI text =====
         public string NotYetFoundText => $"Found {NotYetItems.Count} records";
         public string ValidatedFoundText => $"Found {ValidatedItems.Count} records";
@@ -291,6 +295,47 @@ namespace WpfApp3.ViewModels.Validators
         [RelayCommand] private void SearchNotYet() => LoadNotYet();
         [RelayCommand] private void SearchValidated() => LoadValidated();
 
+        // ===== Profile image upload/remove =====
+
+        // ✅ Profile image upload
+        [RelayCommand]
+        private void UploadProfileImage()
+        {
+            var person = SelectedPerson;
+            if (person is null) return;
+
+            var dlg = new OpenFileDialog
+            {
+                Title = "Select profile image",
+                Filter = "Image Files|*.png;*.jpg;*.jpeg;*.bmp;*.gif|All Files|*.*"
+            };
+
+            if (dlg.ShowDialog() != true) return;
+
+            try
+            {
+                person.ProfileImage = File.ReadAllBytes(dlg.FileName);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(
+                    $"Failed to load image.\n\n{ex.Message}",
+                    "Upload",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error
+                );
+            }
+        }
+
+        [RelayCommand]
+        private void RemoveProfileImage()
+        {
+            var person = SelectedPerson;
+            if (person is null) return;
+
+            person.ProfileImage = null;
+        }
+
         // ✅ ADD PROFILE (new)
         [RelayCommand]
         private void AddProfile()
@@ -322,7 +367,8 @@ namespace WpfApp3.ViewModels.Validators
                 Classification = ClassificationOptions.FirstOrDefault() ?? "None",
                 Barangay = "",
                 PresentAddress = "",
-                Status = "Not Validated"
+                Status = "Not Validated",
+                ProfileImage = null
             };
 
             NotYetItems.Insert(0, fresh);

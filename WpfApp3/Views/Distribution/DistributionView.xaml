@@ -3,7 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="clr-namespace:WpfApp3.ViewModels.Distribution"
              xmlns:conv="clr-namespace:WpfApp3.Views.Allotment"
-             Background="#F3F5F9">
+             Background="White">
 
     <!-- ✅ NOTE:
          If Designer keeps crashing because of DB connection (EkalingaDb),
@@ -129,10 +129,10 @@
         </Style>
     </UserControl.Resources>
 
-    <Grid>
+    <Grid Background="white">
 
         <!-- PAGE -->
-        <Grid Margin="24">
+        <Grid Margin="15">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
@@ -173,7 +173,8 @@
                     <ComboBox ItemsSource="{Binding Projects}"
                   SelectedItem="{Binding SelectedProject}"
                   DisplayMemberPath="ProjectName"
-                  BorderThickness="0"
+                                    BorderThickness="1"
+Padding="14,7"
                   Background="Transparent"
                   Foreground="#2E3A59"
                   FontSize="12"/>
@@ -234,7 +235,8 @@
                FontSize="11"
                FontWeight="SemiBold"
                Margin="0,8,0,6"
-               HorizontalAlignment="Left"/>
+               HorizontalAlignment="Left"
+                           />
 
                 <Border Grid.Row="2"
             Grid.Column="0"
@@ -245,9 +247,10 @@
             Padding="12,6">
                     <ComboBox ItemsSource="{Binding ClassificationOptions}"
                   SelectedItem="{Binding SelectedClassification}"
-                  BorderThickness="0"
                   Background="Transparent"
                   Foreground="#2E3A59"
+                                                BorderThickness="1"
+Padding="14,7"
                   FontSize="12"/>
                 </Border>
             </Grid>
@@ -496,7 +499,8 @@
                                 <!-- reuse the same options list -->
                                 <ComboBox ItemsSource="{Binding ClassificationOptions}"
                   SelectedItem="{Binding ReleaseSelectedClassification}"
-                  BorderThickness="0"
+                                    BorderThickness="1"
+Padding="14,7"
                   Background="Transparent"
                   Foreground="#2E3A59"
                   FontSize="12"/>
@@ -662,13 +666,44 @@
                         Command="{Binding CloseConfirmReleaseCommand}"/>
                     </Grid>
 
-                    <!-- Picture Placeholder (TOP) -->
+                    <!-- Picture (TOP) -->
                     <Grid Grid.Row="1" Margin="0,14,0,14" HorizontalAlignment="Center">
+                        <!-- background -->
                         <Ellipse Width="96" Height="96" Fill="#D9ECFF"/>
+
+                        <!-- image circle -->
+                        <Ellipse Width="96" Height="96">
+                            <Ellipse.Fill>
+                                <ImageBrush ImageSource="{Binding ConfirmProfileImagePreview}" Stretch="UniformToFill"/>
+                            </Ellipse.Fill>
+                            <Ellipse.Style>
+                                <Style TargetType="Ellipse">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding ConfirmHasProfileImage}" Value="True">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Ellipse.Style>
+                        </Ellipse>
+
+                        <!-- fallback icon -->
                         <TextBlock Text="👤"
-                           FontSize="40"
-                           VerticalAlignment="Center"
-                           HorizontalAlignment="Center"/>
+               FontSize="40"
+               VerticalAlignment="Center"
+               HorizontalAlignment="Center">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding ConfirmHasProfileImage}" Value="True">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
                     </Grid>
 
                     <!-- Profile Information fields -->
