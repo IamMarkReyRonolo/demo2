@@ -631,22 +631,21 @@ Padding="14,7"
             Background="White"
             Padding="18"
             HorizontalAlignment="Center"
-            VerticalAlignment="Center">
+            VerticalAlignment="Center"
+            MaxHeight="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Window}}">
 
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
                         <!-- header -->
-                        <RowDefinition Height="Auto"/>
-                        <!-- avatar -->
-                        <RowDefinition Height="Auto"/>
-                        <!-- fields -->
+                        <RowDefinition Height="*"/>
+                        <!-- scrollable body -->
                         <RowDefinition Height="Auto"/>
                         <!-- buttons -->
                     </Grid.RowDefinitions>
 
                     <!-- header -->
-                    <Grid>
+                    <Grid Grid.Row="0">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition/>
                             <ColumnDefinition Width="Auto"/>
@@ -666,163 +665,266 @@ Padding="14,7"
                         Command="{Binding CloseConfirmReleaseCommand}"/>
                     </Grid>
 
-                    <!-- Picture (TOP) -->
-                    <Grid Grid.Row="1" Margin="0,14,0,14" HorizontalAlignment="Center">
-                        <!-- background -->
-                        <Ellipse Width="96" Height="96" Fill="#D9ECFF"/>
+                    <!-- ✅ BODY (scrollable) -->
+                    <ScrollViewer Grid.Row="1"
+                          Margin="0,14,0,0"
+                          VerticalScrollBarVisibility="Auto"
+                          HorizontalScrollBarVisibility="Disabled">
+                        <StackPanel>
 
-                        <!-- image circle -->
-                        <Ellipse Width="96" Height="96">
-                            <Ellipse.Fill>
-                                <ImageBrush ImageSource="{Binding ConfirmProfileImagePreview}" Stretch="UniformToFill"/>
-                            </Ellipse.Fill>
-                            <Ellipse.Style>
-                                <Style TargetType="Ellipse">
-                                    <Setter Property="Visibility" Value="Collapsed"/>
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding ConfirmHasProfileImage}" Value="True">
-                                            <Setter Property="Visibility" Value="Visible"/>
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </Ellipse.Style>
-                        </Ellipse>
+                            <!-- Picture (TOP) -->
+                            <Grid Margin="0,0,0,14" HorizontalAlignment="Center">
+                                <Ellipse Width="96" Height="96" Fill="#D9ECFF"/>
 
-                        <!-- fallback icon -->
-                        <TextBlock Text="👤"
-               FontSize="40"
-               VerticalAlignment="Center"
-               HorizontalAlignment="Center">
-                            <TextBlock.Style>
-                                <Style TargetType="TextBlock">
-                                    <Setter Property="Visibility" Value="Visible"/>
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding ConfirmHasProfileImage}" Value="True">
+                                <Ellipse Width="96" Height="96">
+                                    <Ellipse.Fill>
+                                        <ImageBrush ImageSource="{Binding ConfirmProfileImagePreview}" Stretch="UniformToFill"/>
+                                    </Ellipse.Fill>
+                                    <Ellipse.Style>
+                                        <Style TargetType="Ellipse">
                                             <Setter Property="Visibility" Value="Collapsed"/>
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </TextBlock.Style>
-                        </TextBlock>
-                    </Grid>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding ConfirmHasProfileImage}" Value="True">
+                                                    <Setter Property="Visibility" Value="Visible"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Ellipse.Style>
+                                </Ellipse>
 
-                    <!-- Profile Information fields -->
-                    <Grid Grid.Row="2" Margin="0,0,0,0">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition/>
-                            <ColumnDefinition Width="18"/>
-                            <ColumnDefinition/>
-                        </Grid.ColumnDefinitions>
+                                <TextBlock Text="👤"
+                                   FontSize="40"
+                                   VerticalAlignment="Center"
+                                   HorizontalAlignment="Center">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding ConfirmHasProfileImage}" Value="True">
+                                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+                            </Grid>
 
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                        </Grid.RowDefinitions>
+                            <!-- Profile fields -->
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition/>
+                                    <ColumnDefinition Width="18"/>
+                                    <ColumnDefinition/>
+                                </Grid.ColumnDefinitions>
 
-                        <!-- Row 0 -->
-                        <StackPanel Grid.Row="0" Grid.Column="0">
-                            <TextBlock Text="Beneficiary ID" Foreground="#6B778C" FontSize="12" Margin="0,0,0,6"/>
-                            <Border CornerRadius="10" BorderBrush="#EEF2FF" BorderThickness="1" Background="White" Padding="10,6">
-                                <TextBox Text="{Binding PendingRelease.BeneficiaryId, TargetNullValue=''}"
-                                 BorderThickness="0" Background="Transparent"
-                                 Foreground="#2E3A59" IsReadOnly="True"/>
-                            </Border>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+
+                                <!-- Row 0 -->
+                                <StackPanel Grid.Row="0" Grid.Column="0">
+                                    <TextBlock Text="Beneficiary ID" Foreground="#6B778C" FontSize="12" Margin="0,0,0,6"/>
+                                    <Border CornerRadius="10" BorderBrush="#EEF2FF" BorderThickness="1" Background="White" Padding="10,6">
+                                        <TextBox Text="{Binding PendingRelease.BeneficiaryId, TargetNullValue=''}"
+                                         BorderThickness="0" Background="Transparent"
+                                         Foreground="#2E3A59" IsReadOnly="True"/>
+                                    </Border>
+                                </StackPanel>
+
+                                <StackPanel Grid.Row="0" Grid.Column="2">
+                                    <TextBlock Text="Civil Registry ID" Foreground="#6B778C" FontSize="12" Margin="0,0,0,6"/>
+                                    <Border CornerRadius="10" BorderBrush="#EEF2FF" BorderThickness="1" Background="White" Padding="10,6">
+                                        <TextBox Text="{Binding PendingRelease.CivilRegistryId, TargetNullValue=''}"
+                                         BorderThickness="0" Background="Transparent"
+                                         Foreground="#2E3A59" IsReadOnly="True"/>
+                                    </Border>
+                                </StackPanel>
+
+                                <!-- Row 1 -->
+                                <StackPanel Grid.Row="1" Grid.Column="0" Margin="0,12,0,0">
+                                    <TextBlock Text="First Name" Foreground="#6B778C" FontSize="12" Margin="0,0,0,6"/>
+                                    <Border CornerRadius="10" BorderBrush="#EEF2FF" BorderThickness="1" Background="White" Padding="10,6">
+                                        <TextBox Text="{Binding PendingRelease.FirstName, TargetNullValue=''}"
+                                         BorderThickness="0" Background="Transparent"
+                                         Foreground="#2E3A59" IsReadOnly="True"/>
+                                    </Border>
+                                </StackPanel>
+
+                                <StackPanel Grid.Row="1" Grid.Column="2" Margin="0,12,0,0">
+                                    <TextBlock Text="Middle Name" Foreground="#6B778C" FontSize="12" Margin="0,0,0,6"/>
+                                    <Border CornerRadius="10" BorderBrush="#EEF2FF" BorderThickness="1" Background="White" Padding="10,6">
+                                        <TextBox Text="{Binding PendingRelease.MiddleName, TargetNullValue=''}"
+                                         BorderThickness="0" Background="Transparent"
+                                         Foreground="#2E3A59" IsReadOnly="True"/>
+                                    </Border>
+                                </StackPanel>
+
+                                <!-- Row 2 -->
+                                <StackPanel Grid.Row="2" Grid.Column="0" Margin="0,12,0,0">
+                                    <TextBlock Text="Gender" Foreground="#6B778C" FontSize="12" Margin="0,0,0,6"/>
+                                    <Border CornerRadius="10" BorderBrush="#EEF2FF" BorderThickness="1" Background="White" Padding="10,6">
+                                        <TextBox Text="{Binding PendingRelease.Gender, TargetNullValue=''}"
+                                         BorderThickness="0" Background="Transparent"
+                                         Foreground="#2E3A59" IsReadOnly="True"/>
+                                    </Border>
+                                </StackPanel>
+
+                                <StackPanel Grid.Row="2" Grid.Column="2" Margin="0,12,0,0">
+                                    <TextBlock Text="Last Name" Foreground="#6B778C" FontSize="12" Margin="0,0,0,6"/>
+                                    <Border CornerRadius="10" BorderBrush="#EEF2FF" BorderThickness="1" Background="White" Padding="10,6">
+                                        <TextBox Text="{Binding PendingRelease.LastName, TargetNullValue=''}"
+                                         BorderThickness="0" Background="Transparent"
+                                         Foreground="#2E3A59" IsReadOnly="True"/>
+                                    </Border>
+                                </StackPanel>
+
+                                <!-- Row 3 -->
+                                <StackPanel Grid.Row="3" Grid.Column="0" Margin="0,12,0,0">
+                                    <TextBlock Text="Barangay" Foreground="#6B778C" FontSize="12" Margin="0,0,0,6"/>
+                                    <Border CornerRadius="10" BorderBrush="#EEF2FF" BorderThickness="1" Background="White" Padding="10,6">
+                                        <TextBox Text="{Binding PendingRelease.Barangay, TargetNullValue=''}"
+                                         BorderThickness="0" Background="Transparent"
+                                         Foreground="#2E3A59" IsReadOnly="True"/>
+                                    </Border>
+                                </StackPanel>
+
+                                <StackPanel Grid.Row="3" Grid.Column="2" Margin="0,12,0,0">
+                                    <TextBlock Text="Classification" Foreground="#6B778C" FontSize="12" Margin="0,0,0,6"/>
+                                    <Border CornerRadius="10" BorderBrush="#EEF2FF" BorderThickness="1" Background="White" Padding="10,6">
+                                        <TextBox Text="{Binding PendingRelease.Classification, TargetNullValue=''}"
+                                         BorderThickness="0" Background="Transparent"
+                                         Foreground="#2E3A59" IsReadOnly="True"/>
+                                    </Border>
+                                </StackPanel>
+
+                                <!-- Row 4 -->
+                                <StackPanel Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="3" Margin="0,12,0,0">
+                                    <TextBlock Text="Present Address" Foreground="#6B778C" FontSize="12" Margin="0,0,0,6"/>
+                                    <Border CornerRadius="10" BorderBrush="#EEF2FF" BorderThickness="1" Background="White" Padding="10,6">
+                                        <TextBox Text="{Binding PendingRelease.PresentAddress, TargetNullValue=''}"
+                                         BorderThickness="0" Background="Transparent"
+                                         Foreground="#2E3A59" IsReadOnly="True"/>
+                                    </Border>
+                                </StackPanel>
+
+                                <!-- Row 5 -->
+                                <StackPanel Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="3" Margin="0,12,0,0">
+                                    <TextBlock Text="Share to Release" Foreground="#6B778C" FontSize="12" Margin="0,0,0,6"/>
+                                    <Border CornerRadius="10" BorderBrush="#EEF2FF" BorderThickness="1" Background="White" Padding="10,6">
+                                        <TextBlock Text="{Binding PendingRelease.ShareText}"
+                                           Foreground="#2E3A59"
+                                           FontWeight="SemiBold"
+                                           VerticalAlignment="Center"/>
+                                    </Border>
+                                </StackPanel>
+                            </Grid>
+
+                            <!-- ✅ Release History (timeline) -->
+                            <StackPanel Margin="0,18,0,0">
+                                <TextBlock Text="Release History"
+                                   Foreground="#2E3A59"
+                                   FontSize="13"
+                                   FontWeight="SemiBold"/>
+
+                                <Border Margin="0,10,0,0"
+                                Background="#F7F9FC"
+                                BorderBrush="#EEF2FF"
+                                BorderThickness="1"
+                                CornerRadius="12"
+                                Padding="14">
+
+                                    <Grid>
+                                        <!-- Empty -->
+                                        <TextBlock Text="No past releases yet."
+                                           Foreground="#6B778C"
+                                           FontSize="12">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="Visibility" Value="Visible"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding HasConfirmReleaseHistory}" Value="True">
+                                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
+
+                                        <!-- Timeline -->
+                                        <ItemsControl ItemsSource="{Binding ConfirmReleaseHistory}">
+                                            <ItemsControl.Style>
+                                                <Style TargetType="ItemsControl">
+                                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding HasConfirmReleaseHistory}" Value="True">
+                                                            <Setter Property="Visibility" Value="Visible"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </ItemsControl.Style>
+
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate>
+                                                    <Grid Margin="0,0,0,14">
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="26"/>
+                                                            <ColumnDefinition Width="*"/>
+                                                        </Grid.ColumnDefinitions>
+
+                                                        <Grid Grid.Column="0">
+                                                            <Ellipse Width="10" Height="10"
+                                                             Fill="#2E3A59"
+                                                             VerticalAlignment="Top"
+                                                             Margin="8,2,8,0"/>
+
+                                                            <Border Width="2"
+                                                            Background="#E5ECFA"
+                                                            VerticalAlignment="Stretch"
+                                                            Margin="12,14,12,0">
+                                                                <Border.Style>
+                                                                    <Style TargetType="Border">
+                                                                        <Style.Triggers>
+                                                                            <DataTrigger Binding="{Binding IsLast}" Value="True">
+                                                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                                                            </DataTrigger>
+                                                                        </Style.Triggers>
+                                                                    </Style>
+                                                                </Border.Style>
+                                                            </Border>
+                                                        </Grid>
+
+                                                        <StackPanel Grid.Column="1">
+                                                            <TextBlock Text="{Binding ReleasedAtText}"
+                                                               Foreground="#2E3A59"
+                                                               FontWeight="SemiBold"/>
+
+                                                            <TextBlock Text="{Binding Description}"
+                                                               Foreground="#6B778C"
+                                                               FontSize="12"
+                                                               Margin="0,4,0,0"
+                                                               TextWrapping="Wrap"/>
+                                                        </StackPanel>
+                                                    </Grid>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                    </Grid>
+                                </Border>
+                            </StackPanel>
+
                         </StackPanel>
-
-                        <StackPanel Grid.Row="0" Grid.Column="2">
-                            <TextBlock Text="Civil Registry ID" Foreground="#6B778C" FontSize="12" Margin="0,0,0,6"/>
-                            <Border CornerRadius="10" BorderBrush="#EEF2FF" BorderThickness="1" Background="White" Padding="10,6">
-                                <TextBox Text="{Binding PendingRelease.CivilRegistryId, TargetNullValue=''}"
-                                 BorderThickness="0" Background="Transparent"
-                                 Foreground="#2E3A59" IsReadOnly="True"/>
-                            </Border>
-                        </StackPanel>
-
-                        <!-- Row 1 -->
-                        <StackPanel Grid.Row="1" Grid.Column="0" Margin="0,12,0,0">
-                            <TextBlock Text="First Name" Foreground="#6B778C" FontSize="12" Margin="0,0,0,6"/>
-                            <Border CornerRadius="10" BorderBrush="#EEF2FF" BorderThickness="1" Background="White" Padding="10,6">
-                                <TextBox Text="{Binding PendingRelease.FirstName, TargetNullValue=''}"
-                                 BorderThickness="0" Background="Transparent"
-                                 Foreground="#2E3A59" IsReadOnly="True"/>
-                            </Border>
-                        </StackPanel>
-
-                        <StackPanel Grid.Row="1" Grid.Column="2" Margin="0,12,0,0">
-                            <TextBlock Text="Middle Name" Foreground="#6B778C" FontSize="12" Margin="0,0,0,6"/>
-                            <Border CornerRadius="10" BorderBrush="#EEF2FF" BorderThickness="1" Background="White" Padding="10,6">
-                                <TextBox Text="{Binding PendingRelease.MiddleName, TargetNullValue=''}"
-                                 BorderThickness="0" Background="Transparent"
-                                 Foreground="#2E3A59" IsReadOnly="True"/>
-                            </Border>
-                        </StackPanel>
-
-                        <!-- Row 2 -->
-                        <StackPanel Grid.Row="2" Grid.Column="0" Margin="0,12,0,0">
-                            <TextBlock Text="Gender" Foreground="#6B778C" FontSize="12" Margin="0,0,0,6"/>
-                            <Border CornerRadius="10" BorderBrush="#EEF2FF" BorderThickness="1" Background="White" Padding="10,6">
-                                <TextBox Text="{Binding PendingRelease.Gender, TargetNullValue=''}"
-                                 BorderThickness="0" Background="Transparent"
-                                 Foreground="#2E3A59" IsReadOnly="True"/>
-                            </Border>
-                        </StackPanel>
-
-                        <StackPanel Grid.Row="2" Grid.Column="2" Margin="0,12,0,0">
-                            <TextBlock Text="Last Name" Foreground="#6B778C" FontSize="12" Margin="0,0,0,6"/>
-                            <Border CornerRadius="10" BorderBrush="#EEF2FF" BorderThickness="1" Background="White" Padding="10,6">
-                                <TextBox Text="{Binding PendingRelease.LastName, TargetNullValue=''}"
-                                 BorderThickness="0" Background="Transparent"
-                                 Foreground="#2E3A59" IsReadOnly="True"/>
-                            </Border>
-                        </StackPanel>
-
-                        <!-- Row 3 -->
-                        <StackPanel Grid.Row="3" Grid.Column="0" Margin="0,12,0,0">
-                            <TextBlock Text="Barangay" Foreground="#6B778C" FontSize="12" Margin="0,0,0,6"/>
-                            <Border CornerRadius="10" BorderBrush="#EEF2FF" BorderThickness="1" Background="White" Padding="10,6">
-                                <TextBox Text="{Binding PendingRelease.Barangay, TargetNullValue=''}"
-                                 BorderThickness="0" Background="Transparent"
-                                 Foreground="#2E3A59" IsReadOnly="True"/>
-                            </Border>
-                        </StackPanel>
-
-                        <StackPanel Grid.Row="3" Grid.Column="2" Margin="0,12,0,0">
-                            <TextBlock Text="Classification" Foreground="#6B778C" FontSize="12" Margin="0,0,0,6"/>
-                            <Border CornerRadius="10" BorderBrush="#EEF2FF" BorderThickness="1" Background="White" Padding="10,6">
-                                <TextBox Text="{Binding PendingRelease.Classification, TargetNullValue=''}"
-                                 BorderThickness="0" Background="Transparent"
-                                 Foreground="#2E3A59" IsReadOnly="True"/>
-                            </Border>
-                        </StackPanel>
-
-                        <!-- Row 4 (full width) -->
-                        <StackPanel Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="3" Margin="0,12,0,0">
-                            <TextBlock Text="Present Address" Foreground="#6B778C" FontSize="12" Margin="0,0,0,6"/>
-                            <Border CornerRadius="10" BorderBrush="#EEF2FF" BorderThickness="1" Background="White" Padding="10,6">
-                                <TextBox Text="{Binding PendingRelease.PresentAddress, TargetNullValue=''}"
-                                 BorderThickness="0" Background="Transparent"
-                                 Foreground="#2E3A59" IsReadOnly="True"/>
-                            </Border>
-                        </StackPanel>
-
-                        <!-- Row 5 (full width) -->
-                        <StackPanel Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="3" Margin="0,12,0,0">
-                            <TextBlock Text="Share to Release" Foreground="#6B778C" FontSize="12" Margin="0,0,0,6"/>
-                            <Border CornerRadius="10" BorderBrush="#EEF2FF" BorderThickness="1" Background="White" Padding="10,6">
-                                <TextBlock Text="{Binding PendingRelease.ShareText}"
-                   Foreground="#2E3A59"
-                   FontWeight="SemiBold"
-                   VerticalAlignment="Center"/>
-                            </Border>
-                        </StackPanel>
-                    </Grid>
+                    </ScrollViewer>
 
                     <!-- buttons -->
-                    <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,16,0,0">
+                    <StackPanel Grid.Row="2"
+                        Orientation="Horizontal"
+                        HorizontalAlignment="Right"
+                        Margin="0,16,0,0">
                         <Button Content="Cancel"
                         Width="140" Height="40"
                         Background="Transparent"

@@ -180,11 +180,15 @@ WHERE allotment_id = @aid AND beneficiary_id = @bid;";
         public void MarkReleased(int allotmentId, int beneficiaryId)
         {
             using var conn = MySqlDb.OpenConnection();
-            using var cmd = conn.CreateCommand();
 
+            // ✅ ensure column exists (safe even if you forgot to run SQL)
+            EnsureDateReleasedColumn(conn);
+
+            using var cmd = conn.CreateCommand();
             cmd.CommandText = @"
 UPDATE allotment_beneficiaries
-SET is_released = 1
+SET is_released = 1,
+    date_released = COALESCE(date_released, CURRENT_TIMESTAMP)
 WHERE allotment_id = @aid AND beneficiary_id = @bid;";
 
             cmd.Parameters.AddWithValue("@aid", allotmentId);
@@ -293,6 +297,77 @@ VALUES (@a, @b);";
             }
 
             tx.Commit();
+        }
+
+        private static bool _checkedDateReleased;
+
+        private static void EnsureDateReleasedColumn(MySqlConnection conn)
+        {
+            if (_checkedDateReleased) return;
+
+            using var check = conn.CreateCommand();
+            check.CommandText = @"
+SELECT COUNT(*)
+FROM information_schema.columns
+WHERE table_schema = DATABASE()
+  AND table_name = 'allotment_beneficiaries'
+  AND column_name = 'date_released';";
+
+            var exists = Convert.ToInt32(check.ExecuteScalar()) > 0;
+            if (!exists)
+            {
+                using var alter = conn.CreateCommand();
+                alter.CommandText = @"ALTER TABLE allotment_beneficiaries ADD COLUMN date_released DATETIME NULL;";
+                alter.ExecuteNonQuery();
+            }
+
+            _checkedDateReleased = true;
+        }
+
+        public sealed class ReleaseHistoryRow
+        {
+            public int AllotmentId { get; set; }
+            public DateTime ReleasedAt { get; set; }
+            public decimal? ShareAmount { get; set; }
+            public int? ShareQty { get; set; }
+            public string? ShareUnit { get; set; }
+        }
+
+        public List<ReleaseHistoryRow> GetReleaseHistory(int beneficiaryInternalId)
+        {
+            using var conn = MySqlDb.OpenConnection();
+            EnsureDateReleasedColumn(conn);
+
+            using var cmd = conn.CreateCommand();
+            cmd.CommandText = @"
+SELECT
+  allotment_id,
+  share_amount,
+  share_qty,
+  share_unit,
+  COALESCE(date_released, updated_at) AS released_at
+FROM allotment_beneficiaries
+WHERE beneficiary_id = @bid
+  AND is_released = 1
+ORDER BY released_at DESC;";
+            cmd.Parameters.AddWithValue("@bid", beneficiaryInternalId);
+
+            var list = new List<ReleaseHistoryRow>();
+            using var r = cmd.ExecuteReader();
+
+            while (r.Read())
+            {
+                list.Add(new ReleaseHistoryRow
+                {
+                    AllotmentId = Convert.ToInt32(r["allotment_id"]),
+                    ShareAmount = r["share_amount"] == DBNull.Value ? null : (decimal?)Convert.ToDecimal(r["share_amount"]),
+                    ShareQty = r["share_qty"] == DBNull.Value ? null : (int?)Convert.ToInt32(r["share_qty"]),
+                    ShareUnit = r["share_unit"] == DBNull.Value ? null : Convert.ToString(r["share_unit"]),
+                    ReleasedAt = Convert.ToDateTime(r["released_at"])
+                });
+            }
+
+            return list;
         }
     }
 }

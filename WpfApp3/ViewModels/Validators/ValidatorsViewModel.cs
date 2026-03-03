@@ -9,6 +9,7 @@ using System.Linq;
 using System.Windows;
 using WpfApp3.Models;
 using WpfApp3.Services;
+using System.Globalization;
 
 
 namespace WpfApp3.ViewModels.Validators
@@ -29,6 +30,11 @@ namespace WpfApp3.ViewModels.Validators
     public partial class ValidatorsViewModel : ObservableObject
     {
         private readonly BeneficiariesRepository _repo = new();
+        private readonly AllotmentBeneficiariesRepository _releaseRepo = new();
+
+        public ObservableCollection<ReleaseHistoryItem> ReleaseHistory { get; } = new();
+
+        public bool HasReleaseHistory => ReleaseHistory.Count > 0;
 
         // This represents the EXTERNAL DATABASE source (replace later with real external DB pull)
         private readonly List<ValidatorRecord> _externalPeople = new();
@@ -378,18 +384,25 @@ namespace WpfApp3.ViewModels.Validators
             OnPropertyChanged(nameof(NotYetFoundText));
         }
 
-        // ✅ OPEN PROFILE MODAL FROM TABLE ROW (pencil)
         [RelayCommand]
         private void OpenProfileModal(ValidatorRecord? person)
         {
             if (person is null) return;
             SelectedPerson = person;
-            IsProfileModalOpen = true;
 
+            LoadReleaseHistoryForSelected();   // ✅ add this
+
+            IsProfileModalOpen = true;
             IsAddingProfile = false;
         }
 
-        [RelayCommand] private void CloseProfileModal() => IsProfileModalOpen = false;
+        [RelayCommand]
+        private void CloseProfileModal()
+        {
+            IsProfileModalOpen = false;
+            ReleaseHistory.Clear();
+            OnPropertyChanged(nameof(HasReleaseHistory));
+        }
 
         // ===== Save profile confirm modal =====
         [RelayCommand]
@@ -512,6 +525,59 @@ namespace WpfApp3.ViewModels.Validators
             if (string.IsNullOrWhiteSpace(value)) return 0;
             var digits = new string(value.Where(char.IsDigit).ToArray());
             return int.TryParse(digits, out var n) ? n : 0;
+        }
+
+        private void LoadReleaseHistoryForSelected()
+        {
+            ReleaseHistory.Clear();
+            OnPropertyChanged(nameof(HasReleaseHistory));
+
+            var p = SelectedPerson;
+            if (p is null) return;
+
+            // must exist in beneficiaries table to have releases
+            var internalId = _repo.GetInternalIdByBeneficiaryId(p.BeneficiaryId);
+            if (internalId is null) return;
+
+            var rows = _releaseRepo.GetReleaseHistory(internalId.Value);
+
+            var items = rows.Select(x =>
+            {
+                var share = x.ShareAmount is not null
+                    ? $"₱ {x.ShareAmount.Value:N2}"
+                    : (x.ShareQty is not null
+                        ? $"{x.ShareQty.Value} {x.ShareUnit}".Trim()
+                        : "-");
+
+                return new ReleaseHistoryItem
+                {
+                    AllotmentId = x.AllotmentId,
+                    ReleasedAt = x.ReleasedAt,
+                    ShareText = share
+                };
+            }).ToList();
+
+            for (int i = 0; i < items.Count; i++)
+                items[i].IsLast = (i == items.Count - 1);
+
+            foreach (var it in items)
+                ReleaseHistory.Add(it);
+
+            OnPropertyChanged(nameof(HasReleaseHistory));
+        }
+
+        public sealed class ReleaseHistoryItem
+        {
+            public int AllotmentId { get; set; }
+            public DateTime ReleasedAt { get; set; }
+            public string ShareText { get; set; } = "";
+
+            public bool IsLast { get; set; }
+
+            public string ReleasedAtText =>
+                ReleasedAt.ToString("MMM dd, yyyy • hh:mm tt", CultureInfo.InvariantCulture);
+
+            public string Description => $"Allotment #{AllotmentId} • {ShareText}";
         }
     }
 }

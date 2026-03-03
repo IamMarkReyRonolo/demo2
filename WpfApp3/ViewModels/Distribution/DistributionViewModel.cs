@@ -2,10 +2,11 @@
 using CommunityToolkit.Mvvm.Input;
 using System.Collections.ObjectModel;
 using System.Globalization;
-using WpfApp3.Models;
-using WpfApp3.Services;
 using System.IO;
 using System.Windows.Media.Imaging;
+using WpfApp3.Models;
+using WpfApp3.Services;
+using static WpfApp3.ViewModels.Validators.ValidatorsViewModel;
 
 namespace WpfApp3.ViewModels.Distribution
 {
@@ -87,6 +88,8 @@ namespace WpfApp3.ViewModels.Distribution
         [ObservableProperty] private BitmapImage? confirmProfileImagePreview;
 
         public bool ConfirmHasProfileImage => ConfirmProfileImagePreview != null;
+        public ObservableCollection<ReleaseHistoryItem> ConfirmReleaseHistory { get; } = new();
+        public bool HasConfirmReleaseHistory => ConfirmReleaseHistory.Count > 0;
 
         public DistributionViewModel()
         {
@@ -301,6 +304,7 @@ namespace WpfApp3.ViewModels.Distribution
             SelectedReleaseRow = hit;
 
             HydratePendingReleaseFromDb(hit);
+            LoadConfirmReleaseHistory(hit.Id);
 
             ConfirmId = hit.BeneficiaryId; // show barcode string
             ConfirmName = $"{hit.FirstName} {hit.LastName}".Trim();
@@ -321,6 +325,8 @@ namespace WpfApp3.ViewModels.Distribution
             PendingRelease = null;
             OnPropertyChanged(nameof(PendingRelease));
             ConfirmProfileImagePreview = null;
+            ConfirmReleaseHistory.Clear();
+            OnPropertyChanged(nameof(HasConfirmReleaseHistory));
         }
 
         [RelayCommand]
@@ -464,6 +470,59 @@ namespace WpfApp3.ViewModels.Distribution
                 ConfirmProfileImagePreview = null;
                 ShowToast($"Failed to load beneficiary details: {ex.Message}", "error");
             }
+        }
+
+
+        public sealed class ReleaseHistoryItem
+        {
+            public int AllotmentId { get; set; }
+            public DateTime ReleasedAt { get; set; }
+            public string ShareText { get; set; } = "";
+            public bool IsLast { get; set; }
+
+            public string ReleasedAtText =>
+                ReleasedAt.ToString("MMM dd, yyyy • hh:mm tt", CultureInfo.InvariantCulture);
+
+            public string Description => $"Allotment #{AllotmentId} • {ShareText}";
+        }
+
+        private void LoadConfirmReleaseHistory(int beneficiaryInternalId)
+        {
+            ConfirmReleaseHistory.Clear();
+
+
+            try
+            {
+                var rows = _assignRepo.GetReleaseHistory(beneficiaryInternalId);
+
+                var items = rows.Select(x =>
+                {
+                    var share = x.ShareAmount is not null
+                        ? $"₱ {x.ShareAmount.Value:N2}"
+                        : (x.ShareQty is not null
+                            ? $"{x.ShareQty.Value} {x.ShareUnit}".Trim()
+                            : "-");
+
+                    return new ReleaseHistoryItem
+                    {
+                        AllotmentId = x.AllotmentId,
+                        ReleasedAt = x.ReleasedAt,
+                        ShareText = share
+                    };
+                }).ToList();
+
+                for (int i = 0; i < items.Count; i++)
+                    items[i].IsLast = (i == items.Count - 1);
+
+                foreach (var it in items)
+                    ConfirmReleaseHistory.Add(it);
+            }
+            catch
+            {
+                // ignore history failures; don't block confirm release
+            }
+
+            OnPropertyChanged(nameof(HasConfirmReleaseHistory));
         }
     }
 }

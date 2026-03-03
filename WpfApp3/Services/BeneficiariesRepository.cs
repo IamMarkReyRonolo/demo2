@@ -265,6 +265,20 @@ ON DUPLICATE KEY UPDATE
             };
         }
 
+        public int? GetInternalIdByBeneficiaryId(string beneficiaryId)
+        {
+            if (string.IsNullOrWhiteSpace(beneficiaryId)) return null;
+
+            using var conn = MySqlDb.OpenConnection();
+            using var cmd = conn.CreateCommand();
+
+            cmd.CommandText = @"SELECT id FROM beneficiaries WHERE beneficiary_id = @b LIMIT 1;";
+            cmd.Parameters.AddWithValue("@b", beneficiaryId.Trim());
+
+            var val = cmd.ExecuteScalar();
+            return val == null || val == DBNull.Value ? null : Convert.ToInt32(val);
+        }
+
 
         public sealed class BeneficiaryDetails
         {
