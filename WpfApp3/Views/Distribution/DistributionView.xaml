@@ -3,11 +3,8 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="clr-namespace:WpfApp3.ViewModels.Distribution"
              xmlns:conv="clr-namespace:WpfApp3.Views.Allotment"
-             Background="White">
+             Background="Transparent">
 
-    <!-- ✅ NOTE:
-         If Designer keeps crashing because of DB connection (EkalingaDb),
-         REMOVE this DataContext block and set DataContext in code-behind instead. -->
     <UserControl.DataContext>
         <vm:DistributionViewModel/>
     </UserControl.DataContext>
@@ -16,7 +13,50 @@
         <BooleanToVisibilityConverter x:Key="BoolToVis"/>
         <conv:EqualsToBoolConverter x:Key="EqualsToBoolConverter"/>
 
-        <!-- Backdrop button (prevents hover turning blue) -->
+        <!-- COLORS -->
+        <SolidColorBrush x:Key="PageBackgroundBrush" Color="#F6F8FC"/>
+        <SolidColorBrush x:Key="CardBrush" Color="#FFFFFF"/>
+        <SolidColorBrush x:Key="AccentBrush" Color="#4F46E5"/>
+        <SolidColorBrush x:Key="AccentHoverBrush" Color="#4338CA"/>
+        <SolidColorBrush x:Key="AccentSoftBrush" Color="#EEF2FF"/>
+        <SolidColorBrush x:Key="BorderBrushSoft" Color="#E7ECF5"/>
+        <SolidColorBrush x:Key="BorderBrushLighter" Color="#F1F5F9"/>
+        <SolidColorBrush x:Key="TextPrimaryBrush" Color="#0F172A"/>
+        <SolidColorBrush x:Key="TextSecondaryBrush" Color="#64748B"/>
+        <SolidColorBrush x:Key="DangerBrush" Color="#E11D48"/>
+        <SolidColorBrush x:Key="DangerHoverBrush" Color="#BE123C"/>
+
+        <DropShadowEffect x:Key="CardShadow"
+                          Color="#1E293B"
+                          BlurRadius="28"
+                          ShadowDepth="0"
+                          Opacity="0.10"/>
+
+        <!-- TEXT -->
+        <Style x:Key="SectionTitleText" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+        </Style>
+
+        <Style x:Key="FieldLabelText" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{StaticResource TextSecondaryBrush}"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Margin" Value="0,0,0,8"/>
+        </Style>
+
+        <!-- GENERIC CARD -->
+        <Style x:Key="CardBorder" TargetType="Border">
+            <Setter Property="Background" Value="{StaticResource CardBrush}"/>
+            <Setter Property="CornerRadius" Value="20"/>
+            <Setter Property="Padding" Value="20"/>
+            <Setter Property="BorderBrush" Value="{StaticResource BorderBrushLighter}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Effect" Value="{StaticResource CardShadow}"/>
+        </Style>
+
+        <!-- Backdrop -->
         <Style x:Key="BackdropButton" TargetType="Button">
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="BorderBrush" Value="{x:Null}"/>
@@ -33,65 +73,34 @@
             </Setter>
         </Style>
 
-        <!-- Icon-like square buttons -->
+        <!-- Icon button -->
         <Style x:Key="IconButton" TargetType="Button">
-            <Setter Property="Width" Value="40"/>
-            <Setter Property="Height" Value="40"/>
+            <Setter Property="Width" Value="42"/>
+            <Setter Property="Height" Value="42"/>
             <Setter Property="Padding" Value="0"/>
-            <Setter Property="Background" Value="#2E3A59"/>
+            <Setter Property="Background" Value="{StaticResource AccentBrush}"/>
             <Setter Property="Foreground" Value="White"/>
             <Setter Property="BorderBrush" Value="Transparent"/>
             <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
-                        <Border Background="{TemplateBinding Background}" CornerRadius="12">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <!-- Primary button -->
-        <Style x:Key="PrimaryButton" TargetType="Button">
-            <Setter Property="Background" Value="#2E3A59"/>
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="BorderBrush" Value="Transparent"/>
-            <Setter Property="Padding" Value="16,10"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border Background="{TemplateBinding Background}"
-                                CornerRadius="12"
-                                Padding="{TemplateBinding Padding}">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <!-- Pagination button base -->
-        <Style x:Key="PageButton" TargetType="Button">
-            <Setter Property="MinWidth" Value="34"/>
-            <Setter Property="Height" Value="30"/>
-            <Setter Property="Margin" Value="4,0"/>
-            <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="BorderBrush" Value="Transparent"/>
-            <Setter Property="Foreground" Value="#2E3A59"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border x:Name="Bd" CornerRadius="8" Background="{TemplateBinding Background}" Padding="10,4">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        <Border x:Name="Bd"
+                                Background="{TemplateBinding Background}"
+                                CornerRadius="12">
+                            <ContentPresenter HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"/>
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Bd" Property="Background" Value="#EEF2FF"/>
+                                <Setter TargetName="Bd" Property="Background" Value="{StaticResource AccentHoverBrush}"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Bd" Property="Opacity" Value="0.92"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="Bd" Property="Opacity" Value="0.55"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -99,10 +108,161 @@
             </Setter>
         </Style>
 
-        <!-- Centering -->
+        <!-- Primary button -->
+        <Style x:Key="PrimaryButton" TargetType="Button">
+            <Setter Property="Background" Value="{StaticResource AccentBrush}"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderBrush" Value="Transparent"/>
+            <Setter Property="Padding" Value="18,11"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Bd"
+                                Background="{TemplateBinding Background}"
+                                CornerRadius="12"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="{StaticResource AccentHoverBrush}"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Bd" Property="Opacity" Value="0.92"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="Bd" Property="Opacity" Value="0.55"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Light button -->
+        <Style x:Key="LightButton" TargetType="Button">
+            <Setter Property="Background" Value="#F8FAFC"/>
+            <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource BorderBrushSoft}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="16,10"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Bd"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="12"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="#F1F5F9"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Pagination -->
+        <Style x:Key="PageButton" TargetType="Button">
+            <Setter Property="MinWidth" Value="38"/>
+            <Setter Property="Height" Value="34"/>
+            <Setter Property="Margin" Value="4,0"/>
+            <Setter Property="Padding" Value="10,4"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderBrush" Value="Transparent"/>
+            <Setter Property="Foreground" Value="{StaticResource TextSecondaryBrush}"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Bd"
+                                CornerRadius="10"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="1"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="{StaticResource AccentSoftBrush}"/>
+                                <Setter TargetName="Bd" Property="BorderBrush" Value="{StaticResource AccentSoftBrush}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Input fix -->
+        <Style x:Key="InputBorderStyle" TargetType="Border">
+            <Setter Property="Height" Value="42"/>
+            <Setter Property="Padding" Value="14,0"/>
+            <Setter Property="CornerRadius" Value="12"/>
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="BorderBrush" Value="{StaticResource BorderBrushSoft}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Style.Triggers>
+                <Trigger Property="IsKeyboardFocusWithin" Value="True">
+                    <Setter Property="BorderBrush" Value="{StaticResource AccentBrush}"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="ReadOnlyInputBorderStyle" TargetType="Border" BasedOn="{StaticResource InputBorderStyle}">
+            <Setter Property="Background" Value="#F8FAFC"/>
+        </Style>
+
+        <Style x:Key="PlainInputTextBox" TargetType="TextBox">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+            <Setter Property="CaretBrush" Value="{StaticResource TextPrimaryBrush}"/>
+            <Setter Property="SelectionBrush" Value="#C7D2FE"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+        </Style>
+
+        <!-- Combo -->
+        <Style x:Key="ModernComboBox" TargetType="ComboBox">
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+            <Setter Property="Padding" Value="12,8"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="MinHeight" Value="42"/>
+        </Style>
+
+        <!-- Rounded confirm -->
+        <Style x:Key="RoundedPrimary" TargetType="Button" BasedOn="{StaticResource PrimaryButton}">
+            <Setter Property="Width" Value="140"/>
+            <Setter Property="Height" Value="42"/>
+            <Setter Property="Padding" Value="0"/>
+        </Style>
+
+        <!-- Cell alignment -->
         <Style x:Key="CenteredCellStyle" TargetType="DataGridCell">
             <Setter Property="VerticalContentAlignment" Value="Center"/>
-            <Setter Property="Padding" Value="6,0"/>
+            <Setter Property="Padding" Value="8,0"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
         </Style>
@@ -110,29 +270,41 @@
         <Style x:Key="CenteredTextBlockStyle" TargetType="TextBlock">
             <Setter Property="Padding" Value="10,0"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
         </Style>
 
-        <!-- Modal TextBox -->
-        <Style x:Key="ModalTextBox" TargetType="TextBox">
-            <Setter Property="Height" Value="38"/>
-            <Setter Property="Padding" Value="14,0"/>
-            <Setter Property="BorderBrush" Value="#E5ECFA"/>
-            <Setter Property="Background" Value="White"/>
-            <Setter Property="VerticalContentAlignment" Value="Center"/>
-        </Style>
-
-        <!-- Rounded confirm button -->
-        <Style x:Key="RoundedPrimary" TargetType="Button" BasedOn="{StaticResource PrimaryButton}">
-            <Setter Property="Width" Value="140"/>
-            <Setter Property="Height" Value="40"/>
-            <Setter Property="Padding" Value="0"/>
+        <!-- Close button -->
+        <Style x:Key="CloseButtonStyle" TargetType="Button">
+            <Setter Property="Width" Value="34"/>
+            <Setter Property="Height" Value="34"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderBrush" Value="Transparent"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Bd"
+                                CornerRadius="10"
+                                Background="Transparent">
+                            <ContentPresenter HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="#F1F5F9"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
         </Style>
     </UserControl.Resources>
 
-    <Grid Background="white">
+    <Grid Background="{StaticResource PageBackgroundBrush}">
 
         <!-- PAGE -->
-        <Grid Margin="15">
+        <Grid Margin="24">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
@@ -141,137 +313,133 @@
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
 
-            <!-- Top row: project dropdown + eye + total budget -->
-            <Grid Grid.Row="0" Margin="0,6,0,8">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                </Grid.RowDefinitions>
+            <!-- TOP CARD -->
+            <Border Grid.Row="0"
+                    Style="{StaticResource CardBorder}"
+                    Margin="0,0,0,16">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
 
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="320"/>
-                    <ColumnDefinition Width="52"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="340"/>
+                        <ColumnDefinition Width="56"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
 
-                <!-- Label -->
-                <TextBlock Grid.Row="0"
-               Grid.Column="0"
-               Text="Select Project/Allotment"
-               Foreground="#6B778C"
-               FontSize="11"
-               FontWeight="SemiBold"
-               Margin="6,0,0,6"/>
+                    <TextBlock Grid.Row="0"
+                               Grid.Column="0"
+                               Text="Select Project / Allotment"
+                               Style="{StaticResource FieldLabelText}"/>
 
-                <!-- Dropdown -->
-                <Border Grid.Row="1"
-            Grid.Column="0"
-            CornerRadius="12"
-            Background="White"
-            Padding="12,6">
-                    <ComboBox ItemsSource="{Binding Projects}"
-                  SelectedItem="{Binding SelectedProject}"
-                  DisplayMemberPath="ProjectName"
-                                    BorderThickness="1"
-Padding="14,7"
-                  Background="Transparent"
-                  Foreground="#2E3A59"
-                  FontSize="12"/>
-                </Border>
+                    <Border Grid.Row="1"
+                            Grid.Column="0"
+                            CornerRadius="14"
+                            BorderBrush="{StaticResource BorderBrushSoft}"
+                            BorderThickness="1"
+                            Background="#FCFDFE">
+                        <ComboBox ItemsSource="{Binding Projects}"
+                                  SelectedItem="{Binding SelectedProject}"
+                                  DisplayMemberPath="ProjectName"
+                                  Style="{StaticResource ModernComboBox}"/>
+                    </Border>
 
-                <!-- Eye button (align with dropdown row) -->
-                <Button Grid.Row="1"
-            Grid.Column="1"
-            Style="{StaticResource IconButton}"
-            Margin="10,0,0,0"
-            Content="👁"
-            Command="{Binding OpenProjectDetailsCommand}"/>
+                    <Button Grid.Row="1"
+                            Grid.Column="1"
+                            Style="{StaticResource IconButton}"
+                            Margin="10,0,0,0"
+                            Command="{Binding OpenProjectDetailsCommand}">
+                        <TextBlock FontFamily="Segoe MDL2 Assets"
+                                   Text="&#xE890;"
+                                   FontSize="15"
+                                   Foreground="White"
+                                   VerticalAlignment="Center"
+                                   HorizontalAlignment="Center"/>
+                    </Button>
 
-                <!-- Total Budget (align with dropdown row) -->
-                <TextBlock Grid.Row="1"
-               Grid.Column="3"
-               FontSize="18"
-               Text="{Binding TotalBudgetText}"
-               Foreground="#2E3A59"
-               FontWeight="SemiBold"
-               VerticalAlignment="Center"/>
-            </Grid>
+                    <StackPanel Grid.Row="1"
+                                Grid.Column="3"
+                                VerticalAlignment="Center">
+                        <TextBlock Text="Total Budget"
+                                   Foreground="{StaticResource TextSecondaryBrush}"
+                                   FontSize="11"
+                                   FontWeight="SemiBold"
+                                   HorizontalAlignment="Right"/>
+                        <TextBlock Text="{Binding TotalBudgetText}"
+                                   Foreground="{StaticResource TextPrimaryBrush}"
+                                   FontSize="22"
+                                   FontWeight="Bold"
+                                   HorizontalAlignment="Right"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
 
-            <!-- Release button row -->
-            <!-- Release button row + Classification filter -->
-            <Grid Grid.Row="1" Margin="0,6,0,10">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                </Grid.RowDefinitions>
+            <!-- ACTION / FILTER CARD -->
+            <Border Grid.Row="1"
+                    Style="{StaticResource CardBorder}"
+                    Margin="0,0,0,10">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
 
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
 
-                <TextBlock Grid.Row="0"
-               Grid.Column="0"
-               Text="Endorsed Beneficiaries"
-               Foreground="#2E3A59"
-               FontWeight="SemiBold"
-               FontSize="13"
-               VerticalAlignment="Center"/>
+                    <TextBlock Grid.Row="0"
+                               Grid.Column="0"
+                               Text="Endorsed Beneficiaries"
+                               Style="{StaticResource SectionTitleText}"
+                               VerticalAlignment="Center"/>
 
-                <Button Grid.Row="0"
-            Grid.Column="1"
-            Grid.RowSpan="3"
-            Style="{StaticResource PrimaryButton}"
-            Command="{Binding OpenReleaseSessionCommand}"
-            Content="Release"
-            VerticalAlignment="Center"/>
+                    <Button Grid.Row="0"
+                            Grid.Column="1"
+                            Grid.RowSpan="3"
+                            Style="{StaticResource PrimaryButton}"
+                            Command="{Binding OpenReleaseSessionCommand}"
+                            Content="Release"
+                            VerticalAlignment="Center"/>
 
-                <TextBlock Grid.Row="1"
-               Grid.Column="0"
-               Text="Select Classification"
-               Foreground="#6B778C"
-               FontSize="11"
-               FontWeight="SemiBold"
-               Margin="0,8,0,6"
-               HorizontalAlignment="Left"
-                           />
+                    <TextBlock Grid.Row="1"
+                               Grid.Column="0"
+                               Text="Select Classification"
+                               Style="{StaticResource FieldLabelText}"
+                               Margin="0,14,0,8"
+                               HorizontalAlignment="Left"/>
 
-                <Border Grid.Row="2"
-            Grid.Column="0"
-            Width="320"
-            HorizontalAlignment="Left"
-            CornerRadius="12"
-            Background="White"
-            Padding="12,6">
-                    <ComboBox ItemsSource="{Binding ClassificationOptions}"
-                  SelectedItem="{Binding SelectedClassification}"
-                  Background="Transparent"
-                  Foreground="#2E3A59"
-                                                BorderThickness="1"
-Padding="14,7"
-                  FontSize="12"/>
-                </Border>
-            </Grid>
+                    <Border Grid.Row="2"
+                            Grid.Column="0"
+                            Width="340"
+                            HorizontalAlignment="Left"
+                            CornerRadius="14"
+                            BorderBrush="{StaticResource BorderBrushSoft}"
+                            BorderThickness="1"
+                            Background="#FCFDFE">
+                        <ComboBox ItemsSource="{Binding ClassificationOptions}"
+                                  SelectedItem="{Binding SelectedClassification}"
+                                  Style="{StaticResource ModernComboBox}"/>
+                    </Border>
+                </Grid>
+            </Border>
 
-            <!-- Found text -->
+            <!-- FOUND TEXT -->
             <TextBlock Grid.Row="2"
                        Text="{Binding FoundText}"
-                       Foreground="#6B778C"
+                       Foreground="{StaticResource TextSecondaryBrush}"
                        FontSize="12"
-                       Margin="2,0,0,10"/>
+                       Margin="4,0,0,12"/>
 
-            <!-- Table -->
+            <!-- TABLE CARD -->
             <Border Grid.Row="3"
-                    CornerRadius="18"
-                    Background="White"
-                    Padding="10"
-                    Margin="0,6,0,0">
-                <Border.Effect>
-                    <DropShadowEffect BlurRadius="18" ShadowDepth="2" Opacity="0.06"/>
-                </Border.Effect>
-
+                    Style="{StaticResource CardBorder}"
+                    Padding="12">
                 <DataGrid ItemsSource="{Binding Items}"
                           AutoGenerateColumns="False"
                           CanUserAddRows="False"
@@ -281,9 +449,9 @@ Padding="14,7"
                           Background="Transparent"
                           BorderThickness="0"
                           FontSize="12"
-                          Foreground="#2E3A59"
-                          ColumnHeaderHeight="42"
-                          RowHeight="48"
+                          Foreground="{StaticResource TextPrimaryBrush}"
+                          ColumnHeaderHeight="44"
+                          RowHeight="50"
                           IsReadOnly="True"
                           SelectionUnit="FullRow"
                           SelectionMode="Single"
@@ -291,19 +459,33 @@ Padding="14,7"
 
                     <DataGrid.Resources>
                         <Style TargetType="DataGridColumnHeader">
-                            <Setter Property="Foreground" Value="#6B86D6"/>
+                            <Setter Property="Foreground" Value="{StaticResource TextSecondaryBrush}"/>
                             <Setter Property="FontWeight" Value="SemiBold"/>
-                            <Setter Property="BorderBrush" Value="#EEF2FF"/>
+                            <Setter Property="BorderBrush" Value="{StaticResource BorderBrushLighter}"/>
                             <Setter Property="BorderThickness" Value="0,0,0,1"/>
                             <Setter Property="Background" Value="Transparent"/>
                             <Setter Property="VerticalContentAlignment" Value="Center"/>
-                            <Setter Property="Padding" Value="8,0"/>
+                            <Setter Property="Padding" Value="10,0"/>
                         </Style>
 
                         <Style TargetType="DataGridRow">
-                            <Setter Property="BorderBrush" Value="#EEF2FF"/>
+                            <Setter Property="BorderBrush" Value="{StaticResource BorderBrushLighter}"/>
                             <Setter Property="BorderThickness" Value="0,0,0,1"/>
                             <Setter Property="Background" Value="Transparent"/>
+                            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+                            <Style.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter Property="Background" Value="#FAFBFF"/>
+                                </Trigger>
+                                <Trigger Property="IsSelected" Value="True">
+                                    <Setter Property="Background" Value="{StaticResource AccentSoftBrush}"/>
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+
+                        <Style TargetType="DataGridCell" BasedOn="{StaticResource CenteredCellStyle}">
+                            <Setter Property="Background" Value="Transparent"/>
+                            <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
                             <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
                         </Style>
                     </DataGrid.Resources>
@@ -344,13 +526,16 @@ Padding="14,7"
                 </DataGrid>
             </Border>
 
-            <!-- Pagination -->
-            <StackPanel Grid.Row="4" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,16,0,0">
+            <!-- PAGINATION -->
+            <StackPanel Grid.Row="4"
+                        Orientation="Horizontal"
+                        HorizontalAlignment="Center"
+                        Margin="0,18,0,0">
                 <Button Content="Previous"
-            Style="{StaticResource PageButton}"
-            Command="{Binding PreviousPageCommand}"/>
+                        Style="{StaticResource PageButton}"
+                        Command="{Binding PreviousPageCommand}"/>
 
-                <ItemsControl ItemsSource="{Binding PageNumbers}" Margin="6,0">
+                <ItemsControl ItemsSource="{Binding PageNumbers}" Margin="8,0">
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>
                             <StackPanel Orientation="Horizontal"/>
@@ -360,8 +545,8 @@ Padding="14,7"
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
                             <Button Content="{Binding}"
-                        Command="{Binding DataContext.GoToPageCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                        CommandParameter="{Binding}">
+                                    Command="{Binding DataContext.GoToPageCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                    CommandParameter="{Binding}">
                                 <Button.Style>
                                     <Style TargetType="Button" BasedOn="{StaticResource PageButton}">
                                         <Style.Triggers>
@@ -370,10 +555,11 @@ Padding="14,7"
                                                     <MultiBinding Converter="{StaticResource EqualsToBoolConverter}">
                                                         <Binding/>
                                                         <Binding Path="DataContext.CurrentPage"
-                                                     RelativeSource="{RelativeSource AncestorType=UserControl}"/>
+                                                                 RelativeSource="{RelativeSource AncestorType=UserControl}"/>
                                                     </MultiBinding>
                                                 </DataTrigger.Binding>
-                                                <Setter Property="Background" Value="#2E3A59"/>
+                                                <Setter Property="Background" Value="{StaticResource AccentBrush}"/>
+                                                <Setter Property="BorderBrush" Value="{StaticResource AccentBrush}"/>
                                                 <Setter Property="Foreground" Value="White"/>
                                             </DataTrigger>
                                         </Style.Triggers>
@@ -385,177 +571,203 @@ Padding="14,7"
                 </ItemsControl>
 
                 <Button Content="Next"
-            Style="{StaticResource PageButton}"
-            Command="{Binding NextPageCommand}"/>
+                        Style="{StaticResource PageButton}"
+                        Command="{Binding NextPageCommand}"/>
             </StackPanel>
         </Grid>
 
-        <!-- ================= TOAST ================= -->
+        <!-- TOAST -->
         <Border Panel.ZIndex="1000"
                 Background="{Binding ToastBackground}"
-                CornerRadius="12"
-                Padding="12"
+                CornerRadius="14"
+                Padding="14,10"
                 HorizontalAlignment="Right"
                 VerticalAlignment="Top"
-                Margin="0,18,18,0"
+                Margin="0,20,20,0"
                 Visibility="{Binding IsToastVisible, Converter={StaticResource BoolToVis}}">
-            <TextBlock Text="{Binding ToastMessage}" Foreground="White" FontWeight="SemiBold"/>
+            <Border.Effect>
+                <DropShadowEffect Color="#1E293B"
+                                  BlurRadius="18"
+                                  ShadowDepth="0"
+                                  Opacity="0.16"/>
+            </Border.Effect>
+            <TextBlock Text="{Binding ToastMessage}"
+                       Foreground="White"
+                       FontWeight="SemiBold"/>
         </Border>
 
-        <!-- ================= RELEASE SESSION MODAL ================= -->
+        <!-- RELEASE SESSION MODAL -->
         <Grid Panel.ZIndex="900"
               Visibility="{Binding IsReleaseSessionOpen, Converter={StaticResource BoolToVis}}">
-            <Border Background="#80000000"/>
-            <Button Style="{StaticResource BackdropButton}" Command="{Binding CloseReleaseSessionCommand}"/>
+            <Border Background="#660F172A"/>
+            <Button Style="{StaticResource BackdropButton}"
+                    Command="{Binding CloseReleaseSessionCommand}"/>
 
-            <Border Width="980"
-                    CornerRadius="18"
+            <Border Width="1020"
+                    CornerRadius="24"
                     Background="White"
+                    BorderBrush="{StaticResource BorderBrushLighter}"
+                    BorderThickness="1"
                     HorizontalAlignment="Center"
                     VerticalAlignment="Center"
-                    MaxHeight="700">
+                    MaxHeight="720"
+                    Effect="{StaticResource CardShadow}">
 
-                <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-                    <!-- ✅ Grid has no Padding, use Margin -->
-                    <Grid Margin="18">
+                <ScrollViewer VerticalScrollBarVisibility="Auto"
+                              HorizontalScrollBarVisibility="Disabled">
+                    <Grid Margin="22">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
-                            <!-- header -->
                             <RowDefinition Height="Auto"/>
-                            <!-- details + scan -->
                             <RowDefinition Height="Auto"/>
-                            <!-- classification filter -->
                             <RowDefinition Height="*"/>
-                            <!-- table + pagination -->
                         </Grid.RowDefinitions>
 
-                        <!-- header -->
+                        <!-- Header -->
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition/>
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
 
-                            <TextBlock Text="Release"
-                                       FontSize="18"
+                            <TextBlock Text="Release Session"
+                                       FontSize="20"
                                        FontWeight="Bold"
-                                       Foreground="#2E3A59"/>
+                                       Foreground="{StaticResource TextPrimaryBrush}"/>
 
                             <Button Grid.Column="1"
-                                    Content="✕"
-                                    Width="30" Height="30"
-                                    Background="Transparent"
-                                    BorderBrush="Transparent"
-                                    Cursor="Hand"
-                                    Command="{Binding CloseReleaseSessionCommand}"/>
+                                    Style="{StaticResource CloseButtonStyle}"
+                                    Command="{Binding CloseReleaseSessionCommand}">
+                                <TextBlock FontFamily="Segoe MDL2 Assets"
+                                           Text="&#xE8BB;"
+                                           FontSize="12"
+                                           Foreground="{StaticResource TextSecondaryBrush}"/>
+                            </Button>
                         </Grid>
 
-                        <!-- details + scan -->
-                        <Grid Grid.Row="1" Margin="0,12,0,12">
+                        <!-- Top details -->
+                        <Grid Grid.Row="1" Margin="0,18,0,14">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition/>
                                 <ColumnDefinition Width="24"/>
-                                <ColumnDefinition Width="320"/>
+                                <ColumnDefinition Width="340"/>
                             </Grid.ColumnDefinitions>
 
-                            <StackPanel>
-                                <TextBlock Text="{Binding SelectedProject.ProjectName}"
-               Foreground="#2E3A59"
-               FontWeight="SemiBold"/>
+                            <Border Grid.Column="0"
+                                    CornerRadius="18"
+                                    Background="#F8FAFC"
+                                    BorderBrush="{StaticResource BorderBrushSoft}"
+                                    BorderThickness="1"
+                                    Padding="16">
+                                <StackPanel>
+                                    <TextBlock Text="{Binding SelectedProject.ProjectName}"
+                                               Foreground="{StaticResource TextPrimaryBrush}"
+                                               FontWeight="SemiBold"
+                                               FontSize="15"/>
 
-                                <TextBlock Text="{Binding TotalBudgetText}"
-               Foreground="#6B778C"
-               Margin="0,4,0,0"/>
+                                    <TextBlock Text="{Binding TotalBudgetText}"
+                                               Foreground="{StaticResource TextSecondaryBrush}"
+                                               Margin="0,6,0,0"/>
 
-                                <TextBlock Text="{Binding ReleaseProgressText}"
-               Foreground="#6B778C"
-               Margin="0,4,0,0"/>
-                            </StackPanel>
+                                    <TextBlock Text="{Binding ReleaseProgressText}"
+                                               Foreground="{StaticResource TextSecondaryBrush}"
+                                               Margin="0,4,0,0"/>
+                                </StackPanel>
+                            </Border>
 
                             <StackPanel Grid.Column="2">
-                                <TextBlock Text="Scan Beneficiary ID" Foreground="#2E3A59" Margin="0,0,0,6"/>
-
-                                <TextBox Style="{StaticResource ModalTextBox}"
-             IsReadOnly="True"
-             IsTabStop="False"
-             Cursor="Arrow"
-             Text="{Binding ScanInput, UpdateSourceTrigger=PropertyChanged}"/>
+                                <TextBlock Text="Scan Beneficiary ID"
+                                           Style="{StaticResource FieldLabelText}"/>
+                                <Border Style="{StaticResource ReadOnlyInputBorderStyle}">
+                                    <TextBox IsReadOnly="True"
+                                             IsTabStop="False"
+                                             Cursor="Arrow"
+                                             Text="{Binding ScanInput, UpdateSourceTrigger=PropertyChanged}"
+                                             Style="{StaticResource PlainInputTextBox}"/>
+                                </Border>
                             </StackPanel>
                         </Grid>
 
-                        <!-- classification filter (modal) -->
-                        <StackPanel Grid.Row="2" Margin="0,0,0,12">
+                        <!-- Classification -->
+                        <StackPanel Grid.Row="2" Margin="0,0,0,14">
                             <TextBlock Text="Select Classification"
-               Foreground="#6B778C"
-               FontSize="11"
-               FontWeight="SemiBold"
-               Margin="0,0,0,6"/>
+                                       Style="{StaticResource FieldLabelText}"/>
 
-                            <Border Width="320"
-            HorizontalAlignment="Left"
-            CornerRadius="12"
-            Background="White"
-            Padding="12,6">
-                                <!-- reuse the same options list -->
-                                <ComboBox ItemsSource="{Binding ClassificationOptions}"
-                  SelectedItem="{Binding ReleaseSelectedClassification}"
+                            <Border Width="340"
+                                    HorizontalAlignment="Left"
+                                    CornerRadius="14"
+                                    BorderBrush="{StaticResource BorderBrushSoft}"
                                     BorderThickness="1"
-Padding="14,7"
-                  Background="Transparent"
-                  Foreground="#2E3A59"
-                  FontSize="12"/>
+                                    Background="#FCFDFE">
+                                <ComboBox ItemsSource="{Binding ClassificationOptions}"
+                                          SelectedItem="{Binding ReleaseSelectedClassification}"
+                                          Style="{StaticResource ModernComboBox}"/>
                             </Border>
                         </StackPanel>
 
-                        <!-- release list -->
-                        <!-- release list + pagination -->
+                        <!-- Release list -->
                         <Grid Grid.Row="3">
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="*"/>
                                 <RowDefinition Height="Auto"/>
                             </Grid.RowDefinitions>
 
-                            <!-- Table -->
-                            <Border Grid.Row="0" MinHeight="380" CornerRadius="14" BorderBrush="#EEF2FF" BorderThickness="1" Padding="6">
-                                <DataGrid ItemsSource="{Binding ReleasePagedItems}"
-                  SelectedItem="{Binding SelectedReleaseRow}"
-                  AutoGenerateColumns="False"
-                  CanUserAddRows="False"
-                  HeadersVisibility="Column"
-                  GridLinesVisibility="None"
-                  RowHeaderWidth="0"
-                  Background="Transparent"
-                  BorderThickness="0"
-                  FontSize="12"
-                  Foreground="#2E3A59"
-                  ColumnHeaderHeight="40"
-                  RowHeight="44"
-                  IsReadOnly="True"
-                  SelectionUnit="FullRow"
-                  SelectionMode="Single"
-                  FocusVisualStyle="{x:Null}">
+                            <Border Grid.Row="0"
+                                    MinHeight="390"
+                                    CornerRadius="18"
+                                    BorderBrush="{StaticResource BorderBrushSoft}"
+                                    BorderThickness="1"
+                                    Background="White"
+                                    Padding="8">
 
-                                    <DataGrid.RowStyle>
-                                        <Style TargetType="DataGridRow">
-                                            <Style.Triggers>
-                                                <DataTrigger Binding="{Binding IsReleased}" Value="True">
-                                                    <Setter Property="Opacity" Value="0.55"/>
-                                                </DataTrigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </DataGrid.RowStyle>
+                                <DataGrid ItemsSource="{Binding ReleasePagedItems}"
+                                          SelectedItem="{Binding SelectedReleaseRow}"
+                                          AutoGenerateColumns="False"
+                                          CanUserAddRows="False"
+                                          HeadersVisibility="Column"
+                                          GridLinesVisibility="None"
+                                          RowHeaderWidth="0"
+                                          Background="Transparent"
+                                          BorderThickness="0"
+                                          FontSize="12"
+                                          Foreground="{StaticResource TextPrimaryBrush}"
+                                          ColumnHeaderHeight="42"
+                                          RowHeight="46"
+                                          IsReadOnly="True"
+                                          SelectionUnit="FullRow"
+                                          SelectionMode="Single"
+                                          FocusVisualStyle="{x:Null}">
 
                                     <DataGrid.Resources>
                                         <Style TargetType="DataGridColumnHeader">
-                                            <Setter Property="Foreground" Value="#6B86D6"/>
+                                            <Setter Property="Foreground" Value="{StaticResource TextSecondaryBrush}"/>
                                             <Setter Property="FontWeight" Value="SemiBold"/>
-                                            <Setter Property="BorderBrush" Value="#EEF2FF"/>
+                                            <Setter Property="BorderBrush" Value="{StaticResource BorderBrushLighter}"/>
                                             <Setter Property="BorderThickness" Value="0,0,0,1"/>
                                             <Setter Property="Background" Value="Transparent"/>
                                             <Setter Property="VerticalContentAlignment" Value="Center"/>
                                             <Setter Property="Padding" Value="8,0"/>
                                         </Style>
                                     </DataGrid.Resources>
+
+                                    <DataGrid.RowStyle>
+                                        <Style TargetType="DataGridRow">
+                                            <Setter Property="Background" Value="Transparent"/>
+                                            <Setter Property="BorderBrush" Value="{StaticResource BorderBrushLighter}"/>
+                                            <Setter Property="BorderThickness" Value="0,0,0,1"/>
+                                            <Style.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter Property="Background" Value="#FAFBFF"/>
+                                                </Trigger>
+                                                <Trigger Property="IsSelected" Value="True">
+                                                    <Setter Property="Background" Value="{StaticResource AccentSoftBrush}"/>
+                                                </Trigger>
+                                                <DataTrigger Binding="{Binding IsReleased}" Value="True">
+                                                    <Setter Property="Opacity" Value="0.55"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </DataGrid.RowStyle>
 
                                     <DataGrid.Columns>
                                         <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="70"/>
@@ -569,13 +781,15 @@ Padding="14,7"
                                 </DataGrid>
                             </Border>
 
-                            <!-- Pagination (same design as Beneficiaries) -->
-                            <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,12,0,0">
+                            <StackPanel Grid.Row="1"
+                                        Orientation="Horizontal"
+                                        HorizontalAlignment="Center"
+                                        Margin="0,14,0,0">
                                 <Button Content="Previous"
-                Style="{StaticResource PageButton}"
-                Command="{Binding ReleasePreviousPageCommand}"/>
+                                        Style="{StaticResource PageButton}"
+                                        Command="{Binding ReleasePreviousPageCommand}"/>
 
-                                <ItemsControl ItemsSource="{Binding ReleasePageNumbers}" Margin="6,0">
+                                <ItemsControl ItemsSource="{Binding ReleasePageNumbers}" Margin="8,0">
                                     <ItemsControl.ItemsPanel>
                                         <ItemsPanelTemplate>
                                             <StackPanel Orientation="Horizontal"/>
@@ -585,8 +799,8 @@ Padding="14,7"
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate>
                                             <Button Content="{Binding}"
-                            Command="{Binding DataContext.ReleaseGoToPageCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                            CommandParameter="{Binding}">
+                                                    Command="{Binding DataContext.ReleaseGoToPageCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                    CommandParameter="{Binding}">
                                                 <Button.Style>
                                                     <Style TargetType="Button" BasedOn="{StaticResource PageButton}">
                                                         <Style.Triggers>
@@ -595,10 +809,11 @@ Padding="14,7"
                                                                     <MultiBinding Converter="{StaticResource EqualsToBoolConverter}">
                                                                         <Binding/>
                                                                         <Binding Path="DataContext.ReleaseCurrentPage"
-                                                         RelativeSource="{RelativeSource AncestorType=UserControl}"/>
+                                                                                 RelativeSource="{RelativeSource AncestorType=UserControl}"/>
                                                                     </MultiBinding>
                                                                 </DataTrigger.Binding>
-                                                                <Setter Property="Background" Value="#2E3A59"/>
+                                                                <Setter Property="Background" Value="{StaticResource AccentBrush}"/>
+                                                                <Setter Property="BorderBrush" Value="{StaticResource AccentBrush}"/>
                                                                 <Setter Property="Foreground" Value="White"/>
                                                             </DataTrigger>
                                                         </Style.Triggers>
@@ -610,8 +825,8 @@ Padding="14,7"
                                 </ItemsControl>
 
                                 <Button Content="Next"
-                Style="{StaticResource PageButton}"
-                Command="{Binding ReleaseNextPageCommand}"/>
+                                        Style="{StaticResource PageButton}"
+                                        Command="{Binding ReleaseNextPageCommand}"/>
                             </StackPanel>
                         </Grid>
                     </Grid>
@@ -619,32 +834,33 @@ Padding="14,7"
             </Border>
         </Grid>
 
-        <!-- ================= CONFIRM RELEASE MODAL ================= -->
+        <!-- CONFIRM RELEASE MODAL -->
         <Grid Panel.ZIndex="920"
-      DataContext="{Binding DataContext, RelativeSource={RelativeSource AncestorType=UserControl}}"
-      Visibility="{Binding IsConfirmReleaseOpen, Converter={StaticResource BoolToVis}}">
-            <Border Background="#80000000"/>
-            <Button Style="{StaticResource BackdropButton}" Command="{Binding CloseConfirmReleaseCommand}"/>
+              DataContext="{Binding DataContext, RelativeSource={RelativeSource AncestorType=UserControl}}"
+              Visibility="{Binding IsConfirmReleaseOpen, Converter={StaticResource BoolToVis}}">
+            <Border Background="#660F172A"/>
+            <Button Style="{StaticResource BackdropButton}"
+                    Command="{Binding CloseConfirmReleaseCommand}"/>
 
-            <Border Width="760"
-            CornerRadius="18"
-            Background="White"
-            Padding="18"
-            HorizontalAlignment="Center"
-            VerticalAlignment="Center"
-            MaxHeight="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Window}}">
+            <Border Width="780"
+                    CornerRadius="24"
+                    Background="White"
+                    BorderBrush="{StaticResource BorderBrushLighter}"
+                    BorderThickness="1"
+                    Padding="22"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    MaxHeight="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Window}}"
+                    Effect="{StaticResource CardShadow}">
 
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
-                        <!-- header -->
                         <RowDefinition Height="*"/>
-                        <!-- scrollable body -->
                         <RowDefinition Height="Auto"/>
-                        <!-- buttons -->
                     </Grid.RowDefinitions>
 
-                    <!-- header -->
+                    <!-- Header -->
                     <Grid Grid.Row="0">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition/>
@@ -652,197 +868,208 @@ Padding="14,7"
                         </Grid.ColumnDefinitions>
 
                         <TextBlock Text="Confirm Release"
-                           FontSize="16"
-                           FontWeight="Bold"
-                           Foreground="#2E3A59"/>
+                                   FontSize="18"
+                                   FontWeight="Bold"
+                                   Foreground="{StaticResource TextPrimaryBrush}"/>
 
                         <Button Grid.Column="1"
-                        Content="✕"
-                        Width="28" Height="28"
-                        Background="Transparent"
-                        BorderBrush="Transparent"
-                        Cursor="Hand"
-                        Command="{Binding CloseConfirmReleaseCommand}"/>
+                                Style="{StaticResource CloseButtonStyle}"
+                                Command="{Binding CloseConfirmReleaseCommand}">
+                            <TextBlock FontFamily="Segoe MDL2 Assets"
+                                       Text="&#xE8BB;"
+                                       FontSize="12"
+                                       Foreground="{StaticResource TextSecondaryBrush}"/>
+                        </Button>
                     </Grid>
 
-                    <!-- ✅ BODY (scrollable) -->
+                    <!-- Body -->
                     <ScrollViewer Grid.Row="1"
-                          Margin="0,14,0,0"
-                          VerticalScrollBarVisibility="Auto"
-                          HorizontalScrollBarVisibility="Disabled">
+                                  Margin="0,16,0,0"
+                                  VerticalScrollBarVisibility="Auto"
+                                  HorizontalScrollBarVisibility="Disabled">
                         <StackPanel>
 
-                            <!-- Picture (TOP) -->
-                            <Grid Margin="0,0,0,14" HorizontalAlignment="Center">
-                                <Ellipse Width="96" Height="96" Fill="#D9ECFF"/>
+                            <!-- Profile -->
+                            <Border Background="#F8FAFC"
+                                    CornerRadius="20"
+                                    BorderBrush="{StaticResource BorderBrushSoft}"
+                                    BorderThickness="1"
+                                    Padding="20">
 
-                                <Ellipse Width="96" Height="96">
-                                    <Ellipse.Fill>
-                                        <ImageBrush ImageSource="{Binding ConfirmProfileImagePreview}" Stretch="UniformToFill"/>
-                                    </Ellipse.Fill>
-                                    <Ellipse.Style>
-                                        <Style TargetType="Ellipse">
-                                            <Setter Property="Visibility" Value="Collapsed"/>
-                                            <Style.Triggers>
-                                                <DataTrigger Binding="{Binding ConfirmHasProfileImage}" Value="True">
-                                                    <Setter Property="Visibility" Value="Visible"/>
-                                                </DataTrigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </Ellipse.Style>
-                                </Ellipse>
+                                <StackPanel>
+                                    <Grid Margin="0,0,0,18" HorizontalAlignment="Center">
+                                        <Ellipse Width="100" Height="100" Fill="#DDEAFE"/>
 
-                                <TextBlock Text="👤"
-                                   FontSize="40"
-                                   VerticalAlignment="Center"
-                                   HorizontalAlignment="Center">
-                                    <TextBlock.Style>
-                                        <Style TargetType="TextBlock">
-                                            <Setter Property="Visibility" Value="Visible"/>
-                                            <Style.Triggers>
-                                                <DataTrigger Binding="{Binding ConfirmHasProfileImage}" Value="True">
+                                        <Ellipse Width="100" Height="100">
+                                            <Ellipse.Fill>
+                                                <ImageBrush ImageSource="{Binding ConfirmProfileImagePreview}" Stretch="UniformToFill"/>
+                                            </Ellipse.Fill>
+                                            <Ellipse.Style>
+                                                <Style TargetType="Ellipse">
                                                     <Setter Property="Visibility" Value="Collapsed"/>
-                                                </DataTrigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </TextBlock.Style>
-                                </TextBlock>
-                            </Grid>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding ConfirmHasProfileImage}" Value="True">
+                                                            <Setter Property="Visibility" Value="Visible"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Ellipse.Style>
+                                        </Ellipse>
 
-                            <!-- Profile fields -->
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition/>
-                                    <ColumnDefinition Width="18"/>
-                                    <ColumnDefinition/>
-                                </Grid.ColumnDefinitions>
-
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="Auto"/>
-                                </Grid.RowDefinitions>
-
-                                <!-- Row 0 -->
-                                <StackPanel Grid.Row="0" Grid.Column="0">
-                                    <TextBlock Text="Beneficiary ID" Foreground="#6B778C" FontSize="12" Margin="0,0,0,6"/>
-                                    <Border CornerRadius="10" BorderBrush="#EEF2FF" BorderThickness="1" Background="White" Padding="10,6">
-                                        <TextBox Text="{Binding PendingRelease.BeneficiaryId, TargetNullValue=''}"
-                                         BorderThickness="0" Background="Transparent"
-                                         Foreground="#2E3A59" IsReadOnly="True"/>
-                                    </Border>
-                                </StackPanel>
-
-                                <StackPanel Grid.Row="0" Grid.Column="2">
-                                    <TextBlock Text="Civil Registry ID" Foreground="#6B778C" FontSize="12" Margin="0,0,0,6"/>
-                                    <Border CornerRadius="10" BorderBrush="#EEF2FF" BorderThickness="1" Background="White" Padding="10,6">
-                                        <TextBox Text="{Binding PendingRelease.CivilRegistryId, TargetNullValue=''}"
-                                         BorderThickness="0" Background="Transparent"
-                                         Foreground="#2E3A59" IsReadOnly="True"/>
-                                    </Border>
-                                </StackPanel>
-
-                                <!-- Row 1 -->
-                                <StackPanel Grid.Row="1" Grid.Column="0" Margin="0,12,0,0">
-                                    <TextBlock Text="First Name" Foreground="#6B778C" FontSize="12" Margin="0,0,0,6"/>
-                                    <Border CornerRadius="10" BorderBrush="#EEF2FF" BorderThickness="1" Background="White" Padding="10,6">
-                                        <TextBox Text="{Binding PendingRelease.FirstName, TargetNullValue=''}"
-                                         BorderThickness="0" Background="Transparent"
-                                         Foreground="#2E3A59" IsReadOnly="True"/>
-                                    </Border>
-                                </StackPanel>
-
-                                <StackPanel Grid.Row="1" Grid.Column="2" Margin="0,12,0,0">
-                                    <TextBlock Text="Middle Name" Foreground="#6B778C" FontSize="12" Margin="0,0,0,6"/>
-                                    <Border CornerRadius="10" BorderBrush="#EEF2FF" BorderThickness="1" Background="White" Padding="10,6">
-                                        <TextBox Text="{Binding PendingRelease.MiddleName, TargetNullValue=''}"
-                                         BorderThickness="0" Background="Transparent"
-                                         Foreground="#2E3A59" IsReadOnly="True"/>
-                                    </Border>
-                                </StackPanel>
-
-                                <!-- Row 2 -->
-                                <StackPanel Grid.Row="2" Grid.Column="0" Margin="0,12,0,0">
-                                    <TextBlock Text="Gender" Foreground="#6B778C" FontSize="12" Margin="0,0,0,6"/>
-                                    <Border CornerRadius="10" BorderBrush="#EEF2FF" BorderThickness="1" Background="White" Padding="10,6">
-                                        <TextBox Text="{Binding PendingRelease.Gender, TargetNullValue=''}"
-                                         BorderThickness="0" Background="Transparent"
-                                         Foreground="#2E3A59" IsReadOnly="True"/>
-                                    </Border>
-                                </StackPanel>
-
-                                <StackPanel Grid.Row="2" Grid.Column="2" Margin="0,12,0,0">
-                                    <TextBlock Text="Last Name" Foreground="#6B778C" FontSize="12" Margin="0,0,0,6"/>
-                                    <Border CornerRadius="10" BorderBrush="#EEF2FF" BorderThickness="1" Background="White" Padding="10,6">
-                                        <TextBox Text="{Binding PendingRelease.LastName, TargetNullValue=''}"
-                                         BorderThickness="0" Background="Transparent"
-                                         Foreground="#2E3A59" IsReadOnly="True"/>
-                                    </Border>
-                                </StackPanel>
-
-                                <!-- Row 3 -->
-                                <StackPanel Grid.Row="3" Grid.Column="0" Margin="0,12,0,0">
-                                    <TextBlock Text="Barangay" Foreground="#6B778C" FontSize="12" Margin="0,0,0,6"/>
-                                    <Border CornerRadius="10" BorderBrush="#EEF2FF" BorderThickness="1" Background="White" Padding="10,6">
-                                        <TextBox Text="{Binding PendingRelease.Barangay, TargetNullValue=''}"
-                                         BorderThickness="0" Background="Transparent"
-                                         Foreground="#2E3A59" IsReadOnly="True"/>
-                                    </Border>
-                                </StackPanel>
-
-                                <StackPanel Grid.Row="3" Grid.Column="2" Margin="0,12,0,0">
-                                    <TextBlock Text="Classification" Foreground="#6B778C" FontSize="12" Margin="0,0,0,6"/>
-                                    <Border CornerRadius="10" BorderBrush="#EEF2FF" BorderThickness="1" Background="White" Padding="10,6">
-                                        <TextBox Text="{Binding PendingRelease.Classification, TargetNullValue=''}"
-                                         BorderThickness="0" Background="Transparent"
-                                         Foreground="#2E3A59" IsReadOnly="True"/>
-                                    </Border>
-                                </StackPanel>
-
-                                <!-- Row 4 -->
-                                <StackPanel Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="3" Margin="0,12,0,0">
-                                    <TextBlock Text="Present Address" Foreground="#6B778C" FontSize="12" Margin="0,0,0,6"/>
-                                    <Border CornerRadius="10" BorderBrush="#EEF2FF" BorderThickness="1" Background="White" Padding="10,6">
-                                        <TextBox Text="{Binding PendingRelease.PresentAddress, TargetNullValue=''}"
-                                         BorderThickness="0" Background="Transparent"
-                                         Foreground="#2E3A59" IsReadOnly="True"/>
-                                    </Border>
-                                </StackPanel>
-
-                                <!-- Row 5 -->
-                                <StackPanel Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="3" Margin="0,12,0,0">
-                                    <TextBlock Text="Share to Release" Foreground="#6B778C" FontSize="12" Margin="0,0,0,6"/>
-                                    <Border CornerRadius="10" BorderBrush="#EEF2FF" BorderThickness="1" Background="White" Padding="10,6">
-                                        <TextBlock Text="{Binding PendingRelease.ShareText}"
-                                           Foreground="#2E3A59"
-                                           FontWeight="SemiBold"
-                                           VerticalAlignment="Center"/>
-                                    </Border>
-                                </StackPanel>
-                            </Grid>
-
-                            <!-- ✅ Release History (timeline) -->
-                            <StackPanel Margin="0,18,0,0">
-                                <TextBlock Text="Release History"
-                                   Foreground="#2E3A59"
-                                   FontSize="13"
-                                   FontWeight="SemiBold"/>
-
-                                <Border Margin="0,10,0,0"
-                                Background="#F7F9FC"
-                                BorderBrush="#EEF2FF"
-                                BorderThickness="1"
-                                CornerRadius="12"
-                                Padding="14">
+                                        <TextBlock Text="👤"
+                                                   FontSize="40"
+                                                   VerticalAlignment="Center"
+                                                   HorizontalAlignment="Center">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="Visibility" Value="Visible"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding ConfirmHasProfileImage}" Value="True">
+                                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
+                                    </Grid>
 
                                     <Grid>
-                                        <!-- Empty -->
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition/>
+                                            <ColumnDefinition Width="18"/>
+                                            <ColumnDefinition/>
+                                        </Grid.ColumnDefinitions>
+
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                        </Grid.RowDefinitions>
+
+                                        <!-- Row 0 -->
+                                        <StackPanel Grid.Row="0" Grid.Column="0">
+                                            <TextBlock Text="Beneficiary ID" Style="{StaticResource FieldLabelText}"/>
+                                            <Border Style="{StaticResource ReadOnlyInputBorderStyle}">
+                                                <TextBox Text="{Binding PendingRelease.BeneficiaryId, TargetNullValue=''}"
+                                                         Style="{StaticResource PlainInputTextBox}"
+                                                         IsReadOnly="True"/>
+                                            </Border>
+                                        </StackPanel>
+
+                                        <StackPanel Grid.Row="0" Grid.Column="2">
+                                            <TextBlock Text="Civil Registry ID" Style="{StaticResource FieldLabelText}"/>
+                                            <Border Style="{StaticResource ReadOnlyInputBorderStyle}">
+                                                <TextBox Text="{Binding PendingRelease.CivilRegistryId, TargetNullValue=''}"
+                                                         Style="{StaticResource PlainInputTextBox}"
+                                                         IsReadOnly="True"/>
+                                            </Border>
+                                        </StackPanel>
+
+                                        <!-- Row 1 -->
+                                        <StackPanel Grid.Row="1" Grid.Column="0" Margin="0,14,0,0">
+                                            <TextBlock Text="First Name" Style="{StaticResource FieldLabelText}"/>
+                                            <Border Style="{StaticResource ReadOnlyInputBorderStyle}">
+                                                <TextBox Text="{Binding PendingRelease.FirstName, TargetNullValue=''}"
+                                                         Style="{StaticResource PlainInputTextBox}"
+                                                         IsReadOnly="True"/>
+                                            </Border>
+                                        </StackPanel>
+
+                                        <StackPanel Grid.Row="1" Grid.Column="2" Margin="0,14,0,0">
+                                            <TextBlock Text="Middle Name" Style="{StaticResource FieldLabelText}"/>
+                                            <Border Style="{StaticResource ReadOnlyInputBorderStyle}">
+                                                <TextBox Text="{Binding PendingRelease.MiddleName, TargetNullValue=''}"
+                                                         Style="{StaticResource PlainInputTextBox}"
+                                                         IsReadOnly="True"/>
+                                            </Border>
+                                        </StackPanel>
+
+                                        <!-- Row 2 -->
+                                        <StackPanel Grid.Row="2" Grid.Column="0" Margin="0,14,0,0">
+                                            <TextBlock Text="Gender" Style="{StaticResource FieldLabelText}"/>
+                                            <Border Style="{StaticResource ReadOnlyInputBorderStyle}">
+                                                <TextBox Text="{Binding PendingRelease.Gender, TargetNullValue=''}"
+                                                         Style="{StaticResource PlainInputTextBox}"
+                                                         IsReadOnly="True"/>
+                                            </Border>
+                                        </StackPanel>
+
+                                        <StackPanel Grid.Row="2" Grid.Column="2" Margin="0,14,0,0">
+                                            <TextBlock Text="Last Name" Style="{StaticResource FieldLabelText}"/>
+                                            <Border Style="{StaticResource ReadOnlyInputBorderStyle}">
+                                                <TextBox Text="{Binding PendingRelease.LastName, TargetNullValue=''}"
+                                                         Style="{StaticResource PlainInputTextBox}"
+                                                         IsReadOnly="True"/>
+                                            </Border>
+                                        </StackPanel>
+
+                                        <!-- Row 3 -->
+                                        <StackPanel Grid.Row="3" Grid.Column="0" Margin="0,14,0,0">
+                                            <TextBlock Text="Barangay" Style="{StaticResource FieldLabelText}"/>
+                                            <Border Style="{StaticResource ReadOnlyInputBorderStyle}">
+                                                <TextBox Text="{Binding PendingRelease.Barangay, TargetNullValue=''}"
+                                                         Style="{StaticResource PlainInputTextBox}"
+                                                         IsReadOnly="True"/>
+                                            </Border>
+                                        </StackPanel>
+
+                                        <StackPanel Grid.Row="3" Grid.Column="2" Margin="0,14,0,0">
+                                            <TextBlock Text="Classification" Style="{StaticResource FieldLabelText}"/>
+                                            <Border Style="{StaticResource ReadOnlyInputBorderStyle}">
+                                                <TextBox Text="{Binding PendingRelease.Classification, TargetNullValue=''}"
+                                                         Style="{StaticResource PlainInputTextBox}"
+                                                         IsReadOnly="True"/>
+                                            </Border>
+                                        </StackPanel>
+
+                                        <!-- Row 4 -->
+                                        <StackPanel Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="3" Margin="0,14,0,0">
+                                            <TextBlock Text="Present Address" Style="{StaticResource FieldLabelText}"/>
+                                            <Border Style="{StaticResource ReadOnlyInputBorderStyle}">
+                                                <TextBox Text="{Binding PendingRelease.PresentAddress, TargetNullValue=''}"
+                                                         Style="{StaticResource PlainInputTextBox}"
+                                                         IsReadOnly="True"/>
+                                            </Border>
+                                        </StackPanel>
+
+                                        <!-- Row 5 -->
+                                        <StackPanel Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="3" Margin="0,14,0,0">
+                                            <TextBlock Text="Share to Release" Style="{StaticResource FieldLabelText}"/>
+                                            <Border CornerRadius="12"
+                                                    BorderBrush="{StaticResource BorderBrushSoft}"
+                                                    BorderThickness="1"
+                                                    Background="White"
+                                                    Padding="14,12">
+                                                <TextBlock Text="{Binding PendingRelease.ShareText}"
+                                                           Foreground="{StaticResource TextPrimaryBrush}"
+                                                           FontWeight="SemiBold"/>
+                                            </Border>
+                                        </StackPanel>
+                                    </Grid>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- Release History -->
+                            <StackPanel Margin="0,18,0,0">
+                                <TextBlock Text="Release History"
+                                           Foreground="{StaticResource TextPrimaryBrush}"
+                                           FontSize="14"
+                                           FontWeight="SemiBold"/>
+
+                                <Border Margin="0,10,0,0"
+                                        Background="#F8FAFC"
+                                        BorderBrush="{StaticResource BorderBrushSoft}"
+                                        BorderThickness="1"
+                                        CornerRadius="16"
+                                        Padding="16">
+
+                                    <Grid>
                                         <TextBlock Text="No past releases yet."
-                                           Foreground="#6B778C"
-                                           FontSize="12">
+                                                   Foreground="{StaticResource TextSecondaryBrush}"
+                                                   FontSize="12">
                                             <TextBlock.Style>
                                                 <Style TargetType="TextBlock">
                                                     <Setter Property="Visibility" Value="Visible"/>
@@ -855,7 +1082,6 @@ Padding="14,7"
                                             </TextBlock.Style>
                                         </TextBlock>
 
-                                        <!-- Timeline -->
                                         <ItemsControl ItemsSource="{Binding ConfirmReleaseHistory}">
                                             <ItemsControl.Style>
                                                 <Style TargetType="ItemsControl">
@@ -872,20 +1098,21 @@ Padding="14,7"
                                                 <DataTemplate>
                                                     <Grid Margin="0,0,0,14">
                                                         <Grid.ColumnDefinitions>
-                                                            <ColumnDefinition Width="26"/>
+                                                            <ColumnDefinition Width="28"/>
                                                             <ColumnDefinition Width="*"/>
                                                         </Grid.ColumnDefinitions>
 
                                                         <Grid Grid.Column="0">
-                                                            <Ellipse Width="10" Height="10"
-                                                             Fill="#2E3A59"
-                                                             VerticalAlignment="Top"
-                                                             Margin="8,2,8,0"/>
+                                                            <Ellipse Width="10"
+                                                                     Height="10"
+                                                                     Fill="{StaticResource AccentBrush}"
+                                                                     VerticalAlignment="Top"
+                                                                     Margin="9,3,9,0"/>
 
                                                             <Border Width="2"
-                                                            Background="#E5ECFA"
-                                                            VerticalAlignment="Stretch"
-                                                            Margin="12,14,12,0">
+                                                                    Background="#D9E2F0"
+                                                                    VerticalAlignment="Stretch"
+                                                                    Margin="13,15,13,0">
                                                                 <Border.Style>
                                                                     <Style TargetType="Border">
                                                                         <Style.Triggers>
@@ -900,14 +1127,14 @@ Padding="14,7"
 
                                                         <StackPanel Grid.Column="1">
                                                             <TextBlock Text="{Binding ReleasedAtText}"
-                                                               Foreground="#2E3A59"
-                                                               FontWeight="SemiBold"/>
+                                                                       Foreground="{StaticResource TextPrimaryBrush}"
+                                                                       FontWeight="SemiBold"/>
 
                                                             <TextBlock Text="{Binding Description}"
-                                                               Foreground="#6B778C"
-                                                               FontSize="12"
-                                                               Margin="0,4,0,0"
-                                                               TextWrapping="Wrap"/>
+                                                                       Foreground="{StaticResource TextSecondaryBrush}"
+                                                                       FontSize="12"
+                                                                       Margin="0,4,0,0"
+                                                                       TextWrapping="Wrap"/>
                                                         </StackPanel>
                                                     </Grid>
                                                 </DataTemplate>
@@ -916,32 +1143,27 @@ Padding="14,7"
                                     </Grid>
                                 </Border>
                             </StackPanel>
-
                         </StackPanel>
                     </ScrollViewer>
 
-                    <!-- buttons -->
+                    <!-- Buttons -->
                     <StackPanel Grid.Row="2"
-                        Orientation="Horizontal"
-                        HorizontalAlignment="Right"
-                        Margin="0,16,0,0">
+                                Orientation="Horizontal"
+                                HorizontalAlignment="Right"
+                                Margin="0,18,0,0">
                         <Button Content="Cancel"
-                        Width="140" Height="40"
-                        Background="Transparent"
-                        BorderBrush="Transparent"
-                        Foreground="#2E3A59"
-                        FontWeight="SemiBold"
-                        Cursor="Hand"
-                        Command="{Binding CloseConfirmReleaseCommand}"/>
+                                Width="140"
+                                Height="42"
+                                Style="{StaticResource LightButton}"
+                                Command="{Binding CloseConfirmReleaseCommand}"/>
 
                         <Button Content="Confirm"
-                        Margin="18,0,0,0"
-                        Style="{StaticResource RoundedPrimary}"
-                        Command="{Binding ConfirmReleaseCommand}"/>
+                                Margin="14,0,0,0"
+                                Style="{StaticResource RoundedPrimary}"
+                                Command="{Binding ConfirmReleaseCommand}"/>
                     </StackPanel>
                 </Grid>
             </Border>
         </Grid>
-
     </Grid>
 </UserControl>

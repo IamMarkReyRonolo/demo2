@@ -3,9 +3,8 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="clr-namespace:WpfApp3.ViewModels.Validators"
              xmlns:models="clr-namespace:WpfApp3.Models"
-             Background="#F3F5F9">
+             Background="Transparent">
 
-    <!-- IMPORTANT: match Beneficiaries working pattern -->
     <UserControl.DataContext>
         <vm:ValidatorsViewModel/>
     </UserControl.DataContext>
@@ -13,7 +12,65 @@
     <UserControl.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVis"/>
 
-        <!-- Backdrop button (prevents hover turning blue) -->
+        <!-- ========================= -->
+        <!-- COLORS / BRUSHES          -->
+        <!-- ========================= -->
+        <SolidColorBrush x:Key="PageBackgroundBrush" Color="#F6F8FC"/>
+        <SolidColorBrush x:Key="CardBrush" Color="#FFFFFF"/>
+        <SolidColorBrush x:Key="AccentBrush" Color="#4F46E5"/>
+        <SolidColorBrush x:Key="AccentHoverBrush" Color="#4338CA"/>
+        <SolidColorBrush x:Key="AccentSoftBrush" Color="#EEF2FF"/>
+        <SolidColorBrush x:Key="BorderBrushSoft" Color="#E7ECF5"/>
+        <SolidColorBrush x:Key="BorderBrushLighter" Color="#F1F5F9"/>
+        <SolidColorBrush x:Key="TextPrimaryBrush" Color="#0F172A"/>
+        <SolidColorBrush x:Key="TextSecondaryBrush" Color="#64748B"/>
+        <SolidColorBrush x:Key="DangerBrush" Color="#E11D48"/>
+        <SolidColorBrush x:Key="DangerHoverBrush" Color="#BE123C"/>
+        <SolidColorBrush x:Key="InputBackgroundBrush" Color="#FCFDFE"/>
+
+        <DropShadowEffect x:Key="CardShadow"
+                          Color="#1E293B"
+                          BlurRadius="26"
+                          ShadowDepth="0"
+                          Opacity="0.10"/>
+
+        <DropShadowEffect x:Key="ModalShadow"
+                          Color="#0F172A"
+                          BlurRadius="32"
+                          ShadowDepth="0"
+                          Opacity="0.16"/>
+
+        <!-- ========================= -->
+        <!-- TEXT                      -->
+        <!-- ========================= -->
+        <Style x:Key="SectionTitleText" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+        </Style>
+
+        <Style x:Key="FieldLabelText" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{StaticResource TextSecondaryBrush}"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Margin" Value="0,0,0,8"/>
+        </Style>
+
+        <!-- ========================= -->
+        <!-- CARDS                     -->
+        <!-- ========================= -->
+        <Style x:Key="Card" TargetType="Border">
+            <Setter Property="CornerRadius" Value="20"/>
+            <Setter Property="Background" Value="{StaticResource CardBrush}"/>
+            <Setter Property="Padding" Value="20"/>
+            <Setter Property="BorderBrush" Value="{StaticResource BorderBrushLighter}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Effect" Value="{StaticResource CardShadow}"/>
+        </Style>
+
+        <!-- ========================= -->
+        <!-- BUTTONS                   -->
+        <!-- ========================= -->
         <Style x:Key="BackdropButton" TargetType="Button">
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="BorderBrush" Value="{x:Null}"/>
@@ -30,87 +87,116 @@
             </Setter>
         </Style>
 
-        <!-- Primary button -->
         <Style x:Key="PrimaryButton" TargetType="Button">
-            <Setter Property="Background" Value="#2E3A59"/>
+            <Setter Property="Background" Value="{StaticResource AccentBrush}"/>
             <Setter Property="Foreground" Value="White"/>
             <Setter Property="BorderBrush" Value="Transparent"/>
-            <Setter Property="Padding" Value="16,10"/>
+            <Setter Property="Padding" Value="18,11"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="FontSize" Value="13"/>
             <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
-                        <Border Background="{TemplateBinding Background}"
-                                CornerRadius="12"
-                                Padding="{TemplateBinding Padding}">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <!-- Outline button -->
-        <Style x:Key="OutlineButton" TargetType="Button">
-            <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="Foreground" Value="#2E3A59"/>
-            <Setter Property="BorderBrush" Value="#2E3A59"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="Padding" Value="16,10"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border BorderBrush="{TemplateBinding BorderBrush}"
-                                BorderThickness="{TemplateBinding BorderThickness}"
+                        <Border x:Name="Bd"
                                 Background="{TemplateBinding Background}"
                                 CornerRadius="12"
                                 Padding="{TemplateBinding Padding}">
                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="{StaticResource AccentHoverBrush}"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Bd" Property="Opacity" Value="0.92"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="Bd" Property="Opacity" Value="0.55"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
         </Style>
 
-        <!-- Small outline button (for image upload actions) -->
+        <Style x:Key="OutlineButton" TargetType="Button">
+            <Setter Property="Background" Value="#FFFFFF"/>
+            <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource BorderBrushSoft}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="16,10"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Bd"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="12"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="#F8FAFC"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
         <Style x:Key="SmallOutlineButton" TargetType="Button" BasedOn="{StaticResource OutlineButton}">
-            <Setter Property="Height" Value="32"/>
+            <Setter Property="Height" Value="34"/>
             <Setter Property="Padding" Value="12,6"/>
             <Setter Property="FontSize" Value="12"/>
         </Style>
 
-        <!-- Icon-like square button -->
         <Style x:Key="IconButton" TargetType="Button">
-            <Setter Property="Width" Value="40"/>
-            <Setter Property="Height" Value="40"/>
+            <Setter Property="Width" Value="42"/>
+            <Setter Property="Height" Value="42"/>
             <Setter Property="Padding" Value="0"/>
-            <Setter Property="Background" Value="#2E3A59"/>
+            <Setter Property="Background" Value="{StaticResource AccentBrush}"/>
             <Setter Property="Foreground" Value="White"/>
             <Setter Property="BorderBrush" Value="Transparent"/>
             <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
-                        <Border Background="{TemplateBinding Background}" CornerRadius="12">
+                        <Border x:Name="Bd"
+                                Background="{TemplateBinding Background}"
+                                CornerRadius="12">
                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="{StaticResource AccentHoverBrush}"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Bd" Property="Opacity" Value="0.92"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
         </Style>
 
-        <!-- Top pill tab (Not Yet Validated / Validated) -->
         <Style x:Key="TopTabPill" TargetType="Button">
-            <Setter Property="Height" Value="34"/>
+            <Setter Property="Height" Value="38"/>
             <Setter Property="Padding" Value="18,0"/>
             <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="Foreground" Value="#2E3A59"/>
+            <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
             <Setter Property="BorderBrush" Value="Transparent"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
             <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
@@ -124,15 +210,15 @@
             </Setter>
         </Style>
 
-        <!-- Status pill (Endorsed/Pending/Rejected) -->
         <Style x:Key="StatusPill" TargetType="Button">
-            <Setter Property="Height" Value="28"/>
+            <Setter Property="Height" Value="30"/>
             <Setter Property="Padding" Value="14,0"/>
             <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="Foreground" Value="#2E3A59"/>
+            <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
             <Setter Property="BorderBrush" Value="Transparent"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
             <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
@@ -146,49 +232,90 @@
             </Setter>
         </Style>
 
-        <!-- Rounded card -->
-        <Style x:Key="Card" TargetType="Border">
-            <Setter Property="CornerRadius" Value="18"/>
-            <Setter Property="Background" Value="White"/>
-            <Setter Property="Padding" Value="18"/>
-            <Setter Property="BorderBrush" Value="#EEF2FF"/>
-            <Setter Property="BorderThickness" Value="1"/>
-        </Style>
-
-        <!-- Inputs -->
-        <Style x:Key="SoftTextBox" TargetType="TextBox">
-            <Setter Property="Height" Value="36"/>
-            <Setter Property="Padding" Value="12,0"/>
-            <Setter Property="BorderBrush" Value="#E5ECFA"/>
-            <Setter Property="Background" Value="White"/>
-            <Setter Property="VerticalContentAlignment" Value="Center"/>
-        </Style>
-
-        <Style x:Key="SoftCombo" TargetType="ComboBox">
-            <Setter Property="Height" Value="36"/>
-            <Setter Property="Padding" Value="10,0"/>
-            <Setter Property="BorderBrush" Value="#E5ECFA"/>
-            <Setter Property="Background" Value="White"/>
-        </Style>
-
-        <!-- Table action button -->
         <Style x:Key="RowActionButton" TargetType="Button">
-            <Setter Property="Width" Value="26"/>
-            <Setter Property="Height" Value="22"/>
+            <Setter Property="Width" Value="32"/>
+            <Setter Property="Height" Value="32"/>
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="BorderBrush" Value="Transparent"/>
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="Padding" Value="0"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Bd"
+                                CornerRadius="10"
+                                Background="Transparent">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="#F8FAFC"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
         </Style>
 
-        <!-- Remove selection/highlight -->
-        <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="Transparent"/>
-        <SolidColorBrush x:Key="{x:Static SystemColors.HighlightTextBrushKey}" Color="#2E3A59"/>
-        <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="Transparent"/>
-        <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightTextBrushKey}" Color="#2E3A59"/>
+        <!-- ========================= -->
+        <!-- INPUT FIX                 -->
+        <!-- ========================= -->
+        <Style x:Key="InputBorderStyle" TargetType="Border">
+            <Setter Property="Height" Value="42"/>
+            <Setter Property="Padding" Value="14,0"/>
+            <Setter Property="CornerRadius" Value="12"/>
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="BorderBrush" Value="{StaticResource BorderBrushSoft}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Style.Triggers>
+                <Trigger Property="IsKeyboardFocusWithin" Value="True">
+                    <Setter Property="BorderBrush" Value="{StaticResource AccentBrush}"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
 
+        <Style x:Key="PlainInputTextBox" TargetType="TextBox">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+            <Setter Property="CaretBrush" Value="{StaticResource TextPrimaryBrush}"/>
+            <Setter Property="SelectionBrush" Value="#C7D2FE"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+        </Style>
+
+        <Style x:Key="ModernComboBox" TargetType="ComboBox">
+            <Setter Property="Height" Value="42"/>
+            <Setter Property="Padding" Value="10,0"/>
+            <Setter Property="BorderBrush" Value="{StaticResource BorderBrushSoft}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+            <Setter Property="FontSize" Value="13"/>
+        </Style>
+
+        <!-- ========================= -->
+        <!-- TABLE                     -->
+        <!-- ========================= -->
+        <Style x:Key="CenteredCellStyle" TargetType="DataGridCell">
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Padding" Value="10,0"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+        </Style>
+
+        <!-- selection -->
+        <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="Transparent"/>
+        <SolidColorBrush x:Key="{x:Static SystemColors.HighlightTextBrushKey}" Color="#0F172A"/>
+        <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="Transparent"/>
+        <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightTextBrushKey}" Color="#0F172A"/>
     </UserControl.Resources>
-    <Grid>
+
+    <Grid Background="{StaticResource PageBackgroundBrush}">
         <Grid Margin="24">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
@@ -198,16 +325,14 @@
 
             <!-- Top tabs -->
             <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,16">
-
-                <!-- Not Yet Validated -->
                 <Button Content="Not Yet Validated"
-                Command="{Binding SetMainTabCommand}"
-                CommandParameter="{x:Static vm:ValidatorsMainTab.NotYetValidated}">
+                        Command="{Binding SetMainTabCommand}"
+                        CommandParameter="{x:Static vm:ValidatorsMainTab.NotYetValidated}">
                     <Button.Style>
                         <Style TargetType="Button" BasedOn="{StaticResource TopTabPill}">
                             <Style.Triggers>
                                 <DataTrigger Binding="{Binding ActiveMainTab}" Value="{x:Static vm:ValidatorsMainTab.NotYetValidated}">
-                                    <Setter Property="Background" Value="#2E3A59"/>
+                                    <Setter Property="Background" Value="{StaticResource AccentBrush}"/>
                                     <Setter Property="Foreground" Value="White"/>
                                 </DataTrigger>
                             </Style.Triggers>
@@ -215,16 +340,15 @@
                     </Button.Style>
                 </Button>
 
-                <!-- Validated -->
                 <Button Content="Validated"
-                Margin="10,0,0,0"
-                Command="{Binding SetMainTabCommand}"
-                CommandParameter="{x:Static vm:ValidatorsMainTab.Validated}">
+                        Margin="10,0,0,0"
+                        Command="{Binding SetMainTabCommand}"
+                        CommandParameter="{x:Static vm:ValidatorsMainTab.Validated}">
                     <Button.Style>
                         <Style TargetType="Button" BasedOn="{StaticResource TopTabPill}">
                             <Style.Triggers>
                                 <DataTrigger Binding="{Binding ActiveMainTab}" Value="{x:Static vm:ValidatorsMainTab.Validated}">
-                                    <Setter Property="Background" Value="#2E3A59"/>
+                                    <Setter Property="Background" Value="{StaticResource AccentBrush}"/>
                                     <Setter Property="Foreground" Value="White"/>
                                 </DataTrigger>
                             </Style.Triggers>
@@ -264,47 +388,78 @@
                             <RowDefinition Height="*"/>
                         </Grid.RowDefinitions>
 
-                        <TextBlock Text="People" FontWeight="SemiBold" Foreground="#2E3A59"/>
+                        <TextBlock Text="People"
+                                   Style="{StaticResource SectionTitleText}"/>
 
-                        <Grid Grid.Row="1" Margin="0,12,0,0">
+                        <Grid Grid.Row="1" Margin="0,14,0,0">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="10"/>
-                                <ColumnDefinition Width="40"/>
+                                <ColumnDefinition Width="42"/>
                             </Grid.ColumnDefinitions>
 
-                            <TextBox Style="{StaticResource SoftTextBox}"
-                             Text="{Binding SearchNotYetText, UpdateSourceTrigger=PropertyChanged}"
-                             ToolTip="Search Here"/>
+                            <Border Grid.Column="0"
+                                    Style="{StaticResource InputBorderStyle}">
+                                <TextBox Text="{Binding SearchNotYetText, UpdateSourceTrigger=PropertyChanged}"
+                                         Style="{StaticResource PlainInputTextBox}"/>
+                            </Border>
 
                             <Button Grid.Column="2"
-                            Style="{StaticResource IconButton}"
-                            Content="🔍"
-                            Command="{Binding SearchNotYetCommand}"/>
+                                    Style="{StaticResource IconButton}"
+                                    Command="{Binding SearchNotYetCommand}">
+                                <TextBlock FontFamily="Segoe MDL2 Assets"
+                                           Text="&#xE721;"
+                                           FontSize="15"
+                                           Foreground="White"/>
+                            </Button>
                         </Grid>
 
                         <TextBlock Grid.Row="2"
-                           Text="{Binding NotYetFoundText}"
-                           Foreground="#6B778C"
-                           FontSize="12"
-                           Margin="2,10,0,10"/>
+                                   Text="{Binding NotYetFoundText}"
+                                   Foreground="{StaticResource TextSecondaryBrush}"
+                                   FontSize="12"
+                                   Margin="2,10,0,10"/>
 
                         <ListBox Grid.Row="3"
-                         ItemsSource="{Binding NotYetItems}"
-                         SelectedItem="{Binding SelectedPerson, Mode=TwoWay}"
-                         BorderThickness="0"
-                         Background="Transparent">
+                                 ItemsSource="{Binding NotYetItems}"
+                                 SelectedItem="{Binding SelectedPerson, Mode=TwoWay}"
+                                 BorderThickness="0"
+                                 Background="Transparent">
                             <ListBox.ItemContainerStyle>
                                 <Style TargetType="ListBoxItem">
                                     <Setter Property="Padding" Value="12"/>
                                     <Setter Property="Margin" Value="0,0,0,8"/>
                                     <Setter Property="Background" Value="Transparent"/>
                                     <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
-                                    <Style.Triggers>
-                                        <Trigger Property="IsSelected" Value="True">
-                                            <Setter Property="Background" Value="#2E3A59"/>
-                                        </Trigger>
-                                    </Style.Triggers>
+                                    <Setter Property="BorderThickness" Value="0"/>
+                                    <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="ListBoxItem">
+                                                <Border x:Name="Bd"
+                                                        Background="{TemplateBinding Background}"
+                                                        CornerRadius="12"
+                                                        Padding="{TemplateBinding Padding}">
+                                                    <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"/>
+                                                </Border>
+                                                <ControlTemplate.Triggers>
+                                                    <Trigger Property="IsSelected" Value="True">
+                                                        <Setter TargetName="Bd" Property="Background" Value="{StaticResource AccentBrush}"/>
+                                                    </Trigger>
+                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                        <Setter TargetName="Bd" Property="Background" Value="#F8FAFC"/>
+                                                    </Trigger>
+                                                    <MultiTrigger>
+                                                        <MultiTrigger.Conditions>
+                                                            <Condition Property="IsMouseOver" Value="True"/>
+                                                            <Condition Property="IsSelected" Value="True"/>
+                                                        </MultiTrigger.Conditions>
+                                                        <Setter TargetName="Bd" Property="Background" Value="{StaticResource AccentBrush}"/>
+                                                    </MultiTrigger>
+                                                </ControlTemplate.Triggers>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
                                 </Style>
                             </ListBox.ItemContainerStyle>
 
@@ -313,7 +468,7 @@
                                     <TextBlock Text="{Binding FullName}" FontWeight="SemiBold">
                                         <TextBlock.Style>
                                             <Style TargetType="TextBlock">
-                                                <Setter Property="Foreground" Value="#2E3A59"/>
+                                                <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
                                                 <Style.Triggers>
                                                     <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=ListBoxItem}, Path=IsSelected}" Value="True">
                                                         <Setter Property="Foreground" Value="White"/>
@@ -337,9 +492,10 @@
                             <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
 
-                        <TextBlock Text="Profile Information" FontWeight="SemiBold" Foreground="#2E3A59"/>
+                        <TextBlock Text="Profile Information"
+                                   Style="{StaticResource SectionTitleText}"/>
 
-                        <Grid Grid.Row="1" Margin="0,14,0,0">
+                        <Grid Grid.Row="1" Margin="0,16,0,0">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="150"/>
                                 <ColumnDefinition Width="18"/>
@@ -383,22 +539,16 @@
                                 </Grid>
 
                                 <Button Content="Upload Photo"
-            Margin="0,10,0,0"
-            Height="32"
-            Padding="10,6"
-            FontSize="12"
-            Style="{StaticResource OutlineButton}"
-            Command="{Binding UploadProfileImageCommand}"/>
+                                        Margin="0,10,0,0"
+                                        Style="{StaticResource SmallOutlineButton}"
+                                        Command="{Binding UploadProfileImageCommand}"/>
 
                                 <Button Content="Remove"
-            Margin="0,8,0,0"
-            Command="{Binding RemoveProfileImageCommand}">
+                                        Margin="0,8,0,0"
+                                        Command="{Binding RemoveProfileImageCommand}">
                                     <Button.Style>
-                                        <Style TargetType="Button" BasedOn="{StaticResource OutlineButton}">
+                                        <Style TargetType="Button" BasedOn="{StaticResource SmallOutlineButton}">
                                             <Setter Property="Visibility" Value="Collapsed"/>
-                                            <Setter Property="Height" Value="32"/>
-                                            <Setter Property="Padding" Value="10,6"/>
-                                            <Setter Property="FontSize" Value="12"/>
                                             <Style.Triggers>
                                                 <DataTrigger Binding="{Binding SelectedPerson.HasProfileImage}" Value="True">
                                                     <Setter Property="Visibility" Value="Visible"/>
@@ -411,55 +561,74 @@
 
                             <!-- Left fields -->
                             <StackPanel Grid.Column="2">
-                                <TextBlock Text="Beneficiary ID" Foreground="#6B778C" FontSize="12"/>
-                                <TextBox Style="{StaticResource SoftTextBox}" Margin="0,6,0,0"
-                                 Text="{Binding SelectedPerson.BeneficiaryId, UpdateSourceTrigger=PropertyChanged}"/>
+                                <TextBlock Text="Beneficiary ID" Style="{StaticResource FieldLabelText}"/>
+                                <Border Style="{StaticResource InputBorderStyle}">
+                                    <TextBox Text="{Binding SelectedPerson.BeneficiaryId, UpdateSourceTrigger=PropertyChanged}"
+                                             Style="{StaticResource PlainInputTextBox}"/>
+                                </Border>
 
-                                <TextBlock Text="First Name" Foreground="#6B778C" FontSize="12" Margin="0,12,0,0"/>
-                                <TextBox Style="{StaticResource SoftTextBox}" Margin="0,6,0,0"
-                                 Text="{Binding SelectedPerson.FirstName, UpdateSourceTrigger=PropertyChanged}"/>
+                                <TextBlock Text="First Name" Style="{StaticResource FieldLabelText}" Margin="0,12,0,0"/>
+                                <Border Style="{StaticResource InputBorderStyle}">
+                                    <TextBox Text="{Binding SelectedPerson.FirstName, UpdateSourceTrigger=PropertyChanged}"
+                                             Style="{StaticResource PlainInputTextBox}"/>
+                                </Border>
 
-                                <TextBlock Text="Gender" Foreground="#6B778C" FontSize="12" Margin="0,12,0,0"/>
-                                <ComboBox Style="{StaticResource SoftCombo}" Margin="0,6,0,0"
-                                  ItemsSource="{Binding GenderOptions}"
-                                  SelectedItem="{Binding SelectedPerson.Gender, UpdateSourceTrigger=PropertyChanged}"/>
+                                <TextBlock Text="Gender" Style="{StaticResource FieldLabelText}" Margin="0,12,0,0"/>
+                                <ComboBox Style="{StaticResource ModernComboBox}"
+                                          ItemsSource="{Binding GenderOptions}"
+                                          SelectedItem="{Binding SelectedPerson.Gender, UpdateSourceTrigger=PropertyChanged}"/>
 
-                                <TextBlock Text="Barangay" Foreground="#6B778C" FontSize="12" Margin="0,12,0,0"/>
-                                <TextBox Style="{StaticResource SoftTextBox}" Margin="0,6,0,0"
-                                 Text="{Binding SelectedPerson.Barangay, UpdateSourceTrigger=PropertyChanged}"/>
+                                <TextBlock Text="Barangay" Style="{StaticResource FieldLabelText}" Margin="0,12,0,0"/>
+                                <Border Style="{StaticResource InputBorderStyle}">
+                                    <TextBox Text="{Binding SelectedPerson.Barangay, UpdateSourceTrigger=PropertyChanged}"
+                                             Style="{StaticResource PlainInputTextBox}"/>
+                                </Border>
                             </StackPanel>
 
                             <!-- Right fields -->
                             <StackPanel Grid.Column="4">
-                                <TextBlock Text="Civil Registry ID" Foreground="#6B778C" FontSize="12"/>
-                                <TextBox Style="{StaticResource SoftTextBox}" Margin="0,6,0,0"
-                                 Text="{Binding SelectedPerson.CivilRegistryId, UpdateSourceTrigger=PropertyChanged}"/>
+                                <TextBlock Text="Civil Registry ID" Style="{StaticResource FieldLabelText}"/>
+                                <Border Style="{StaticResource InputBorderStyle}">
+                                    <TextBox Text="{Binding SelectedPerson.CivilRegistryId, UpdateSourceTrigger=PropertyChanged}"
+                                             Style="{StaticResource PlainInputTextBox}"/>
+                                </Border>
 
-                                <TextBlock Text="Middle Name" Foreground="#6B778C" FontSize="12" Margin="0,12,0,0"/>
-                                <TextBox Style="{StaticResource SoftTextBox}" Margin="0,6,0,0"
-                                 Text="{Binding SelectedPerson.MiddleName, UpdateSourceTrigger=PropertyChanged}"/>
+                                <TextBlock Text="Middle Name" Style="{StaticResource FieldLabelText}" Margin="0,12,0,0"/>
+                                <Border Style="{StaticResource InputBorderStyle}">
+                                    <TextBox Text="{Binding SelectedPerson.MiddleName, UpdateSourceTrigger=PropertyChanged}"
+                                             Style="{StaticResource PlainInputTextBox}"/>
+                                </Border>
 
-                                <TextBlock Text="Last Name" Foreground="#6B778C" FontSize="12" Margin="0,12,0,0"/>
-                                <TextBox Style="{StaticResource SoftTextBox}" Margin="0,6,0,0"
-                                 Text="{Binding SelectedPerson.LastName, UpdateSourceTrigger=PropertyChanged}"/>
+                                <TextBlock Text="Last Name" Style="{StaticResource FieldLabelText}" Margin="0,12,0,0"/>
+                                <Border Style="{StaticResource InputBorderStyle}">
+                                    <TextBox Text="{Binding SelectedPerson.LastName, UpdateSourceTrigger=PropertyChanged}"
+                                             Style="{StaticResource PlainInputTextBox}"/>
+                                </Border>
 
-                                <TextBlock Text="Classification" Foreground="#6B778C" FontSize="12" Margin="0,12,0,0"/>
-                                <ComboBox Style="{StaticResource SoftCombo}" Margin="0,6,0,0"
-                                  ItemsSource="{Binding ClassificationOptions}"
-                                  SelectedItem="{Binding SelectedPerson.Classification, UpdateSourceTrigger=PropertyChanged}"/>
+                                <TextBlock Text="Classification" Style="{StaticResource FieldLabelText}" Margin="0,12,0,0"/>
+                                <ComboBox Style="{StaticResource ModernComboBox}"
+                                          ItemsSource="{Binding ClassificationOptions}"
+                                          SelectedItem="{Binding SelectedPerson.Classification, UpdateSourceTrigger=PropertyChanged}"/>
                             </StackPanel>
 
                             <!-- Address -->
                             <StackPanel Grid.Column="2" Grid.ColumnSpan="3" Margin="0,310,0,0">
-                                <TextBlock Text="Present Address" Foreground="#6B778C" FontSize="12"/>
-                                <TextBox Style="{StaticResource SoftTextBox}" Margin="0,6,0,0"
-                                 Text="{Binding SelectedPerson.PresentAddress, UpdateSourceTrigger=PropertyChanged}"/>
+                                <TextBlock Text="Present Address" Style="{StaticResource FieldLabelText}"/>
+                                <Border Style="{StaticResource InputBorderStyle}">
+                                    <TextBox Text="{Binding SelectedPerson.PresentAddress, UpdateSourceTrigger=PropertyChanged}"
+                                             Style="{StaticResource PlainInputTextBox}"/>
+                                </Border>
                             </StackPanel>
                         </Grid>
 
                         <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,18,0,0">
-                            <Button Content="Save Profile" Style="{StaticResource OutlineButton}" Command="{Binding OpenSaveConfirmCommand}"/>
-                            <Button Content="Validate" Margin="12,0,0,0" Style="{StaticResource PrimaryButton}" Command="{Binding OpenValidateModalCommand}"/>
+                            <Button Content="Save Profile"
+                                    Style="{StaticResource OutlineButton}"
+                                    Command="{Binding OpenSaveConfirmCommand}"/>
+                            <Button Content="Validate"
+                                    Margin="12,0,0,0"
+                                    Style="{StaticResource PrimaryButton}"
+                                    Command="{Binding OpenValidateModalCommand}"/>
                         </StackPanel>
                     </Grid>
                 </Border>
@@ -497,27 +666,33 @@
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
 
-                            <TextBox Style="{StaticResource SoftTextBox}"
-                             Text="{Binding SearchValidatedText, UpdateSourceTrigger=PropertyChanged}"
-                             ToolTip="Search Validated"/>
+                            <Border Grid.Column="0"
+                                    Style="{StaticResource InputBorderStyle}">
+                                <TextBox Text="{Binding SearchValidatedText, UpdateSourceTrigger=PropertyChanged}"
+                                         Style="{StaticResource PlainInputTextBox}"/>
+                            </Border>
 
-                            <Button Grid.Column="1" Margin="10,0,0,0"
-                            Style="{StaticResource IconButton}"
-                            Content="🔍"
-                            Command="{Binding SearchValidatedCommand}"/>
+                            <Button Grid.Column="1"
+                                    Margin="10,0,0,0"
+                                    Style="{StaticResource IconButton}"
+                                    Command="{Binding SearchValidatedCommand}">
+                                <TextBlock FontFamily="Segoe MDL2 Assets"
+                                           Text="&#xE721;"
+                                           FontSize="15"
+                                           Foreground="White"/>
+                            </Button>
                         </Grid>
 
                         <!-- Status pills -->
                         <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,14,0,10">
-
                             <Button Content="Endorsed"
-                            Command="{Binding SetStatusTabCommand}"
-                            CommandParameter="{x:Static vm:ValidatorsStatusTab.Endorsed}">
+                                    Command="{Binding SetStatusTabCommand}"
+                                    CommandParameter="{x:Static vm:ValidatorsStatusTab.Endorsed}">
                                 <Button.Style>
                                     <Style TargetType="Button" BasedOn="{StaticResource StatusPill}">
                                         <Style.Triggers>
                                             <DataTrigger Binding="{Binding ActiveStatusTab}" Value="{x:Static vm:ValidatorsStatusTab.Endorsed}">
-                                                <Setter Property="Background" Value="#2E3A59"/>
+                                                <Setter Property="Background" Value="{StaticResource AccentBrush}"/>
                                                 <Setter Property="Foreground" Value="White"/>
                                             </DataTrigger>
                                         </Style.Triggers>
@@ -525,14 +700,15 @@
                                 </Button.Style>
                             </Button>
 
-                            <Button Content="Pending" Margin="8,0,0,0"
-                            Command="{Binding SetStatusTabCommand}"
-                            CommandParameter="{x:Static vm:ValidatorsStatusTab.Pending}">
+                            <Button Content="Pending"
+                                    Margin="8,0,0,0"
+                                    Command="{Binding SetStatusTabCommand}"
+                                    CommandParameter="{x:Static vm:ValidatorsStatusTab.Pending}">
                                 <Button.Style>
                                     <Style TargetType="Button" BasedOn="{StaticResource StatusPill}">
                                         <Style.Triggers>
                                             <DataTrigger Binding="{Binding ActiveStatusTab}" Value="{x:Static vm:ValidatorsStatusTab.Pending}">
-                                                <Setter Property="Background" Value="#2E3A59"/>
+                                                <Setter Property="Background" Value="{StaticResource AccentBrush}"/>
                                                 <Setter Property="Foreground" Value="White"/>
                                             </DataTrigger>
                                         </Style.Triggers>
@@ -540,54 +716,59 @@
                                 </Button.Style>
                             </Button>
 
-                            <Button Content="Rejected" Margin="8,0,0,0"
-                            Command="{Binding SetStatusTabCommand}"
-                            CommandParameter="{x:Static vm:ValidatorsStatusTab.Rejected}">
+                            <Button Content="Rejected"
+                                    Margin="8,0,0,0"
+                                    Command="{Binding SetStatusTabCommand}"
+                                    CommandParameter="{x:Static vm:ValidatorsStatusTab.Rejected}">
                                 <Button.Style>
                                     <Style TargetType="Button" BasedOn="{StaticResource StatusPill}">
                                         <Style.Triggers>
                                             <DataTrigger Binding="{Binding ActiveStatusTab}" Value="{x:Static vm:ValidatorsStatusTab.Rejected}">
-                                                <Setter Property="Background" Value="#2E3A59"/>
+                                                <Setter Property="Background" Value="{StaticResource AccentBrush}"/>
                                                 <Setter Property="Foreground" Value="White"/>
                                             </DataTrigger>
                                         </Style.Triggers>
                                     </Style>
                                 </Button.Style>
                             </Button>
-
                         </StackPanel>
 
                         <!-- Found -->
                         <TextBlock Grid.Row="2"
-                           Text="{Binding ValidatedFoundText}"
-                           Foreground="#6B778C"
-                           FontSize="12"
-                           Margin="2,0,0,10"/>
+                                   Text="{Binding ValidatedFoundText}"
+                                   Foreground="{StaticResource TextSecondaryBrush}"
+                                   FontSize="12"
+                                   Margin="2,0,0,10"/>
 
                         <!-- Table -->
-                        <Border Grid.Row="3" CornerRadius="18" Background="White" Padding="10" BorderBrush="#EEF2FF" BorderThickness="1">
+                        <Border Grid.Row="3"
+                                CornerRadius="18"
+                                Background="White"
+                                Padding="10"
+                                BorderBrush="{StaticResource BorderBrushSoft}"
+                                BorderThickness="1">
                             <DataGrid ItemsSource="{Binding ValidatedItems}"
-                              AutoGenerateColumns="False"
-                              CanUserAddRows="False"
-                              HeadersVisibility="Column"
-                              GridLinesVisibility="None"
-                              RowHeaderWidth="0"
-                              Background="Transparent"
-                              BorderThickness="0"
-                              FontSize="12"
-                              Foreground="#2E3A59"
-                              ColumnHeaderHeight="42"
-                              RowHeight="48"
-                              IsReadOnly="True"
-                              SelectionUnit="FullRow"
-                              SelectionMode="Single"
-                              FocusVisualStyle="{x:Null}">
+                                      AutoGenerateColumns="False"
+                                      CanUserAddRows="False"
+                                      HeadersVisibility="Column"
+                                      GridLinesVisibility="None"
+                                      RowHeaderWidth="0"
+                                      Background="Transparent"
+                                      BorderThickness="0"
+                                      FontSize="12"
+                                      Foreground="{StaticResource TextPrimaryBrush}"
+                                      ColumnHeaderHeight="42"
+                                      RowHeight="48"
+                                      IsReadOnly="True"
+                                      SelectionUnit="FullRow"
+                                      SelectionMode="Single"
+                                      FocusVisualStyle="{x:Null}">
 
                                 <DataGrid.Resources>
                                     <Style TargetType="DataGridColumnHeader">
-                                        <Setter Property="Foreground" Value="#6B86D6"/>
+                                        <Setter Property="Foreground" Value="{StaticResource TextSecondaryBrush}"/>
                                         <Setter Property="FontWeight" Value="SemiBold"/>
-                                        <Setter Property="BorderBrush" Value="#EEF2FF"/>
+                                        <Setter Property="BorderBrush" Value="{StaticResource BorderBrushLighter}"/>
                                         <Setter Property="BorderThickness" Value="0,0,0,1"/>
                                         <Setter Property="Background" Value="Transparent"/>
                                         <Setter Property="VerticalContentAlignment" Value="Center"/>
@@ -595,17 +776,23 @@
                                     </Style>
 
                                     <Style TargetType="DataGridRow">
-                                        <Setter Property="BorderBrush" Value="#EEF2FF"/>
+                                        <Setter Property="BorderBrush" Value="{StaticResource BorderBrushLighter}"/>
                                         <Setter Property="BorderThickness" Value="0,0,0,1"/>
                                         <Setter Property="Background" Value="Transparent"/>
                                         <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+                                        <Style.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter Property="Background" Value="#FAFBFF"/>
+                                            </Trigger>
+                                            <Trigger Property="IsSelected" Value="True">
+                                                <Setter Property="Background" Value="{StaticResource AccentSoftBrush}"/>
+                                            </Trigger>
+                                        </Style.Triggers>
                                     </Style>
 
-                                    <Style TargetType="DataGridCell">
-                                        <Setter Property="VerticalContentAlignment" Value="Center"/>
-                                        <Setter Property="Padding" Value="10,0"/>
-                                        <Setter Property="BorderThickness" Value="0"/>
-                                        <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+                                    <Style TargetType="DataGridCell" BasedOn="{StaticResource CenteredCellStyle}">
+                                        <Setter Property="Background" Value="Transparent"/>
+                                        <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
                                     </Style>
                                 </DataGrid.Resources>
 
@@ -622,29 +809,31 @@
                                         <DataGridTemplateColumn.CellTemplate>
                                             <DataTemplate>
                                                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                                                    <!-- Edit Profile -->
                                                     <Button Style="{StaticResource RowActionButton}"
-                        Content="✎"
-                        Foreground="#2E3A59"
-                        ToolTip="Edit Profile"
-                        Command="{Binding DataContext.OpenProfileModalCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
-                        CommandParameter="{Binding}"/>
+                                                            ToolTip="Edit Profile"
+                                                            Command="{Binding DataContext.OpenProfileModalCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                                            CommandParameter="{Binding}">
+                                                        <TextBlock FontFamily="Segoe MDL2 Assets"
+                                                                   Text="&#xE70F;"
+                                                                   FontSize="14"
+                                                                   Foreground="{StaticResource TextPrimaryBrush}"/>
+                                                    </Button>
 
-                                                    <!-- Validate -->
                                                     <Button Style="{StaticResource RowActionButton}"
-                        Content="✔"
-                        Margin="10,0,0,0"
-                        Foreground="#2E3A59"
-                        ToolTip="Validate"
-                        Command="{Binding DataContext.OpenValidateModalCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
-                        CommandParameter="{Binding}"/>
+                                                            Margin="10,0,0,0"
+                                                            ToolTip="Validate"
+                                                            Command="{Binding DataContext.OpenValidateModalCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                                            CommandParameter="{Binding}">
+                                                        <TextBlock FontFamily="Segoe MDL2 Assets"
+                                                                   Text="&#xE73E;"
+                                                                   FontSize="14"
+                                                                   Foreground="{StaticResource AccentBrush}"/>
+                                                    </Button>
                                                 </StackPanel>
                                             </DataTemplate>
                                         </DataGridTemplateColumn.CellTemplate>
                                     </DataGridTemplateColumn>
-
                                 </DataGrid.Columns>
-
                             </DataGrid>
                         </Border>
                     </Grid>
@@ -652,20 +841,21 @@
             </Grid>
         </Grid>
 
-        <!-- ============================= -->
-        <!-- VALIDATE MODAL                -->
-        <!-- ============================= -->
+        <!-- VALIDATE MODAL -->
         <Grid Panel.ZIndex="920"
-          Visibility="{Binding IsValidateModalOpen, Converter={StaticResource BoolToVis}}">
-            <Border Background="#80000000"/>
+              Visibility="{Binding IsValidateModalOpen, Converter={StaticResource BoolToVis}}">
+            <Border Background="#660F172A"/>
             <Button Style="{StaticResource BackdropButton}" Command="{Binding CloseValidateModalCommand}"/>
 
             <Border Width="520"
-                CornerRadius="18"
-                Background="White"
-                Padding="18"
-                HorizontalAlignment="Center"
-                VerticalAlignment="Center">
+                    CornerRadius="24"
+                    Background="White"
+                    BorderBrush="{StaticResource BorderBrushLighter}"
+                    BorderThickness="1"
+                    Padding="20"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    Effect="{StaticResource ModalShadow}">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
@@ -680,41 +870,42 @@
                         </Grid.ColumnDefinitions>
 
                         <TextBlock Text="Validate"
-                               FontSize="16"
-                               FontWeight="Bold"
-                               Foreground="#2E3A59"/>
+                                   FontSize="18"
+                                   FontWeight="Bold"
+                                   Foreground="{StaticResource TextPrimaryBrush}"/>
 
                         <Button Grid.Column="1"
-                            Content="✕"
-                            Width="28" Height="28"
-                            Background="Transparent"
-                            BorderBrush="Transparent"
-                            Cursor="Hand"
-                            Command="{Binding CloseValidateModalCommand}"/>
+                                Style="{StaticResource OutlineButton}"
+                                Width="34"
+                                Height="34"
+                                Padding="0"
+                                Command="{Binding CloseValidateModalCommand}">
+                            <TextBlock FontFamily="Segoe MDL2 Assets"
+                                       Text="&#xE8BB;"
+                                       FontSize="12"/>
+                        </Button>
                     </Grid>
 
-                    <StackPanel Grid.Row="1" Margin="0,14,0,0">
-                        <TextBlock Text="Status" Foreground="#2E3A59" Margin="0,0,0,6"/>
-                        <ComboBox Style="{StaticResource SoftCombo}"
-                              ItemsSource="{Binding ValidateStatusOptions}"
-                              SelectedItem="{Binding ValidateSelectedStatus}"/>
+                    <StackPanel Grid.Row="1" Margin="0,16,0,0">
+                        <TextBlock Text="Status" Style="{StaticResource FieldLabelText}"/>
+                        <ComboBox Style="{StaticResource ModernComboBox}"
+                                  ItemsSource="{Binding ValidateStatusOptions}"
+                                  SelectedItem="{Binding ValidateSelectedStatus}"/>
                     </StackPanel>
 
-                    <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,16,0,0">
+                    <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,18,0,0">
                         <Button Content="Cancel"
-                            Width="120" Height="38"
-                            Background="Transparent"
-                            BorderBrush="Transparent"
-                            Foreground="#2E3A59"
-                            FontWeight="SemiBold"
-                            Cursor="Hand"
-                            Command="{Binding CloseValidateModalCommand}"/>
+                                Width="120"
+                                Height="40"
+                                Style="{StaticResource OutlineButton}"
+                                Command="{Binding CloseValidateModalCommand}"/>
 
                         <Button Content="Confirm"
-                            Margin="16,0,0,0"
-                            Width="140" Height="38"
-                            Style="{StaticResource PrimaryButton}"
-                            Command="{Binding ConfirmValidateCommand}"/>
+                                Margin="14,0,0,0"
+                                Width="140"
+                                Height="40"
+                                Style="{StaticResource PrimaryButton}"
+                                Command="{Binding ConfirmValidateCommand}"/>
                     </StackPanel>
                 </Grid>
             </Border>
@@ -722,28 +913,28 @@
 
         <!-- PROFILE MODAL -->
         <Grid Panel.ZIndex="910"
-      HorizontalAlignment="Stretch"
-      VerticalAlignment="Stretch"
-      Visibility="{Binding IsProfileModalOpen, Converter={StaticResource BoolToVis}}">
-            <Border Background="#80000000"/>
+              HorizontalAlignment="Stretch"
+              VerticalAlignment="Stretch"
+              Visibility="{Binding IsProfileModalOpen, Converter={StaticResource BoolToVis}}">
+            <Border Background="#660F172A"/>
             <Button Style="{StaticResource BackdropButton}" Command="{Binding CloseProfileModalCommand}"/>
 
             <Border Width="920"
-            CornerRadius="18"
-            Background="White"
-            Padding="22"
-            HorizontalAlignment="Center"
-            VerticalAlignment="Center"
-            MaxHeight="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Window}}">
+                    CornerRadius="24"
+                    Background="White"
+                    BorderBrush="{StaticResource BorderBrushLighter}"
+                    BorderThickness="1"
+                    Padding="22"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    MaxHeight="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Window}}"
+                    Effect="{StaticResource ModalShadow}">
 
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
-                        <!-- Header -->
                         <RowDefinition Height="*"/>
-                        <!-- Scrollable Body -->
                         <RowDefinition Height="Auto"/>
-                        <!-- Footer -->
                     </Grid.RowDefinitions>
 
                     <!-- Header -->
@@ -754,24 +945,27 @@
                         </Grid.ColumnDefinitions>
 
                         <TextBlock Text="Profile Information"
-                           FontSize="18"
-                           FontWeight="Bold"
-                           Foreground="#2E3A59"/>
+                                   FontSize="18"
+                                   FontWeight="Bold"
+                                   Foreground="{StaticResource TextPrimaryBrush}"/>
 
                         <Button Grid.Column="1"
-                        Content="✕"
-                        Width="30" Height="30"
-                        Background="Transparent"
-                        BorderBrush="Transparent"
-                        Cursor="Hand"
-                        Command="{Binding CloseProfileModalCommand}"/>
+                                Style="{StaticResource OutlineButton}"
+                                Width="34"
+                                Height="34"
+                                Padding="0"
+                                Command="{Binding CloseProfileModalCommand}">
+                            <TextBlock FontFamily="Segoe MDL2 Assets"
+                                       Text="&#xE8BB;"
+                                       FontSize="12"/>
+                        </Button>
                     </Grid>
 
-                    <!-- ✅ Body (SCROLLABLE) -->
+                    <!-- Body -->
                     <ScrollViewer Grid.Row="1"
-                          Margin="0,18,0,0"
-                          VerticalScrollBarVisibility="Auto"
-                          HorizontalScrollBarVisibility="Disabled">
+                                  Margin="0,18,0,0"
+                                  VerticalScrollBarVisibility="Auto"
+                                  HorizontalScrollBarVisibility="Disabled">
 
                         <Grid>
                             <Grid.ColumnDefinitions>
@@ -788,7 +982,7 @@
                                     <Ellipse>
                                         <Ellipse.Fill>
                                             <ImageBrush ImageSource="{Binding SelectedPerson.ProfileImagePreview}"
-                                                Stretch="UniformToFill"/>
+                                                        Stretch="UniformToFill"/>
                                         </Ellipse.Fill>
                                         <Ellipse.Style>
                                             <Style TargetType="Ellipse">
@@ -817,22 +1011,16 @@
                                 </Grid>
 
                                 <Button Content="Upload Photo"
-                                Margin="0,10,0,0"
-                                Height="32"
-                                Padding="10,6"
-                                FontSize="12"
-                                Style="{StaticResource OutlineButton}"
-                                Command="{Binding UploadProfileImageCommand}"/>
+                                        Margin="0,10,0,0"
+                                        Style="{StaticResource SmallOutlineButton}"
+                                        Command="{Binding UploadProfileImageCommand}"/>
 
                                 <Button Content="Remove"
-                                Margin="0,8,0,0"
-                                Command="{Binding RemoveProfileImageCommand}">
+                                        Margin="0,8,0,0"
+                                        Command="{Binding RemoveProfileImageCommand}">
                                     <Button.Style>
-                                        <Style TargetType="Button" BasedOn="{StaticResource OutlineButton}">
+                                        <Style TargetType="Button" BasedOn="{StaticResource SmallOutlineButton}">
                                             <Setter Property="Visibility" Value="Collapsed"/>
-                                            <Setter Property="Height" Value="32"/>
-                                            <Setter Property="Padding" Value="10,6"/>
-                                            <Setter Property="FontSize" Value="12"/>
                                             <Style.Triggers>
                                                 <DataTrigger Binding="{Binding SelectedPerson.HasProfileImage}" Value="True">
                                                     <Setter Property="Visibility" Value="Visible"/>
@@ -858,89 +1046,101 @@
                                     <RowDefinition Height="Auto"/>
                                     <RowDefinition Height="Auto"/>
                                     <RowDefinition Height="Auto"/>
-                                    <!-- Release History -->
                                 </Grid.RowDefinitions>
 
                                 <!-- Row 0 -->
                                 <StackPanel Grid.Row="0" Grid.Column="0">
-                                    <TextBlock Text="Beneficiary ID" Foreground="#6B778C" FontSize="12"/>
-                                    <TextBox Style="{StaticResource SoftTextBox}" Margin="0,6,0,0"
-                                     Text="{Binding SelectedPerson.BeneficiaryId, UpdateSourceTrigger=PropertyChanged}"/>
+                                    <TextBlock Text="Beneficiary ID" Style="{StaticResource FieldLabelText}"/>
+                                    <Border Style="{StaticResource InputBorderStyle}">
+                                        <TextBox Text="{Binding SelectedPerson.BeneficiaryId, UpdateSourceTrigger=PropertyChanged}"
+                                                 Style="{StaticResource PlainInputTextBox}"/>
+                                    </Border>
                                 </StackPanel>
 
                                 <StackPanel Grid.Row="0" Grid.Column="2">
-                                    <TextBlock Text="Civil Registry ID" Foreground="#6B778C" FontSize="12"/>
-                                    <TextBox Style="{StaticResource SoftTextBox}" Margin="0,6,0,0"
-                                     Text="{Binding SelectedPerson.CivilRegistryId, UpdateSourceTrigger=PropertyChanged}"/>
+                                    <TextBlock Text="Civil Registry ID" Style="{StaticResource FieldLabelText}"/>
+                                    <Border Style="{StaticResource InputBorderStyle}">
+                                        <TextBox Text="{Binding SelectedPerson.CivilRegistryId, UpdateSourceTrigger=PropertyChanged}"
+                                                 Style="{StaticResource PlainInputTextBox}"/>
+                                    </Border>
                                 </StackPanel>
 
                                 <!-- Row 1 -->
                                 <StackPanel Grid.Row="1" Grid.Column="0" Margin="0,14,0,0">
-                                    <TextBlock Text="First Name" Foreground="#6B778C" FontSize="12"/>
-                                    <TextBox Style="{StaticResource SoftTextBox}" Margin="0,6,0,0"
-                                     Text="{Binding SelectedPerson.FirstName, UpdateSourceTrigger=PropertyChanged}"/>
+                                    <TextBlock Text="First Name" Style="{StaticResource FieldLabelText}"/>
+                                    <Border Style="{StaticResource InputBorderStyle}">
+                                        <TextBox Text="{Binding SelectedPerson.FirstName, UpdateSourceTrigger=PropertyChanged}"
+                                                 Style="{StaticResource PlainInputTextBox}"/>
+                                    </Border>
                                 </StackPanel>
 
                                 <StackPanel Grid.Row="1" Grid.Column="2" Margin="0,14,0,0">
-                                    <TextBlock Text="Middle Name" Foreground="#6B778C" FontSize="12"/>
-                                    <TextBox Style="{StaticResource SoftTextBox}" Margin="0,6,0,0"
-                                     Text="{Binding SelectedPerson.MiddleName, UpdateSourceTrigger=PropertyChanged}"/>
+                                    <TextBlock Text="Middle Name" Style="{StaticResource FieldLabelText}"/>
+                                    <Border Style="{StaticResource InputBorderStyle}">
+                                        <TextBox Text="{Binding SelectedPerson.MiddleName, UpdateSourceTrigger=PropertyChanged}"
+                                                 Style="{StaticResource PlainInputTextBox}"/>
+                                    </Border>
                                 </StackPanel>
 
                                 <!-- Row 2 -->
                                 <StackPanel Grid.Row="2" Grid.Column="0" Margin="0,14,0,0">
-                                    <TextBlock Text="Gender" Foreground="#6B778C" FontSize="12"/>
-                                    <ComboBox Style="{StaticResource SoftCombo}" Margin="0,6,0,0"
-                                      ItemsSource="{Binding GenderOptions}"
-                                      SelectedItem="{Binding SelectedPerson.Gender, UpdateSourceTrigger=PropertyChanged}"/>
+                                    <TextBlock Text="Gender" Style="{StaticResource FieldLabelText}"/>
+                                    <ComboBox Style="{StaticResource ModernComboBox}"
+                                              ItemsSource="{Binding GenderOptions}"
+                                              SelectedItem="{Binding SelectedPerson.Gender, UpdateSourceTrigger=PropertyChanged}"/>
                                 </StackPanel>
 
                                 <StackPanel Grid.Row="2" Grid.Column="2" Margin="0,14,0,0">
-                                    <TextBlock Text="Last Name" Foreground="#6B778C" FontSize="12"/>
-                                    <TextBox Style="{StaticResource SoftTextBox}" Margin="0,6,0,0"
-                                     Text="{Binding SelectedPerson.LastName, UpdateSourceTrigger=PropertyChanged}"/>
+                                    <TextBlock Text="Last Name" Style="{StaticResource FieldLabelText}"/>
+                                    <Border Style="{StaticResource InputBorderStyle}">
+                                        <TextBox Text="{Binding SelectedPerson.LastName, UpdateSourceTrigger=PropertyChanged}"
+                                                 Style="{StaticResource PlainInputTextBox}"/>
+                                    </Border>
                                 </StackPanel>
 
                                 <!-- Row 3 -->
                                 <StackPanel Grid.Row="3" Grid.Column="0" Margin="0,14,0,0">
-                                    <TextBlock Text="Barangay" Foreground="#6B778C" FontSize="12"/>
-                                    <TextBox Style="{StaticResource SoftTextBox}" Margin="0,6,0,0"
-                                     Text="{Binding SelectedPerson.Barangay, UpdateSourceTrigger=PropertyChanged}"/>
+                                    <TextBlock Text="Barangay" Style="{StaticResource FieldLabelText}"/>
+                                    <Border Style="{StaticResource InputBorderStyle}">
+                                        <TextBox Text="{Binding SelectedPerson.Barangay, UpdateSourceTrigger=PropertyChanged}"
+                                                 Style="{StaticResource PlainInputTextBox}"/>
+                                    </Border>
                                 </StackPanel>
 
                                 <StackPanel Grid.Row="3" Grid.Column="2" Margin="0,14,0,0">
-                                    <TextBlock Text="Classification" Foreground="#6B778C" FontSize="12"/>
-                                    <ComboBox Style="{StaticResource SoftCombo}" Margin="0,6,0,0"
-                                      ItemsSource="{Binding ClassificationOptions}"
-                                      SelectedItem="{Binding SelectedPerson.Classification, UpdateSourceTrigger=PropertyChanged}"/>
+                                    <TextBlock Text="Classification" Style="{StaticResource FieldLabelText}"/>
+                                    <ComboBox Style="{StaticResource ModernComboBox}"
+                                              ItemsSource="{Binding ClassificationOptions}"
+                                              SelectedItem="{Binding SelectedPerson.Classification, UpdateSourceTrigger=PropertyChanged}"/>
                                 </StackPanel>
 
                                 <!-- Row 4 -->
                                 <StackPanel Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="3" Margin="0,14,0,0">
-                                    <TextBlock Text="Present Address" Foreground="#6B778C" FontSize="12"/>
-                                    <TextBox Style="{StaticResource SoftTextBox}" Margin="0,6,0,0"
-                                     Text="{Binding SelectedPerson.PresentAddress, UpdateSourceTrigger=PropertyChanged}"/>
+                                    <TextBlock Text="Present Address" Style="{StaticResource FieldLabelText}"/>
+                                    <Border Style="{StaticResource InputBorderStyle}">
+                                        <TextBox Text="{Binding SelectedPerson.PresentAddress, UpdateSourceTrigger=PropertyChanged}"
+                                                 Style="{StaticResource PlainInputTextBox}"/>
+                                    </Border>
                                 </StackPanel>
 
-                                <!-- ✅ Release History (NO inner scroll, modal body scroll handles it) -->
+                                <!-- Release History -->
                                 <StackPanel Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="3" Margin="0,22,0,0">
                                     <TextBlock Text="Release History"
-                                       Foreground="#2E3A59"
-                                       FontSize="13"
-                                       FontWeight="SemiBold"/>
+                                               Foreground="{StaticResource TextPrimaryBrush}"
+                                               FontSize="13"
+                                               FontWeight="SemiBold"/>
 
                                     <Border Margin="0,10,0,0"
-                                    Background="#F7F9FC"
-                                    BorderBrush="#EEF2FF"
-                                    BorderThickness="1"
-                                    CornerRadius="12"
-                                    Padding="14">
+                                            Background="#F8FAFC"
+                                            BorderBrush="{StaticResource BorderBrushSoft}"
+                                            BorderThickness="1"
+                                            CornerRadius="14"
+                                            Padding="14">
 
                                         <Grid>
-                                            <!-- Empty state -->
                                             <TextBlock Text="No releases yet."
-                                               Foreground="#6B778C"
-                                               FontSize="12">
+                                                       Foreground="{StaticResource TextSecondaryBrush}"
+                                                       FontSize="12">
                                                 <TextBlock.Style>
                                                     <Style TargetType="TextBlock">
                                                         <Setter Property="Visibility" Value="Visible"/>
@@ -953,7 +1153,6 @@
                                                 </TextBlock.Style>
                                             </TextBlock>
 
-                                            <!-- Timeline -->
                                             <ItemsControl ItemsSource="{Binding ReleaseHistory}">
                                                 <ItemsControl.Style>
                                                     <Style TargetType="ItemsControl">
@@ -974,17 +1173,16 @@
                                                                 <ColumnDefinition Width="*"/>
                                                             </Grid.ColumnDefinitions>
 
-                                                            <!-- Dot + line -->
                                                             <Grid Grid.Column="0">
                                                                 <Ellipse Width="10" Height="10"
-                                                                 Fill="#2E3A59"
-                                                                 VerticalAlignment="Top"
-                                                                 Margin="8,2,8,0"/>
+                                                                         Fill="{StaticResource AccentBrush}"
+                                                                         VerticalAlignment="Top"
+                                                                         Margin="8,2,8,0"/>
 
                                                                 <Border Width="2"
-                                                                Background="#E5ECFA"
-                                                                VerticalAlignment="Stretch"
-                                                                Margin="12,14,12,0">
+                                                                        Background="#E5ECFA"
+                                                                        VerticalAlignment="Stretch"
+                                                                        Margin="12,14,12,0">
                                                                     <Border.Style>
                                                                         <Style TargetType="Border">
                                                                             <Style.Triggers>
@@ -997,17 +1195,16 @@
                                                                 </Border>
                                                             </Grid>
 
-                                                            <!-- Content -->
                                                             <StackPanel Grid.Column="1">
                                                                 <TextBlock Text="{Binding ReleasedAtText}"
-                                                                   Foreground="#2E3A59"
-                                                                   FontWeight="SemiBold"/>
+                                                                           Foreground="{StaticResource TextPrimaryBrush}"
+                                                                           FontWeight="SemiBold"/>
 
                                                                 <TextBlock Text="{Binding Description}"
-                                                                   Foreground="#6B778C"
-                                                                   FontSize="12"
-                                                                   Margin="0,4,0,0"
-                                                                   TextWrapping="Wrap"/>
+                                                                           Foreground="{StaticResource TextSecondaryBrush}"
+                                                                           FontSize="12"
+                                                                           Margin="0,4,0,0"
+                                                                           TextWrapping="Wrap"/>
                                                             </StackPanel>
                                                         </Grid>
                                                     </DataTemplate>
@@ -1020,33 +1217,34 @@
                         </Grid>
                     </ScrollViewer>
 
-                    <!-- Footer buttons -->
+                    <!-- Footer -->
                     <StackPanel Grid.Row="2"
-                        Orientation="Horizontal"
-                        HorizontalAlignment="Right"
-                        Margin="0,18,0,0">
+                                Orientation="Horizontal"
+                                HorizontalAlignment="Right"
+                                Margin="0,18,0,0">
                         <Button Content="Save Profile"
-                        Style="{StaticResource OutlineButton}"
-                        Command="{Binding OpenSaveConfirmCommand}"/>
+                                Style="{StaticResource OutlineButton}"
+                                Command="{Binding OpenSaveConfirmCommand}"/>
                     </StackPanel>
                 </Grid>
             </Border>
         </Grid>
 
-        <!-- ============================= -->
-        <!-- SAVE PROFILE CONFIRM MODAL    -->
-        <!-- ============================= -->
+        <!-- SAVE PROFILE CONFIRM MODAL -->
         <Grid Panel.ZIndex="940"
-  Visibility="{Binding IsSaveConfirmOpen, Converter={StaticResource BoolToVis}}">
-            <Border Background="#80000000"/>
+              Visibility="{Binding IsSaveConfirmOpen, Converter={StaticResource BoolToVis}}">
+            <Border Background="#660F172A"/>
             <Button Style="{StaticResource BackdropButton}" Command="{Binding CloseSaveConfirmCommand}"/>
 
             <Border Width="520"
-        CornerRadius="18"
-        Background="White"
-        Padding="18"
-        HorizontalAlignment="Center"
-        VerticalAlignment="Center">
+                    CornerRadius="24"
+                    Background="White"
+                    BorderBrush="{StaticResource BorderBrushLighter}"
+                    BorderThickness="1"
+                    Padding="20"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    Effect="{StaticResource ModalShadow}">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
@@ -1061,48 +1259,47 @@
                         </Grid.ColumnDefinitions>
 
                         <TextBlock Text="Save Profile"
-                       FontSize="16"
-                       FontWeight="Bold"
-                       Foreground="#2E3A59"/>
+                                   FontSize="18"
+                                   FontWeight="Bold"
+                                   Foreground="{StaticResource TextPrimaryBrush}"/>
 
                         <Button Grid.Column="1"
-                    Content="✕"
-                    Width="28" Height="28"
-                    Background="Transparent"
-                    BorderBrush="Transparent"
-                    Cursor="Hand"
-                    Command="{Binding CloseSaveConfirmCommand}"/>
+                                Style="{StaticResource OutlineButton}"
+                                Width="34"
+                                Height="34"
+                                Padding="0"
+                                Command="{Binding CloseSaveConfirmCommand}">
+                            <TextBlock FontFamily="Segoe MDL2 Assets"
+                                       Text="&#xE8BB;"
+                                       FontSize="12"/>
+                        </Button>
                     </Grid>
 
                     <TextBlock Grid.Row="1"
-                   Text="Are you sure you want to save this profile?"
-                   Margin="0,14,0,0"
-                   Foreground="#2E3A59"
-                   TextWrapping="Wrap"/>
+                               Text="Are you sure you want to save this profile?"
+                               Margin="0,16,0,0"
+                               Foreground="{StaticResource TextPrimaryBrush}"
+                               TextWrapping="Wrap"/>
 
                     <StackPanel Grid.Row="2"
-                    Orientation="Horizontal"
-                    HorizontalAlignment="Center"
-                    Margin="0,18,0,0">
+                                Orientation="Horizontal"
+                                HorizontalAlignment="Center"
+                                Margin="0,18,0,0">
                         <Button Content="Cancel"
-                    Width="140" Height="40"
-                    Background="Transparent"
-                    BorderBrush="Transparent"
-                    Foreground="#2E3A59"
-                    FontWeight="SemiBold"
-                    Cursor="Hand"
-                    Command="{Binding CloseSaveConfirmCommand}"/>
+                                Width="140"
+                                Height="40"
+                                Style="{StaticResource OutlineButton}"
+                                Command="{Binding CloseSaveConfirmCommand}"/>
 
                         <Button Content="Confirm"
-                    Margin="18,0,0,0"
-                    Width="160" Height="40"
-                    Style="{StaticResource PrimaryButton}"
-                    Command="{Binding ConfirmSaveProfileCommand}"/>
+                                Margin="14,0,0,0"
+                                Width="160"
+                                Height="40"
+                                Style="{StaticResource PrimaryButton}"
+                                Command="{Binding ConfirmSaveProfileCommand}"/>
                     </StackPanel>
                 </Grid>
             </Border>
         </Grid>
-
     </Grid>
-
 </UserControl>
