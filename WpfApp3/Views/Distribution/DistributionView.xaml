@@ -688,22 +688,38 @@
                             </StackPanel>
                         </Grid>
 
-                        <!-- Classification -->
-                        <StackPanel Grid.Row="2" Margin="0,0,0,14">
-                            <TextBlock Text="Select Classification"
-                                       Style="{StaticResource FieldLabelText}"/>
+                        <!-- Classification + Report -->
+                        <Grid Grid.Row="2" Margin="0,0,0,14">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
 
-                            <Border Width="340"
-                                    HorizontalAlignment="Left"
-                                    CornerRadius="14"
-                                    BorderBrush="{StaticResource BorderBrushSoft}"
-                                    BorderThickness="1"
-                                    Background="#FCFDFE">
-                                <ComboBox ItemsSource="{Binding ClassificationOptions}"
-                                          SelectedItem="{Binding ReleaseSelectedClassification}"
-                                          Style="{StaticResource ModernComboBox}"/>
-                            </Border>
-                        </StackPanel>
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Text="Select Classification"
+                   Style="{StaticResource FieldLabelText}"/>
+
+                                <Border Width="340"
+                HorizontalAlignment="Left"
+                CornerRadius="14"
+                BorderBrush="{StaticResource BorderBrushSoft}"
+                BorderThickness="1"
+                Background="#FCFDFE">
+                                    <ComboBox ItemsSource="{Binding ClassificationOptions}"
+                      SelectedItem="{Binding ReleaseSelectedClassification}"
+                      Style="{StaticResource ModernComboBox}"/>
+                                </Border>
+                            </StackPanel>
+
+                            <Button Grid.Column="1"
+            Width="170"
+            Height="42"
+            Margin="16,20,0,0"
+            VerticalAlignment="Bottom"
+            Style="{StaticResource PrimaryButton}"
+            Command="{Binding GenerateReleaseReportCommand}"
+            Content="{Binding GenerateReportButtonText}"/>
+                        </Grid>
 
                         <!-- Release list -->
                         <Grid Grid.Row="3">

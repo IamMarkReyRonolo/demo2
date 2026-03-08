@@ -6,6 +6,7 @@ using System.IO;
 using System.Windows.Media.Imaging;
 using WpfApp3.Models;
 using WpfApp3.Services;
+using System.Windows;
 using static WpfApp3.ViewModels.Validators.ValidatorsViewModel;
 
 namespace WpfApp3.ViewModels.Distribution
@@ -14,6 +15,7 @@ namespace WpfApp3.ViewModels.Distribution
     {
         private readonly AllotmentsRepository _allotmentRepo = new();
         private readonly AllotmentBeneficiariesRepository _assignRepo = new();
+        private readonly ReleaseReportService _reportService = new();
 
         private List<BeneficiaryRecord> _cache = new();
 
@@ -90,6 +92,16 @@ namespace WpfApp3.ViewModels.Distribution
         public bool ConfirmHasProfileImage => ConfirmProfileImagePreview != null;
         public ObservableCollection<ReleaseHistoryItem> ConfirmReleaseHistory { get; } = new();
         public bool HasConfirmReleaseHistory => ConfirmReleaseHistory.Count > 0;
+
+        [ObservableProperty] private bool isGeneratingReport;
+
+        public string GenerateReportButtonText =>
+            IsGeneratingReport ? "Generating..." : "Generate Report";
+
+        partial void OnIsGeneratingReportChanged(bool value)
+        {
+            OnPropertyChanged(nameof(GenerateReportButtonText));
+        }
 
         public DistributionViewModel()
         {
@@ -236,6 +248,69 @@ namespace WpfApp3.ViewModels.Distribution
         }
 
         // ================= Commands =================
+
+        [RelayCommand]
+        private async Task GenerateReleaseReport()
+        {
+            if (IsGeneratingReport)
+                return;
+
+            if (SelectedProject is null)
+            {
+                ShowToast("Select a project first.", "warning");
+                return;
+            }
+
+            var reportRows = ReleaseFiltered().ToList();
+            if (reportRows.Count == 0)
+            {
+                ShowToast("No release records found for the current filter.", "warning");
+                return;
+            }
+
+            var fileName = SafeFileName(
+                $"{SelectedProject.ProjectName}-Release-Report-{DateTime.Now:yyyyMMdd-HHmm}");
+
+            var savePath = _reportService.PickSavePath(fileName);
+            if (string.IsNullOrWhiteSpace(savePath))
+                return;
+
+            try
+            {
+                IsGeneratingReport = true;
+
+                var reportData = BuildReleaseReportData(reportRows);
+                await Task.Run(() => _reportService.GeneratePdf(savePath, reportData));
+
+                ShowToast("Release report generated successfully.", "success");
+
+                var openNow = MessageBox.Show(
+                    "Release report saved successfully.\n\nOpen the PDF now?",
+                    "Open Release Report",
+                    MessageBoxButton.YesNo,
+                    MessageBoxImage.Question);
+
+                if (openNow == MessageBoxResult.Yes)
+                {
+                    try
+                    {
+                        _reportService.Open(savePath);
+                    }
+                    catch (Exception ex)
+                    {
+                        ShowToast($"PDF saved but could not be opened: {ex.Message}", "warning");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                ShowToast($"Failed to generate report: {ex.Message}", "error");
+            }
+            finally
+            {
+                IsGeneratingReport = false;
+            }
+        }
 
         [RelayCommand]
         private void OpenProjectDetails()
@@ -523,6 +598,100 @@ namespace WpfApp3.ViewModels.Distribution
             }
 
             OnPropertyChanged(nameof(HasConfirmReleaseHistory));
+        }
+
+        private ReleaseReportData BuildReleaseReportData(List<BeneficiaryRecord> rows)
+        {
+            var total = rows.Count;
+            var released = rows.Count(x => x.IsReleased);
+            var pending = total - released;
+
+            var classificationBreakdown = rows
+                .GroupBy(x => NormalizeLabel(x.Classification, "None"))
+                .OrderByDescending(g => g.Count())
+                .ThenBy(g => g.Key)
+                .Select(g => new ReleaseMetricItem
+                {
+                    Label = g.Key,
+                    Count = g.Count(),
+                    Amount = g.Sum(x => ParseAmount(x.ShareText)),
+                    Percent = total == 0 ? 0 : g.Count() * 100d / total
+                })
+                .ToList();
+
+            var barangayBreakdown = rows
+                .GroupBy(x => NormalizeLabel(x.Barangay, "Unspecified"))
+                .OrderByDescending(g => g.Count())
+                .ThenBy(g => g.Key)
+                .Take(5)
+                .Select(g => new ReleaseMetricItem
+                {
+                    Label = g.Key,
+                    Count = g.Count(),
+                    Amount = g.Sum(x => ParseAmount(x.ShareText)),
+                    Percent = total == 0 ? 0 : g.Count() * 100d / total
+                })
+                .ToList();
+
+            var beneficiaries = rows
+                .OrderBy(x => x.IsReleased)
+                .ThenBy(x => x.LastName)
+                .ThenBy(x => x.FirstName)
+                .Select(x => new ReleaseBeneficiaryItem
+                {
+                    BeneficiaryId = x.BeneficiaryId ?? "",
+                    FullName = $"{x.FirstName} {x.LastName}".Trim(),
+                    Barangay = NormalizeLabel(x.Barangay, "Unspecified"),
+                    Classification = NormalizeLabel(x.Classification, "None"),
+                    ShareText = x.ShareText ?? "-",
+                    ReleasedText = x.ReleasedText ?? (x.IsReleased ? "Released" : "Not Released")
+                })
+                .ToList();
+
+            return new ReleaseReportData
+            {
+                ProjectName = SelectedProject?.ProjectName ?? "Release Report",
+                TotalBudgetText = SelectedProject?.TotalBudgetText ?? "-",
+                ClassificationFilter = NormalizeLabel(ReleaseSelectedClassification, "All"),
+                GeneratedAt = DateTime.Now,
+                TotalBeneficiaries = total,
+                ReleasedCount = released,
+                PendingCount = pending,
+                ReleasedAmount = rows.Where(x => x.IsReleased).Sum(x => ParseAmount(x.ShareText)),
+                PendingAmount = rows.Where(x => !x.IsReleased).Sum(x => ParseAmount(x.ShareText)),
+                ClassificationBreakdown = classificationBreakdown,
+                BarangayBreakdown = barangayBreakdown,
+                Beneficiaries = beneficiaries
+            };
+        }
+
+        private static decimal ParseAmount(string? text)
+        {
+            if (string.IsNullOrWhiteSpace(text))
+                return 0m;
+
+            var cleaned = new string(text
+                .Where(c => char.IsDigit(c) || c == '.' || c == ',' || c == '-')
+                .ToArray())
+                .Replace(",", "");
+
+            return decimal.TryParse(cleaned, NumberStyles.Any, CultureInfo.InvariantCulture, out var value)
+                ? value
+                : 0m;
+        }
+
+        private static string NormalizeLabel(string? value, string fallback)
+        {
+            var text = (value ?? "").Trim();
+            return string.IsNullOrWhiteSpace(text) ? fallback : text;
+        }
+
+        private static string SafeFileName(string value)
+        {
+            foreach (var c in Path.GetInvalidFileNameChars())
+                value = value.Replace(c, '-');
+
+            return value;
         }
     }
 }
