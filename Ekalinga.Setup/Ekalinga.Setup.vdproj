@@ -56,6 +56,14 @@
             "PrerequisitesLocation" = "2:1"
             "Url" = "8:"
             "ComponentsUrl" = "8:"
+                "Items"
+                {
+                    "{EDC2488A-8267-493A-A98E-7D9C3B36CDF3}:.NETFramework,Version=v4.7.2"
+                    {
+                    "Name" = "8:Microsoft .NET Framework 4.7.2 (x86 and x64)"
+                    "ProductCode" = "8:.NETFramework,Version=v4.7.2"
+                    }
+                }
             }
         }
         "Release"
@@ -215,9 +223,9 @@
         "Product"
         {
         "Name" = "8:Microsoft Visual Studio"
-        "ProductName" = "8:Ekalinga.Setup"
+        "ProductName" = "8:Ekalinga Management System"
         "ProductCode" = "8:{8AF3F31B-3514-4DAB-9DF8-FC56C7A2AE2F}"
-        "PackageCode" = "8:{EF6B68ED-1A9E-4D21-A828-827396F6E37E}"
+        "PackageCode" = "8:{FA680221-FB2B-463D-BF4C-E74BC9659D3F}"
         "UpgradeCode" = "8:{7021FDD4-AE74-4C75-98F4-5154817FEDC8}"
         "AspNetVersion" = "8:2.0.50727.0"
         "RestartWWWService" = "11:FALSE"
@@ -228,7 +236,7 @@
         "Manufacturer" = "8:ArjunCodilla"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:"
-        "Title" = "8:Ekalinga.Setup"
+        "Title" = "8:Ekalinga Management System"
         "Subject" = "8:"
         "ARPCONTACT" = "8:Arjun Codilla"
         "Keywords" = "8:"
@@ -766,7 +774,7 @@
         {
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_6E31CFA585EB443D902A4DDC98268EDD"
             {
-            "SourcePath" = "8:..\\WpfApp3\\obj\\Release\\net8.0-windows7.0\\win-x64\\apphost.exe"
+            "SourcePath" = "8:..\\WpfApp3\\obj\\Debug\\net8.0-windows7.0\\win-x64\\apphost.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_240D23C121A34244976D81A3B759798F"

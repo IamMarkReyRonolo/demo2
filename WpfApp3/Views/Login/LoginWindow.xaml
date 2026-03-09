@@ -12,7 +12,8 @@
         UseLayoutRounding="True"
         SnapsToDevicePixels="True"
         TextOptions.TextFormattingMode="Display"
-        TextOptions.TextRenderingMode="ClearType">
+        TextOptions.TextRenderingMode="ClearType"
+        Icon="/Views/Login/ekaling.png">
 
     <Window.DataContext>
         <vm:LoginViewModel/>

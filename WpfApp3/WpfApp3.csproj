@@ -9,6 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="ekaling.png" />
     <None Remove="Views\Login\ekaling.png" />
   </ItemGroup>
 
@@ -28,6 +29,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Resource Include="ekaling.png" />
     <Resource Include="Views\Login\ekaling.png" />
   </ItemGroup>
 
